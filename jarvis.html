@@ -184,6 +184,7 @@ button.plain.on{background:var(--amber);color:#141005;border-color:var(--amber)}
       <div class="readout" id="readout">BOOTING<span class="cursor"></span></div>
       <div class="hint" id="hint">TAP RADAR · HOLD <b>SPACE</b> · OR ENABLE <b>WAKE WORD</b> AND SAY "HI JARVIS"</div>
       <div class="keys">
+        <button onclick="handleCommand('my plan today')">TODAY</button>
         <button onclick="handleCommand('status report')">STATUS</button>
         <button onclick="handleCommand('what is next for one safe')">ONESAFE</button>
         <button onclick="handleCommand('what is next for little sprout')">SPROUT</button>
@@ -443,6 +444,41 @@ async function handleCommand(text){
     const p=d[k];
     replyLocal(`${p.title.split("—")[0].trim()}. Phase: ${p.phase}. Next step, ${state.user}: ${p.current}`+(p.flags.length?` Also flagged: ${p.flags[0]}.`:""));
     renderTasks(k);return;}
+  // ---- daily brief + todos ----
+  if(/(plan|brief|supposed to do|to ?do|things to do|my day|daily)/.test(low) && !/add|new|complete|done|finish/.test(low)){
+    setReadout("Compiling your day…");
+    try{
+      const b=(await (await fetch(SB+"/daily_brief?select=brief_date,lines&order=id.desc&limit=1",{headers:SBH})).json())[0];
+      const todos=await (await fetch(SB+"/todo?select=id,text,done&order=id&limit=20",{headers:SBH})).json();
+      const open=todos.filter(t=>!t.done);
+      const d=projSummary();
+      const items=[...(b?b.lines.map(l=>({h:l,s:"daily brief"})):[]),
+        ...open.map(t=>({h:t.text,s:"to-do"}))];
+      renderFeed("TODAY",items);
+      let msg=`Here is your day, ${state.user}. `;
+      if(b) msg+=b.lines.slice(0,3).join(" ")+" ";
+      msg+=open.length?`You have ${open.length} to-dos: ${open.slice(0,3).map(t=>t.text).join("; ")}.`:"No open to-dos.";
+      if(d){const fl=Object.values(d).reduce((a,p)=>a+p.flags.length,0); if(fl)msg+=` ${fl} roadmap items flagged for follow-up.`;}
+      replyLocal(msg);
+    }catch(e){replyLocal("I couldn't reach the daily memory. Check the connection.");}
+    return;}
+  m=low.match(/(?:add|new)\s+(?:a\s+)?(?:task|to ?do)[:,]?\s+(.+)/);
+  if(m){
+    try{
+      await fetch(SB+"/todo",{method:"POST",headers:{...SBH,"Content-Type":"application/json",Prefer:"return=minimal"},body:JSON.stringify({text:m[1].trim()})});
+      replyLocal(`Logged, ${state.user}: ${m[1].trim()}.`);
+    }catch(e){replyLocal("Couldn't save that task.");}
+    return;}
+  m=low.match(/(?:complete|done with|finish|tick)\s+(?:task\s+)?(.+)/);
+  if(m&&/task|to ?do|complete|done with|finish/.test(low)){
+    try{
+      const term=m[1].trim().replace(/[.?!]$/,"");
+      const rows=await (await fetch(SB+"/todo?select=id,text&done=eq.false&text=ilike.*"+encodeURIComponent(term.split(" ").slice(0,3).join("*"))+"*&limit=1",{headers:SBH})).json();
+      if(!rows.length){replyLocal("I couldn't find that task on the list.");return;}
+      await fetch(SB+"/todo?id=eq."+rows[0].id,{method:"PATCH",headers:{...SBH,"Content-Type":"application/json",Prefer:"return=minimal"},body:JSON.stringify({done:true})});
+      replyLocal(`Marked complete: ${rows[0].text}. Well done, ${state.user}.`);
+    }catch(e){replyLocal("Couldn't update the task.");}
+    return;}
   m=low.match(/(?:search|find|look up)\s+(.+?)(?:\s+(?:hazards?|msra|in one ?safe))?$/);
   if(m&&/(search|find|look up)/.test(low)){
     const term=m[1].replace(/hazards?|msra|in one ?safe/g,"").trim();
