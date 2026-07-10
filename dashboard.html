@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Karthik · Mission Control</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#070B14; --panel:rgba(255,255,255,.045); --panel2:rgba(255,255,255,.07); --line:rgba(255,255,255,.09);
+  --ink:#E6EBF5; --dim:#8B94A9; --cyan:#22D3EE; --violet:#A78BFA; --green:#34D399; --amber:#FBBF24; --pink:#F472B6; --red:#F87171;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Space Grotesk',system-ui,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;padding:22px;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;background:
+  radial-gradient(700px 400px at 85% -5%, rgba(167,139,250,.14), transparent 60%),
+  radial-gradient(700px 420px at -5% 100%, rgba(34,211,238,.10), transparent 60%),
+  repeating-linear-gradient(0deg, transparent 0 39px, rgba(255,255,255,.02) 39px 40px),
+  repeating-linear-gradient(90deg, transparent 0 39px, rgba(255,255,255,.02) 39px 40px);
+  pointer-events:none;z-index:0}
+.wrap{max-width:1240px;margin:0 auto;position:relative;z-index:1}
+header{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:14px;margin-bottom:20px}
+.hello h1{font-size:26px;font-weight:700;letter-spacing:.02em}
+.hello h1 span{background:linear-gradient(90deg,var(--cyan),var(--violet));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hello p{color:var(--dim);font-size:13px;margin-top:2px;font-family:'JetBrains Mono',monospace}
+.hud{display:flex;gap:10px;flex-wrap:wrap}
+.chip{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:8px 16px;text-align:center;backdrop-filter:blur(8px)}
+.chip b{font-size:20px;display:block;font-family:'JetBrains Mono',monospace}
+.chip small{color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.12em}
+.chip.flag b{color:var(--red)}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}
+.w{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px;backdrop-filter:blur(10px);position:relative;overflow:hidden;transition:border-color .25s, transform .25s}
+.w:hover{border-color:rgba(255,255,255,.2);transform:translateY(-2px)}
+.w::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--ac,#22D3EE),transparent);opacity:.7}
+.w h2{font-size:15px;font-weight:700;letter-spacing:.03em;display:flex;align-items:center;gap:8px}
+.w h2 .dot{width:8px;height:8px;border-radius:50%;background:var(--ac);box-shadow:0 0 10px var(--ac)}
+.w .sub{color:var(--dim);font-size:12px;margin-top:2px}
+.span4{grid-column:span 4}.span6{grid-column:span 6}.span8{grid-column:span 8}.span12{grid-column:span 12}
+@media(max-width:980px){.span4,.span6,.span8{grid-column:span 12}}
+.appw .top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.ringbox{position:relative;width:64px;height:64px;flex-shrink:0}
+.ringbox svg{transform:rotate(-90deg)}
+.ringbox .pct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600}
+.phase{font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--ac);margin-top:10px;text-transform:uppercase;letter-spacing:.1em}
+.here-step{margin-top:6px;background:var(--panel2);border:1px solid var(--line);border-left:3px solid var(--ac);border-radius:10px;padding:9px 12px;font-size:13px;line-height:1.45}
+.here-step b{color:var(--ac);font-size:10px;letter-spacing:.1em;display:block;margin-bottom:2px}
+ul.next{list-style:none;margin-top:10px}
+ul.next li{display:flex;gap:9px;align-items:flex-start;padding:6px 2px;font-size:13px;color:#C7CEDD;line-height:1.4}
+ul.next input{accent-color:#22D3EE;width:14px;height:14px;margin-top:3px;cursor:pointer;flex-shrink:0}
+ul.next li.f label::after{content:" ⚑";color:var(--red)}
+ul.next label{cursor:pointer}
+.wfoot{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:var(--panel2);color:var(--ink);font-family:inherit;font-size:12px;font-weight:600;padding:7px 14px;border-radius:10px;cursor:pointer;transition:background .2s}
+.btn:hover{background:rgba(255,255,255,.12)}
+.btn.ac{border-color:transparent;background:var(--ac);color:#06121A}
+.money-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;border-bottom:1px dashed var(--line);font-size:13px}
+.money-row:last-child{border-bottom:none}
+.money-row .model{color:var(--dim);font-size:11.5px}
+.money-row input{width:90px;background:var(--panel2);border:1px solid var(--line);color:var(--green);border-radius:8px;padding:5px 8px;font-family:'JetBrains Mono',monospace;font-size:12px;text-align:right}
+.money-row input:focus{outline:none;border-color:var(--green)}
+.links{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.links a{display:flex;justify-content:space-between;align-items:center;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:9px 13px;color:var(--ink);text-decoration:none;font-size:13px;transition:border-color .2s}
+.links a:hover{border-color:var(--cyan)}
+.links a small{color:var(--dim);font-size:11px}
+.tipbox{margin-top:12px}
+.tip{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 13px;font-size:12.5px;line-height:1.5;color:#C7CEDD}
+.tip code{font-family:'JetBrains Mono',monospace;color:var(--cyan);font-size:11.5px;background:rgba(34,211,238,.1);padding:1px 6px;border-radius:6px}
+.playbook{display:none;margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+.playbook.open{display:block}
+.playbook .step{display:flex;gap:10px;font-size:12.5px;color:#C7CEDD;padding:5px 0;line-height:1.45}
+.playbook .n{font-family:'JetBrains Mono',monospace;color:var(--ac);font-size:11px;min-width:18px;padding-top:1px}
+.overlay{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;padding:20px}
+.overlay.open{display:flex}
+.overlay .back{position:absolute;inset:0;background:rgba(3,6,12,.75);backdrop-filter:blur(4px)}
+.sheet{position:relative;background:#0C1220;border:1px solid var(--line);width:min(760px,100%);max-height:90vh;border-radius:20px;overflow-y:auto;padding:24px}
+.sheet h3{font-size:20px;margin-bottom:2px}
+.sheet .sub{color:var(--dim);font-size:13px;margin-bottom:14px}
+.close{position:absolute;top:16px;right:16px;border:1px solid var(--line);background:var(--panel2);color:var(--dim);width:34px;height:34px;border-radius:50%;font-size:15px;cursor:pointer}
+.ph{margin-top:14px}
+.ph .ph-head{display:flex;align-items:center;gap:9px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);margin-bottom:4px}
+.ph .num{background:var(--ac);color:#06121A;border-radius:50%;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-family:'JetBrains Mono',monospace}
+.ph .num.done{background:var(--green)}
+.ph .step{display:flex;gap:9px;align-items:flex-start;padding:6px 4px 6px 12px;font-size:13.5px;border-left:2px solid transparent;border-radius:8px;line-height:1.45}
+.ph .step:hover{background:var(--panel)}
+.ph .step.cur{background:rgba(34,211,238,.07);border-left:2px solid var(--ac)}
+.ph .step.done label{text-decoration:line-through;color:var(--dim)}
+.ph .step input{accent-color:#22D3EE;width:15px;height:15px;margin-top:3px;cursor:pointer;flex-shrink:0}
+.ph .step label{flex:1;cursor:pointer}
+.ph .flag{font-size:10px;color:var(--red);border:1px solid var(--red);border-radius:8px;padding:1px 6px;cursor:pointer;align-self:center}
+.ph .flag.off{color:#3a4356;border-color:#3a4356}
+footer{text-align:center;color:var(--dim);font-size:11.5px;margin-top:24px;font-family:'JetBrains Mono',monospace}
+@media(max-width:700px){body{padding:14px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="hello">
+    <h1>KARTHIK <span>// MISSION CONTROL</span></h1>
+    <p id="clock">—</p>
+  </div>
+  <div class="hud">
+    <div class="chip"><b id="hOpen">0</b><small>Open</small></div>
+    <div class="chip"><b id="hDone" style="color:var(--green)">0</b><small>Done</small></div>
+    <div class="chip flag"><b id="hFlag">0</b><small>Follow-up</small></div>
+    <div class="chip"><b id="hPct" style="color:var(--cyan)">0%</b><small>Journey</small></div>
+  </div>
+</header>
+
+<div class="grid" id="grid"></div>
+
+<footer>MISSION CONTROL v3 · ticks &amp; notes save in this browser · ask Claude to update this file anytime</footer>
+</div>
+<div class="overlay" id="overlay"><div class="back" onclick="closeOv()"></div><div class="sheet" id="sheet"></div></div>
+
+<script>
+/*DAILY_BRIEF_START*/
+const DAILY_BRIEF = {date:"10 Jul 2026", lines:["📊 Little Sprout survey: 15/30 real responses (2 test rows excluded) — halfway there. Need 15 more to hit target.","📬 Inbox: Coursiv ChatGPT certificate issued — post it on LinkedIn for free social proof. No Skai / SafeFrame / Supabase signals needing action.","🎯 Today's focus → Little Sprout: drop the survey link into 3 new mum/parent WhatsApp or Facebook groups and close that 15-response gap.","⏳ 1–2 month clock is running. Momentum beats perfection — one concrete win a day gets all three apps live."]};
+/*DAILY_BRIEF_END*/
+const PROJECTS = [
+  {
+    id:"safeframe", accent:"#22D3EE", tag:"One-stop safety platform", title:"SafeFrame",
+    desc:"One platform for all safety personnel — WSH coordinators, officers, managers. The MSRA knowledge base powers the app: AI documents grounded in your real company MSRAs, not generic text.",
+    hint:"Knowledge base now at 3,639 hazard rows across 129 activities, fully anonymized (MSRA_Full_Output). App code in SafeFrame_Toolkit.",
+    phases:[
+      {name:"Build the knowledge base", steps:[
+        {t:"QA & de-dupe the 10 POC activities in MSRA_Master.xlsx (491 hazard rows)", f:true},
+        {t:"Fix Electrical & LOTO extraction — subcontractor SWP uses a different table template", f:true},
+        {t:"Run extraction on the remaining folders — DONE 8 Jul: 3,639 rows / 129 activities, anonymized", f:false, d:true},
+        {t:"Second-pass the 12 flagged folders (11 new-template 2025-26 submissions + Electrical/LOTO)", f:true},
+        {t:"Spot-check S/L/RPN values in rotated-header templates before publishing", f:false},
+        {t:"Decide on the 220MB scanned Bored Piling PDF — OCR or skip", f:false}
+      ]},
+      {name:"Wire the knowledge base into the app", steps:[
+        {t:"Anonymize content — names removed, roles kept (done for POC batch 8 Jul; make it standard for the 131 remaining)", f:false, d:true},
+        {t:"Load the anonymized MSRA JSONs into Supabase — DONE 9 Jul: own project 'safeframe', 129 activities / 3,639 rows, search tested", f:false, d:true},
+        {t:"MSRA tab: search by activity (e.g. 'excavation') → pull draft → customize → export", f:true},
+        {t:"Toolbox tab: per-activity toolbox talk (hazards, controls, dos/don'ts) generated from the library", f:false},
+        {t:"Translate toolbox talks: English, Chinese, Bengali, Tamil, Burmese, Thai (native-speaker spot-check before selling)", f:false},
+        {t:"PE designs tab: generic educational examples only — never real endorsed drawings", f:false},
+        {t:"Make AI generation pull from real company MSRAs when drafting risk assessments (RAG)", f:false}
+      ]},
+      {name:"Full safety suite (OneSafe modules)", steps:[
+        {t:"Company logins: each company gets its own workspace (Supabase auth)", f:false},
+        {t:"Safety Inspections module: checklist formats (crane STO, excavation, scaffold…) — build from your real STO checklists", f:false},
+        {t:"Registers module: lifting gear, machinery, training — with certificate expiry alerts", f:false},
+        {t:"Permit-to-Work module: apply → assess → approve → close workflow", f:false}
+      ]},
+      {name:"Make the app fully independent", steps:[
+        {t:"Swap AI from Lovable gateway to own Gemini/Claude API key", f:true},
+        {t:"Proper Word (.docx) and PDF export — not just browser print", f:true},
+        {t:"Decide hosting: Lovable publish via GitHub sync, or deploy to Cloudflare", f:false}
+      ]},
+      {name:"Roll out to safety teams", steps:[
+        {t:"Team accounts & roles: coordinator / officer / manager views", f:false},
+        {t:"Pilot with a few colleagues; collect feedback", f:false},
+        {t:"Regulation region switcher (Singapore live, add others later)", f:false}
+      ]},
+      {name:"Commercialize", steps:[
+        {t:"Stripe billing for Pro tier (unlimited generations)", f:false},
+        {t:"Set pricing for individuals vs company teams", f:false},
+        {t:"Marketing: LinkedIn/WSH community outreach", f:false}
+      ]}
+    ],
+    money:"Subscription SaaS — free 5 docs/month, Pro ~S$15–30/mo, team plans per seat",
+    playbook:[
+      ["Finish the knowledge base (QA + load into Supabase)","The 3,639-row library is your moat — no competitor has it"],
+      ["Swap the AI key + wire RAG so documents cite real MSRAs","App now works fully outside Lovable"],
+      ["Pilot free with 5–10 safety officers you know","Their feedback + testimonials = your launch material"],
+      ["Turn on Stripe: Pro tier for individuals, seats for companies","MONEY: recurring subscriptions"],
+      ["Market where safety people live: LinkedIn, WSH forums, word of mouth on site","Each construction project = multiple potential team accounts"]
+    ],
+    notes:""
+  },
+  {
+    id:"sprout", accent:"#34D399", tag:"App project", title:"Little Sprout",
+    desc:"App for new mothers, expecting parents and those trying for a baby.",
+    hint:"Survey is live with first responses. Redesigned journey-card page is in Desktop/Little Sprout.",
+    phases:[
+      {name:"Validate with real people", steps:[
+        {t:"Create Google Form survey — DONE: 'New Parent Survey — Singapore' is live with first responses", f:false, d:true},
+        {t:"Define exactly who the target audience is (first-time mums? trying-to-conceive? all three?)", f:false},
+        {t:"Share survey (mum groups, friends, social) and collect 30+ responses", f:true}
+      ]},
+      {name:"Analyze & decide", steps:[
+        {t:"Analyze the feedback with Claude — what do they actually want and would pay for?", f:false},
+        {t:"Decide the feature list: what goes in, what gets cut", f:false}
+      ]},
+      {name:"Build", steps:[
+        {t:"Work the chosen features into the app with Claude", f:false},
+        {t:"Complete the app to a testable version", f:false}
+      ]},
+      {name:"Check & validate", steps:[
+        {t:"Full page-by-page checking and validation (works on phones, no broken screens)", f:false},
+        {t:"Beta test with a small group from the survey respondents", f:false}
+      ]},
+      {name:"Secure, sell & advertise", steps:[
+        {t:"Secure it: user accounts, data privacy (health data is sensitive!), terms of use", f:false},
+        {t:"Decide selling model: free + premium, one-time, or subscription", f:false},
+        {t:"Set up advertising: social media ads targeted at expecting parents", f:false}
+      ]}
+    ],
+    money:"One-time S$10–30 (what your survey respondents said they'd pay) or freemium",
+    playbook:[
+      ["Get 30+ real survey responses (share in mum groups, office, family)","Free market research — people already say they'd pay S$10–30"],
+      ["Analyze with Claude → lock the feature list","Build only what they said they'd pay for"],
+      ["Build & beta test with survey respondents who left emails","They're your first customers AND testers"],
+      ["Put it on a real web address, then app stores later","MONEY: one-time unlock or premium tier"],
+      ["Advertise: Instagram/TikTok ads to expecting parents SG, partner with mum influencers","Dads-included angle is your differentiator"]
+    ],
+    notes:""
+  },
+  {
+    id:"skai", accent:"#FBBF24", tag:"E-commerce", title:"Skai — Dropshipping",
+    desc:"Learning to find products and make money from dropshipping.",
+    hint:"Page Pilot account ready (created 7 Jul under skai.org2419@gmail.com). Your Coursiv lessons feed straight into Phase 1.",
+    phases:[
+      {name:"Learn the game", steps:[
+        {t:"Understand the basics: product research, supplier vetting, margins, ad costs", f:false},
+        {t:"Product-research session with Claude: trending niches + criteria for winning products", f:true}
+      ]},
+      {name:"Pick products", steps:[
+        {t:"Shortlist 3–5 candidate products with cost, sell price and margin worked out", f:false},
+        {t:"Verify suppliers and shipping times for the shortlist", f:false}
+      ]},
+      {name:"Set up the store", steps:[
+        {t:"Pick platform (Shopify / Page Pilot) and register store name", f:false},
+        {t:"Build product pages — Claude drafts copy and ad angles", f:false}
+      ]},
+      {name:"First sales", steps:[
+        {t:"Set a small test ad budget (decide the number before spending)", f:false},
+        {t:"Launch first ads, track results daily", f:false}
+      ]},
+      {name:"Scale what works", steps:[
+        {t:"Kill losing products, reinvest in winners", f:false}
+      ]}
+    ],
+    money:"Margin per sale — buy low from supplier, sell higher, ads in between",
+    playbook:[
+      ["Learn product research properly (Coursiv + Claude sessions)","Most people lose money by skipping this step"],
+      ["Shortlist 3–5 products with real margin math (cost + shipping + ads < price)","If the math doesn't work on paper it won't work live"],
+      ["Build the store with Page Pilot / Shopify — Claude writes the copy","Professional pages = trust = conversions"],
+      ["Test with a SMALL fixed ad budget, kill losers fast","MONEY: profit per sale; treat first budget as tuition"],
+      ["Scale only proven winners, reinvest profits","This is where dropshipping actually pays"]
+    ],
+    notes:""
+  },
+  {
+    id:"coursiv", accent:"#F472B6", tag:"Learning", title:"Coursiv — AI Mastery",
+    desc:"ChatGPT & Apps course: 2/13 lessons (15%) as of 8 Jul 2026. Streak active.",
+    hint:"After this course: 'AI Side Hustle' and 'AI Copywriting' — both feed directly into Skai.",
+    phases:[
+      {name:"ChatGPT & Apps course", steps:[
+        {t:"Complete lesson 3", f:true},
+        {t:"Keep the daily streak — 20–30 min at a fixed time", f:false},
+        {t:"Reach halfway (7/13 lessons)", f:false},
+        {t:"Finish all 13 lessons", f:false}
+      ]},
+      {name:"Apply & continue", steps:[
+        {t:"After each lesson, note 1 thing to apply to Skai or Little Sprout", f:false},
+        {t:"Start next course: AI Side Hustle or AI Copywriting", f:false}
+      ]}
+    ],
+    money:"", playbook:null, notes:""
+  },
+  {
+    id:"other", accent:"#A78BFA", tag:"Everything else", title:"Other Activities",
+    desc:"Anything outside the main projects — add steps as they come up.",
+    hint:"",
+    phases:[
+      {name:"Backlog", steps:[
+        {t:"Connect Claude connectors that need auth (Notion, Asana, Slack…) if you plan to use those plugins", f:false}
+      ]}
+    ],
+    money:"", playbook:null, notes:""
+  }
+];
+
+const KEY="karthik_dashboard_v2";
+let state=load();
+function load(){
+  try{
+    const s=JSON.parse(localStorage.getItem(KEY));
+    if(s&&s.projects){
+      PROJECTS.forEach(dp=>{
+        const sp=s.projects.find(p=>p.id===dp.id);
+        if(!sp){s.projects.push(JSON.parse(JSON.stringify(dp)));return;}
+        sp.title=dp.title;sp.desc=dp.desc;sp.hint=dp.hint;sp.tag=dp.tag;sp.accent=dp.accent;sp.money=dp.money;sp.playbook=dp.playbook;
+        dp.phases.forEach(dph=>{
+          const sph=sp.phases.find(x=>x.name===dph.name);
+          if(!sph){sp.phases.push(JSON.parse(JSON.stringify(dph)));return;}
+          dph.steps.forEach(ds=>{ if(!sph.steps.some(t=>t.t===ds.t)) sph.steps.push({...ds,d:!!ds.d}); });
+        });
+      });
+      s.projects.sort((a,b)=>PROJECTS.findIndex(p=>p.id===a.id)-PROJECTS.findIndex(p=>p.id===b.id));
+      return s;
+    }
+  }catch(e){}
+  return {projects:JSON.parse(JSON.stringify(PROJECTS))};
+}
+let targets={}; try{targets=JSON.parse(localStorage.getItem(KEY+"_targets"))||{}}catch(e){}
+function save(){localStorage.setItem(KEY,JSON.stringify(state));render();}
+function esc(s){return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;");}
+const flat=p=>p.phases.flatMap(ph=>ph.steps);
+const doneN=p=>flat(p).filter(t=>t.d).length;
+const curStep=p=>{for(const ph of p.phases){for(const st of ph.steps){if(!st.d)return {ph,st}}}return null;};
+
+function ring(pct,ac){
+  const r=26,c=2*Math.PI*r;
+  return `<div class="ringbox"><svg width="64" height="64"><circle cx="32" cy="32" r="${r}" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="5"/><circle cx="32" cy="32" r="${r}" fill="none" stroke="${ac}" stroke-width="5" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${c*(1-pct)}" style="filter:drop-shadow(0 0 5px ${ac})"/></svg><div class="pct">${Math.round(pct*100)}%</div></div>`;
+}
+function appWidget(p, span){
+  const tot=flat(p).length, d=doneN(p), cur=curStep(p);
+  const nexts=flat(p).filter(t=>!t.d).slice(1,4);
+  return `<div class="w appw span${span}" style="--ac:${p.accent}">
+    <div class="top"><div><h2><span class="dot"></span>${esc(p.title)}</h2><div class="sub">${esc(p.tag)}</div></div>${ring(tot?d/tot:0,p.accent)}</div>
+    ${cur?`<div class="phase">▸ ${esc(cur.ph.name)}</div><div class="here-step"><b>YOU ARE HERE</b>${esc(cur.st.t)}</div>`:`<div class="here-step"><b>🎉 COMPLETE</b>All steps done</div>`}
+    <ul class="next">${nexts.map(t=>{
+      const gi=flat(p).indexOf(t);
+      return `<li class="${t.f?'f':''}"><input type="checkbox" data-p="${p.id}" data-g="${gi}" onchange="tick(this)"><label>${esc(t.t)}</label></li>`;}).join("")}</ul>
+    <div class="wfoot">
+      <button class="btn ac" onclick="openOv('${p.id}')">Full roadmap</button>
+      ${p.playbook?`<button class="btn" onclick="this.closest('.w').querySelector('.playbook').classList.toggle('open')">💡 Build &amp; earn playbook</button>`:""}
+    </div>
+    ${p.playbook?`<div class="playbook">${p.playbook.map((s,i)=>`<div class="step"><span class="n">0${i+1}</span><span>${esc(s[0])}<br><span style="color:${s[1].startsWith('MONEY')?'var(--green)':'var(--dim)'};font-size:11.5px">${esc(s[1])}</span></span></div>`).join("")}</div>`:""}
+  </div>`;
+}
+function tick(cb){
+  const p=state.projects.find(x=>x.id===cb.dataset.p);
+  flat(p)[+cb.dataset.g].d=cb.checked; save();
+}
+function moneyWidget(){
+  const rows=[["safeframe","SafeFrame"],["sprout","Little Sprout"],["skai","Skai"]].map(([id,name])=>{
+    const p=state.projects.find(x=>x.id===id);
+    return `<div class="money-row"><div><b>${name}</b><div class="model">${esc(p.money)}</div></div>
+      <div style="text-align:right"><div style="font-size:10px;color:var(--dim);letter-spacing:.08em">TARGET S$/MO</div>
+      <input value="${esc(targets[id]||"")}" placeholder="0" onchange="targets['${id}']=this.value;localStorage.setItem(KEY+'_targets',JSON.stringify(targets))"></div></div>`;
+  }).join("");
+  return `<div class="w span4" style="--ac:var(--green)"><h2><span class="dot"></span>Money Engine</h2><div class="sub">How each app earns — set your monthly targets</div><div style="margin-top:10px">${rows}</div></div>`;
+}
+function coursivWidget(){
+  const p=state.projects.find(x=>x.id==="coursiv");
+  const tot=flat(p).length,d=doneN(p);const cur=curStep(p);
+  return `<div class="w span4" style="--ac:#F472B6"><div class="top"><div><h2><span class="dot"></span>Coursiv</h2><div class="sub">ChatGPT &amp; Apps · 2/13 lessons · streak 🔥</div></div>${ring(tot?d/tot:0,"#F472B6")}</div>
+  ${cur?`<div class="here-step" style="margin-top:12px"><b>NEXT</b>${esc(cur.st.t)}</div>`:""}
+  <div class="wfoot"><button class="btn ac" onclick="openOv('coursiv')">Open</button><button class="btn" onclick="openOv('other')">Other activities</button></div></div>`;
+}
+function linksWidget(){
+  return `<div class="w span4" style="--ac:var(--violet)"><h2><span class="dot"></span>Quick Launch</h2><div class="sub">Your working tools</div>
+  <div class="links">
+    <a href="https://app.coursiv.io" target="_blank">Coursiv <small>daily lesson</small></a>
+    <a href="https://pagepilot.ai" target="_blank">Page Pilot <small>skai store pages</small></a>
+    <a href="https://docs.google.com/forms/d/14FbCzE6DXH_frXxxhQe88qUSwMSkPK1PqTN5ihAjyhc/edit" target="_blank">Sprout Survey <small>share this</small></a>
+    <a href="https://docs.google.com/spreadsheets/d/1KOau5_mwvmiNUIdHyeh2clr5EH0ofOg4cYhlCRFqOvU/edit" target="_blank">Survey Responses <small>watch it grow</small></a>
+    <a href="https://lovable.dev/projects/b010de83-e29d-4a37-8536-62de51df5a16" target="_blank">SafeFrame (Lovable) <small>legacy preview</small></a>
+  </div></div>`;
+}
+function skillsWidget(){
+  return `<div class="w span12" style="--ac:var(--cyan)"><h2><span class="dot"></span>Your AI Toolkit — how to use your new skills</h2>
+  <div class="sub">Type these in Claude (Cowork) — or just ask in plain words, the right skill fires automatically</div>
+  <div class="tipbox" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:8px">
+    <div class="tip"><code>/synthesize-research</code> → paste your Little Sprout survey responses, get ranked insights on what parents will pay for</div>
+    <div class="tip"><code>/campaign-plan</code> → full launch campaign for Little Sprout or a Skai product, with week-by-week calendar</div>
+    <div class="tip"><code>/draft-content</code> → ad copy, Instagram captions, landing page text for any of the three apps</div>
+    <div class="tip"><code>/write-spec</code> → turn "I want SafeFrame to search hazards" into a proper build plan</div>
+    <div class="tip"><code>/roadmap-update</code> → reshuffle priorities across your three apps when plans change</div>
+    <div class="tip"><code>/start</code> (productivity) → Claude builds a memory of your projects so you never re-explain</div>
+  </div></div>`;
+}
+function render(){
+  const all=state.projects;
+  let open=0,dn=0,fl=0,tot=0;
+  all.forEach(p=>flat(p).forEach(t=>{tot++;t.d?dn++:open++;if(t.f&&!t.d)fl++;}));
+  hOpen.textContent=open;hDone.textContent=dn;hFlag.textContent=fl;hPct.textContent=Math.round(100*dn/tot)+"%";
+  const brief=`<div class="w span12" style="--ac:var(--amber)"><h2><span class="dot"></span>Daily Brief — ${esc(DAILY_BRIEF.date)}</h2>
+    <div class="tipbox" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:8px">${DAILY_BRIEF.lines.map(l=>`<div class="tip">${esc(l)}</div>`).join("")}</div></div>`;
+  document.getElementById("grid").innerHTML = brief +
+    appWidget(state.projects.find(p=>p.id==="safeframe"),4) +
+    appWidget(state.projects.find(p=>p.id==="sprout"),4) +
+    appWidget(state.projects.find(p=>p.id==="skai"),4) +
+    moneyWidget() + coursivWidget() + linksWidget() + skillsWidget();
+}
+function openOv(id){
+  const p=state.projects.find(x=>x.id===id);
+  let found=false;
+  const html=`<button class="close" onclick="closeOv()">✕</button>
+    <h3 style="color:${p.accent}">${esc(p.title)}</h3><div class="sub">${esc(p.desc)}</div>
+    ${p.hint?`<div class="tip">💡 ${esc(p.hint)}</div>`:""}
+    ${p.phases.map((ph,pi)=>{
+      const phDone=ph.steps.length&&ph.steps.every(t=>t.d);
+      return `<div class="ph" style="--ac:${p.accent}"><div class="ph-head"><span class="num ${phDone?'done':''}" style="background:${phDone?'var(--green)':p.accent}">${phDone?'✓':pi+1}</span>${esc(ph.name)}</div>
+      ${ph.steps.map(t=>{
+        const cur=!t.d&&!found; if(cur)found=true;
+        const gi=flat(p).indexOf(t);
+        return `<div class="step ${t.d?'done':''} ${cur?'cur':''}" style="--ac:${p.accent}">
+          <input type="checkbox" data-p="${p.id}" data-g="${gi}" ${t.d?'checked':''} onchange="tick(this);openOv('${p.id}')">
+          <label>${esc(t.t)}</label>
+          <span class="flag ${t.f?'':'off'}" onclick="toggleFlag('${p.id}',${gi})">⚑</span></div>`;
+      }).join("")}</div>`;
+    }).join("")}`;
+  document.getElementById("sheet").innerHTML=html;
+  document.getElementById("overlay").classList.add("open");
+}
+function toggleFlag(pid,gi){
+  const p=state.projects.find(x=>x.id===pid);
+  flat(p)[gi].f=!flat(p)[gi].f; save(); openOv(pid);
+}
+function closeOv(){document.getElementById("overlay").classList.remove("open");render();}
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeOv()});
+setInterval(()=>{document.getElementById("clock").textContent=new Date().toLocaleString("en-SG",{weekday:"short",day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit",second:"2-digit"})},1000);
+render();
+</script>
+</body>
+</html>

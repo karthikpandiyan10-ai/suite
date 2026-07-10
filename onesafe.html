@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OneSafe — One-stop safety for Singapore sites</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--slate:#1B2431;--slate2:#242F3F;--amber:#F5A623;--amber-dark:#7A5305;--bg:#F5F6F8;--card:#fff;--ink:#1B2431;--dim:#68727F;--line:#E3E6EB;--green:#1D9E75;--red:#D64545}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
+.top{background:var(--slate);color:#fff;padding:0 20px;position:sticky;top:0;z-index:40}
+.top .in{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:24px;height:60px}
+.logo{font-weight:800;font-size:20px;letter-spacing:-.02em;display:flex;align-items:center;gap:8px}
+.logo .one{color:var(--amber)}
+.logo .stripe{width:18px;height:18px;border-radius:5px;background:repeating-linear-gradient(45deg,var(--amber) 0 4px,var(--slate) 4px 8px)}
+nav{display:flex;gap:4px;margin-left:auto}
+nav button{background:none;border:none;color:#B9C1CC;font-family:inherit;font-size:14px;font-weight:600;padding:8px 14px;border-radius:8px;cursor:pointer}
+nav button.on{background:var(--slate2);color:#fff;box-shadow:inset 0 -2px 0 var(--amber)}
+.wrap{max-width:1100px;margin:0 auto;padding:24px 20px 60px}
+.hero{background:linear-gradient(120deg,var(--slate),#2C3A4E);color:#fff;border-radius:16px;padding:28px;margin-bottom:22px}
+.hero h1{font-size:24px;font-weight:800}
+.hero h1 span{color:var(--amber)}
+.hero p{color:#B9C1CC;font-size:14px;margin-top:6px;max-width:640px}
+.hero .stats{display:flex;gap:22px;margin-top:16px;flex-wrap:wrap}
+.hero .stats div b{font-size:20px;display:block;color:var(--amber)}
+.hero .stats div small{color:#B9C1CC;font-size:12px}
+.searchbar{display:flex;gap:10px;margin-bottom:18px}
+.searchbar input{flex:1;border:1.5px solid var(--line);border-radius:12px;padding:13px 16px;font-family:inherit;font-size:15px;background:var(--card)}
+.searchbar input:focus{outline:none;border-color:var(--amber)}
+.searchbar button{border:none;background:var(--amber);color:var(--slate);font-family:inherit;font-weight:700;font-size:14px;padding:0 22px;border-radius:12px;cursor:pointer}
+.hintrow{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.hintrow span{font-size:12.5px;background:#fff;border:1px solid var(--line);border-radius:99px;padding:6px 13px;cursor:pointer;color:var(--dim)}
+.hintrow span:hover{border-color:var(--amber);color:var(--ink)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.act{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:15px;cursor:pointer;transition:box-shadow .2s,transform .2s}
+.act:hover{box-shadow:0 8px 24px rgba(27,36,49,.12);transform:translateY(-2px)}
+.act b{font-size:14.5px;display:block;line-height:1.35}
+.act small{color:var(--dim);font-size:12px}
+.results .hz{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:10px}
+.hz .meta{font-size:11.5px;font-weight:700;color:var(--amber-dark);background:#FBEED3;display:inline-block;border-radius:99px;padding:3px 10px;margin-bottom:8px}
+.hz b{font-size:15px}
+.hz p{font-size:13.5px;color:#3D4754;margin-top:6px;line-height:1.55}
+.hz .risk{display:inline-block;font-size:11px;font-weight:700;border-radius:6px;padding:2px 8px;margin-left:8px;background:#EEF1F5;color:var(--dim)}
+.detail{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px}
+.detail h2{font-size:20px;font-weight:800}
+.detail .sub{color:var(--dim);font-size:13px;margin:4px 0 16px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--slate);color:#fff;text-align:left;padding:9px 10px;font-weight:600;font-size:12px}
+td{border:1px solid var(--line);padding:9px 10px;vertical-align:top;line-height:1.5}
+tr:nth-child(even) td{background:#FAFBFC}
+.btnrow{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap}
+.btn{border:1.5px solid var(--line);background:#fff;font-family:inherit;font-weight:600;font-size:13px;padding:9px 16px;border-radius:10px;cursor:pointer}
+.btn.pri{background:var(--amber);border-color:var(--amber);color:var(--slate)}
+.note{background:#FBEED3;border:1px solid #EAD9A8;color:var(--amber-dark);border-radius:10px;padding:11px 14px;font-size:12.5px;line-height:1.5;margin:14px 0}
+.langrow{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 16px}
+.langrow button{border:1.5px solid var(--line);background:#fff;font-family:inherit;font-size:12.5px;font-weight:600;padding:7px 13px;border-radius:99px;cursor:pointer}
+.langrow button.on{background:var(--slate);color:#fff;border-color:var(--slate)}
+.tb-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;margin-bottom:14px}
+.tb-card h3{font-size:16px;font-weight:800;display:flex;align-items:center;gap:8px}
+.tb-card h3 .ico{width:30px;height:30px;border-radius:8px;background:#FBEED3;display:inline-flex;align-items:center;justify-content:center;font-size:15px}
+.tb-card ul{margin:10px 0 0 4px;list-style:none}
+.tb-card li{font-size:13.5px;line-height:1.6;padding:5px 0 5px 24px;position:relative;color:#3D4754}
+.tb-card li::before{content:"▸";position:absolute;left:6px;color:var(--amber)}
+.pe-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.pe{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px}
+.pe h3{font-size:15.5px;font-weight:800;margin-bottom:6px}
+.pe p{font-size:13px;color:#3D4754;line-height:1.6}
+.pe .tag{font-size:10.5px;font-weight:700;letter-spacing:.05em;color:var(--amber-dark);background:#FBEED3;border-radius:99px;padding:3px 10px;display:inline-block;margin-bottom:10px}
+.loading{text-align:center;color:var(--dim);padding:40px;font-size:14px}
+.crumb{font-size:13px;color:var(--dim);margin-bottom:14px;cursor:pointer}
+.crumb:hover{color:var(--ink)}
+footer{max-width:1100px;margin:30px auto 0;padding:0 20px 30px;color:var(--dim);font-size:12px;text-align:center}
+@media print{.top,.searchbar,.hintrow,.btnrow,.note,nav,.hero{display:none!important}body{background:#fff}}
+@media(max-width:640px){.hero h1{font-size:19px}nav button{padding:8px 9px;font-size:12.5px}}
+</style>
+</head>
+<body>
+<div class="top"><div class="in">
+  <div class="logo"><span class="stripe"></span><span class="one">One</span>Safe</div>
+  <nav>
+    <button class="on" data-t="msra" onclick="go('msra')">MSRA Library</button>
+    <button data-t="toolbox" onclick="go('toolbox')">Toolbox Talks</button>
+    <button data-t="pe" onclick="go('pe')">PE Designs</button>
+  </nav>
+</div></div>
+
+<div class="wrap" id="app"><div class="loading">Loading OneSafe…</div></div>
+<footer>OneSafe · One-stop safety for Singapore sites · All library content is anonymized and provided as editable drafts — every document must be reviewed, adapted and endorsed by your own competent persons before use. Not a substitute for a WSHO's professional judgment.</footer>
+
+<script>
+const SB="https://drgnimyotoqrzuxflxpy.supabase.co/rest/v1";
+const KEY="sb_publishable_0HIvS0GHcoilXvwDqpfNXA_xh2ocXVO";
+const H={apikey:KEY, Authorization:"Bearer "+KEY};
+async function q(path){ let r; try{ r=await fetch(SB+path,{headers:H}); }catch(e){ throw new Error("network: "+e.message); } if(!r.ok){ const b=await r.text(); throw new Error("HTTP "+r.status+" "+b.slice(0,120)); } return r.json(); }
+function esc(s){return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;")}
+let DOCS=[], tab="msra", currentDoc=null, lang="en";
+
+const L={
+  en:{name:"English", talk:"Toolbox Talk", haz:"Key hazards today", ctl:"Control measures — what we MUST do", ppe:"PPE required", rem:"Remember", remind:["Stop work if it is not safe — no job is so urgent that it cannot be done safely.","Check your PPE before you start. Damaged PPE — report and replace.","Know today's permit conditions and barricaded areas.","Drink water often. Rest in shade during hot hours.","If you are unsure — ASK your supervisor. Asking is free, accidents are not.","Report every near-miss. Today's near-miss is tomorrow's accident."]},
+  zh:{name:"中文", talk:"工具箱会议", haz:"今日主要危险", ctl:"控制措施 — 我们必须做的", ppe:"必须佩戴的个人防护装备", rem:"请记住", remind:["不安全就停止工作 — 没有任何工作紧急到不能安全地完成。","开工前检查个人防护装备。损坏的要报告并更换。","了解今天的许可证条件和围栏区域。","经常喝水。炎热时段在阴凉处休息。","不确定就问主管。问问题不花钱，事故的代价很大。","报告每一次险情。今天的险情就是明天的事故。"]},
+  bn:{name:"বাংলা", talk:"টুলবক্স মিটিং", haz:"আজকের প্রধান বিপদ", ctl:"নিয়ন্ত্রণ ব্যবস্থা — আমাদের যা করতেই হবে", ppe:"প্রয়োজনীয় পিপিই", rem:"মনে রাখবেন", remind:["নিরাপদ না হলে কাজ বন্ধ করুন — কোনো কাজ এত জরুরি নয় যে নিরাপদে করা যাবে না।","কাজ শুরুর আগে পিপিই পরীক্ষা করুন। নষ্ট পিপিই রিপোর্ট করুন ও বদলান।","আজকের পারমিট শর্ত ও ঘেরা এলাকা জেনে নিন।","বারবার পানি পান করুন। গরমে ছায়ায় বিশ্রাম নিন।","নিশ্চিত না হলে সুপারভাইজারকে জিজ্ঞাসা করুন। প্রশ্ন করা ফ্রি, দুর্ঘটনা নয়।","প্রতিটি নিয়ার-মিস রিপোর্ট করুন। আজকের নিয়ার-মিস আগামীকালের দুর্ঘটনা।"]},
+  ta:{name:"தமிழ்", talk:"டூல்பாக்ஸ் கூட்டம்", haz:"இன்றைய முக்கிய ஆபத்துகள்", ctl:"கட்டுப்பாட்டு நடவடிக்கைகள் — நாம் கட்டாயம் செய்ய வேண்டியவை", ppe:"தேவையான பாதுகாப்பு உபகரணங்கள்", rem:"நினைவில் கொள்ளுங்கள்", remind:["பாதுகாப்பாக இல்லை என்றால் வேலையை நிறுத்துங்கள் — பாதுகாப்பாக செய்ய முடியாத அளவு அவசரமான வேலை எதுவும் இல்லை.","வேலை தொடங்கும் முன் PPE சரிபார்க்கவும். சேதமடைந்த PPE-ஐ புகாரளித்து மாற்றவும்.","இன்றைய பர்மிட் நிபந்தனைகளையும் தடுப்பு பகுதிகளையும் அறிந்து கொள்ளுங்கள்.","அடிக்கடி தண்ணீர் குடியுங்கள். வெப்ப நேரங்களில் நிழலில் ஓய்வெடுங்கள்.","சந்தேகம் இருந்தால் சூப்பர்வைசரிடம் கேளுங்கள். கேட்பது இலவசம், விபத்து இல்லை.","ஒவ்வொரு நியர்-மிஸ்ஸையும் புகாரளியுங்கள். இன்றைய நியர்-மிஸ் நாளைய விபத்து."]},
+  my:{name:"မြန်မာ", talk:"လုပ်ငန်းခွင်ဆွေးနွေးပွဲ", haz:"ယနေ့အဓိကအန္တရာယ်များ", ctl:"ထိန်းချုပ်ရေးအစီအမံများ — မဖြစ်မနေလုပ်ရမည်", ppe:"လိုအပ်သော ကာကွယ်ရေးပစ္စည်းများ", rem:"သတိရပါ", remind:["မလုံခြုံပါက အလုပ်ရပ်ပါ — လုံခြုံစွာမလုပ်နိုင်လောက်အောင် အရေးကြီးသည့်အလုပ်မရှိပါ။","အလုပ်မစမီ PPE စစ်ဆေးပါ။ ပျက်စီးနေပါက အစီရင်ခံပြီး လဲလှယ်ပါ။","ယနေ့ ခွင့်ပြုချက်စည်းကမ်းများနှင့် ကာရံထားသောနေရာများကို သိထားပါ။","ရေမကြာခဏသောက်ပါ။ ပူပြင်းချိန်တွင် အရိပ်တွင်နားပါ။","မသေချာပါက ကြီးကြပ်ရေးမှူးကို မေးပါ။ မေးခြင်းသည် အခမဲ့၊ မတော်တဆမှုသည် မဟုတ်ပါ။","near-miss တိုင်းကို အစီရင်ခံပါ။ ယနေ့ near-miss သည် မနက်ဖြန် မတော်တဆမှုဖြစ်သည်။"]},
+  th:{name:"ไทย", talk:"การประชุมความปลอดภัย", haz:"อันตรายหลักวันนี้", ctl:"มาตรการควบคุม — สิ่งที่เราต้องทำ", ppe:"อุปกรณ์ป้องกันที่ต้องใช้", rem:"โปรดจำไว้", remind:["หยุดงานถ้าไม่ปลอดภัย — ไม่มีงานใดเร่งด่วนจนทำอย่างปลอดภัยไม่ได้","ตรวจ PPE ก่อนเริ่มงาน หากชำรุดให้รายงานและเปลี่ยน","รู้เงื่อนไขใบอนุญาตและพื้นที่กั้นของวันนี้","ดื่มน้ำบ่อยๆ พักในที่ร่มช่วงอากาศร้อน","ไม่แน่ใจให้ถามหัวหน้างาน การถามไม่เสียเงิน แต่อุบัติเหตุเสีย","รายงานทุกเหตุการณ์เกือบเกิดอุบัติเหตุ วันนี้เกือบพลาด พรุ่งนี้อาจพลาดจริง"]}
+};
+
+const PE=[
+  {tag:"WHAT IT IS", t:"What is a PE design?", p:"In Singapore, temporary works like deep excavations, ERSS (Earth Retaining or Stabilising Structures), formwork and heavy lifting frames must be designed and endorsed by a Professional Engineer (PE) registered with the PEB. The PE calculates loads, soil pressures and safety factors, then endorses drawings that the site must follow exactly."},
+  {tag:"WHEN REQUIRED", t:"When do you need one?", p:"Common triggers: excavation deeper than 1.5m needs shoring; deeper than 4m needs a PE-endorsed shoring design. ERSS, sheet piling, strutting, caissons, jacking pits, tower/mobile crane foundations and loading platforms typically require PE endorsement before the MOM/BCA will accept the works."},
+  {tag:"HOW TO READ", t:"Reading a shoring design", p:"Look for: the plan view (layout of piles/walers/struts), sections showing depth and embedment, the design soil parameters, surcharge allowances (how close machines may work to the edge), monitoring requirements (settlement markers, inclinometers) and the PE's endorsement stamp with validity. If site conditions differ from the drawing — stop and consult the PE."},
+  {tag:"YOUR DUTY", t:"What the site team must do", p:"Build exactly to the endorsed drawing — no substituting member sizes or spacing. Follow the installation sequence. Keep the PE's permit-to-work conditions. Arrange the required inspections (e.g. before each excavation stage). Record and report monitoring readings, and stop work if trigger levels are exceeded."},
+  {tag:"IMPORTANT", t:"Why we don't share real PE drawings", p:"A PE endorsement applies to ONE project's exact soil, loads and geometry. Reusing another project's endorsed drawing is unsafe and illegal. OneSafe shows you how these designs work so you can understand and check them — your own project must engage its own PE."}
+];
+
+function go(t){ tab=t; document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b.dataset.t===t)); render(); }
+
+async function init(){
+  try{ DOCS=await q("/msra_documents?select=id,activity,folder,batch&order=activity"); }
+  catch(e){ document.getElementById("app").innerHTML='<div class="loading">Could not reach the OneSafe library.<br>'+esc(e.message)+'<br>Check your internet connection, then press F5. If it repeats, screenshot this and tell Claude.</div>'; return; }
+  render();
+}
+function hero(){
+  return `<div class="hero"><h1><span>One</span> place for every safety document on site</h1>
+  <p>Search real, anonymized Singapore MSRA content. Pull a draft, make it yours. Brief your crew in their language.</p>
+  <div class="stats"><div><b>${DOCS.length}</b><small>Work activities</small></div><div><b>3,639</b><small>Hazard entries</small></div><div><b>6</b><small>Languages</small></div><div><b>SG</b><small>WSH-aligned</small></div></div></div>`;
+}
+function render(){
+  const app=document.getElementById("app");
+  if(tab==="msra") renderMsra(app);
+  else if(tab==="toolbox") renderToolbox(app);
+  else renderPe(app);
+}
+function renderMsra(app){
+  if(currentDoc){ renderDoc(app); return; }
+  app.innerHTML=hero()+`
+  <div class="searchbar"><input id="sq" placeholder="Search a work activity or hazard… e.g. excavation, lifting, hot works" onkeydown="if(event.key==='Enter')doSearch()"><button onclick="doSearch()">Search</button></div>
+  <div class="hintrow">${["excavation","lifting","scaffold","piling","confined space","electrical","hot works","traffic"].map(h=>`<span onclick="document.getElementById('sq').value='${h}';doSearch()">${h}</span>`).join("")}</div>
+  <div id="out"><div class="grid">${DOCS.map(d=>`<div class="act" onclick="openDoc(${d.id})"><b>${esc(d.activity)}</b><small>${d.batch==="poc"?"Priority activity":"Library"}</small></div>`).join("")}</div></div>`;
+}
+async function doSearch(){
+  const v=document.getElementById("sq").value.trim(); if(!v)return;
+  const out=document.getElementById("out"); out.innerHTML='<div class="loading">Searching…</div>';
+  const sel="select=id,document_id,work_step,hazard,injury,existing_controls,rpn1,msra_documents(activity)";
+  let rows=[], err=null;
+  try{ rows=await q(`/msra_hazards?${sel}&search=wfts(english).${encodeURIComponent(v)}&limit=40`); }
+  catch(e){ err=e.message; }
+  if(!rows.length){
+    try{ rows=await q(`/msra_hazards?${sel}&or=(hazard.ilike.*${encodeURIComponent(v)}*,work_step.ilike.*${encodeURIComponent(v)}*,existing_controls.ilike.*${encodeURIComponent(v)}*)&limit=40`); err=null; }
+    catch(e2){ err=err||e2.message; }
+  }
+  try{
+    if(err){ out.innerHTML='<div class="loading">Search error: '+esc(err)+'<br>Screenshot this and tell Claude.</div>'; return; }
+    if(!rows.length){ out.innerHTML='<div class="loading">No matches — try a different word, or browse the activities below.</div>'; return; }
+    out.innerHTML='<div class="results">'+rows.map(r=>`<div class="hz">
+      <span class="meta" style="cursor:pointer" onclick="openDoc(${r.document_id})">${esc(r.msra_documents?.activity||"")} — open full MSRA</span>
+      <div><b>${esc(r.hazard)}</b>${r.rpn1?`<span class="risk">RPN ${esc(r.rpn1)}</span>`:""}</div>
+      ${r.work_step?`<p><b>Work step:</b> ${esc(r.work_step)}</p>`:""}
+      ${r.injury?`<p><b>Possible injury:</b> ${esc(r.injury)}</p>`:""}
+      <p><b>Controls:</b> ${esc((r.existing_controls||"").slice(0,400))}${(r.existing_controls||"").length>400?"…":""}</p>
+    </div>`).join("")+'</div>';
+  }catch(e){ out.innerHTML='<div class="loading">Search failed — please retry.</div>'; }
+}
+async function openDoc(id){
+  tab="msra"; currentDoc={id}; render();
+}
+async function renderDoc(app){
+  app.innerHTML='<div class="loading">Opening MSRA…</div>';
+  try{
+    const d=(await q(`/msra_documents?id=eq.${currentDoc.id}&select=*`))[0];
+    const rows=await q(`/msra_hazards?document_id=eq.${currentDoc.id}&select=*&order=id&limit=500`);
+    app.innerHTML=`<div class="crumb" onclick="currentDoc=null;render()">← Back to library</div>
+    <div class="detail">
+      <h2>MSRA — ${esc(d.activity)}</h2>
+      <div class="sub">${rows.length} hazard entries · anonymized draft from real Singapore site submissions</div>
+      <div class="btnrow"><button class="btn pri" onclick="window.print()">Print / Save as PDF</button><button class="btn" onclick="copyDoc()">Copy as text</button></div>
+      <div class="note">⚠️ This is a DRAFT for reference. Your team must review every row, adapt it to your site conditions, and have it endorsed by your own RA team leader / WSHO before use.</div>
+      <table><tr><th style="width:16%">Work step</th><th style="width:16%">Hazard</th><th style="width:13%">Injury</th><th>Existing controls</th><th style="width:6%">S/L/RPN</th><th style="width:14%">Additional controls</th><th style="width:10%">PIC</th></tr>
+      ${rows.map(r=>`<tr><td>${esc(r.work_step)}</td><td>${esc(r.hazard)}</td><td>${esc(r.injury)}</td><td>${esc(r.existing_controls)}</td><td>${esc(r.s1)}/${esc(r.l1)}/${esc(r.rpn1)}</td><td>${esc(r.additional_controls)}</td><td>${esc(r.person_in_charge)}</td></tr>`).join("")}
+      </table></div>`;
+    window.__docRows=rows; window.__docAct=d.activity;
+  }catch(e){ app.innerHTML='<div class="loading">Could not open this MSRA.</div>'; }
+}
+function copyDoc(){
+  const rows=window.__docRows||[];
+  const txt="MSRA — "+window.__docAct+"\n\n"+rows.map((r,i)=>`${i+1}. WORK STEP: ${r.work_step}\nHAZARD: ${r.hazard}\nINJURY: ${r.injury}\nEXISTING CONTROLS: ${r.existing_controls}\nS/L/RPN: ${r.s1}/${r.l1}/${r.rpn1}\nADDITIONAL: ${r.additional_controls}\nPIC: ${r.person_in_charge}\n`).join("\n");
+  navigator.clipboard.writeText(txt).then(()=>alert("Copied — paste into Word and customize."));
+}
+function renderToolbox(app){
+  const T=L[lang];
+  app.innerHTML=`
+  <div class="langrow">${Object.entries(L).map(([k,v])=>`<button class="${k===lang?'on':''}" onclick="lang='${k}';render()">${v.name}</button>`).join("")}</div>
+  <div class="searchbar"><select id="tbAct" style="flex:1;border:1.5px solid var(--line);border-radius:12px;padding:13px 16px;font-family:inherit;font-size:15px;background:#fff">
+    <option value="">— ${lang==='en'?'Choose the work activity for today':'Choose activity / 选择今天的作业'} —</option>
+    ${DOCS.map(d=>`<option value="${d.id}">${esc(d.activity)}</option>`).join("")}
+  </select><button onclick="loadTalk()">${esc(T.talk)}</button></div>
+  <div id="talk">
+    <div class="tb-card"><h3><span class="ico">🗣️</span>${esc(T.talk)}</h3>
+    <ul>${T.remind.map(r=>`<li>${esc(r)}</li>`).join("")}</ul></div>
+    <div class="note">Section headings and daily reminders are fully translated. Activity-specific hazards and controls currently display in English while translations are completed — have a bilingual supervisor bridge for now. Translations should be verified by native speakers.</div>
+  </div>`;
+}
+async function loadTalk(){
+  const id=document.getElementById("tbAct").value; if(!id)return;
+  const T=L[lang]; const talk=document.getElementById("talk");
+  talk.innerHTML='<div class="loading">Preparing talk…</div>';
+  try{
+    const d=(await q(`/msra_documents?id=eq.${id}&select=*`))[0];
+    const rows=await q(`/msra_hazards?document_id=eq.${id}&select=hazard,injury,existing_controls,rpn1&order=id&limit=500`);
+    const top=rows.slice().sort((a,b)=>(parseInt(b.rpn1)||0)-(parseInt(a.rpn1)||0)).slice(0,8);
+    const controls=[...new Set(top.flatMap(r=>(r.existing_controls||"").split(/(?<=[a-z\)])\.\s+/).map(s=>s.replace(/^(Elimination|Substitution|Engineering( Control)?|Administrative( Control)?|PPE)\s*:?\s*/i,"").trim()).filter(s=>s.length>25&&!/^(na|nil)$/i.test(s))))].slice(0,10);
+    const ppe=(d.ppe||[]).slice(0,10);
+    talk.innerHTML=`
+      <div class="tb-card"><h3><span class="ico">⚠️</span>${esc(T.haz)} — ${esc(d.activity)}</h3>
+        <ul>${top.map(r=>`<li><b>${esc(r.hazard)}</b>${r.injury?" — "+esc(r.injury):""}</li>`).join("")}</ul></div>
+      <div class="tb-card"><h3><span class="ico">🛡️</span>${esc(T.ctl)}</h3>
+        <ul>${controls.map(c=>`<li>${esc(c)}</li>`).join("")||"<li>Refer to the full MSRA for this activity.</li>"}</ul></div>
+      ${ppe.length?`<div class="tb-card"><h3><span class="ico">🦺</span>${esc(T.ppe)}</h3><ul>${ppe.map(p=>`<li>${esc(p)}</li>`).join("")}</ul></div>`:""}
+      <div class="tb-card"><h3><span class="ico">💡</span>${esc(T.rem)}</h3><ul>${T.remind.map(r=>`<li>${esc(r)}</li>`).join("")}</ul></div>
+      <div class="btnrow"><button class="btn pri" onclick="window.print()">Print / Save as PDF</button></div>`;
+  }catch(e){ talk.innerHTML='<div class="loading">Could not load — please retry.</div>'; }
+}
+function renderPe(app){
+  app.innerHTML=`<div class="note" style="margin-top:0">📐 Educational guide only. PE-endorsed drawings are project-specific and legally protected — OneSafe explains how they work so your team can understand and follow yours correctly.</div>
+  <div class="pe-grid">${PE.map(x=>`<div class="pe"><span class="tag">${x.tag}</span><h3>${esc(x.t)}</h3><p>${esc(x.p)}</p></div>`).join("")}</div>`;
+}
+init();
+</script>
+</body>
+</html>

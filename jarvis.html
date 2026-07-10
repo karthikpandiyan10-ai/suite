@@ -1,0 +1,562 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>JARVIS — Command Deck</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0A0908; --bg2:#0F0D0A; --ink:#E8E3D5; --muted:#7A7466;
+  --amber:#FFB000; --amber-dim:#8A6200; --red:#FF5348; --green:#7DDB8A;
+  --hair:rgba(255,176,0,.16); --hair2:rgba(232,227,213,.09);
+  --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  --body:"Space Grotesk",system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);overflow:hidden}
+/* scanline atmosphere: fixed, pointer-events none */
+body::before{content:"";position:fixed;inset:0;z-index:50;pointer-events:none;
+  background:repeating-linear-gradient(0deg, rgba(0,0,0,.16) 0 1px, transparent 1px 3px);opacity:.5}
+body::after{content:"";position:fixed;left:0;right:0;height:110px;z-index:51;pointer-events:none;
+  background:linear-gradient(180deg, transparent, rgba(255,176,0,.045), transparent);
+  animation:sweep 9s linear infinite}
+@keyframes sweep{0%{top:-120px}100%{top:100vh}}
+@media (prefers-reduced-motion:reduce){body::after{animation:none;display:none}}
+.deck{position:relative;z-index:1;height:100vh;display:grid;grid-template-rows:auto 1fr auto;gap:0;padding:0 22px}
+/* ---- top strip ---- */
+.top{display:flex;align-items:stretch;border-bottom:1px solid var(--hair);height:58px}
+.top>div{display:flex;align-items:center;padding:0 18px;border-right:1px solid var(--hair2)}
+.top>div:first-child{padding-left:2px}
+.top>div:last-child{border-right:none;margin-left:auto;padding-right:2px}
+.wordmark{font-family:var(--mono);font-weight:600;font-size:17px;letter-spacing:.42em;color:var(--amber)}
+.wordmark small{display:block;font-size:8.5px;letter-spacing:.3em;color:var(--muted);font-weight:400}
+.tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+.tag b{color:var(--ink);font-weight:500;margin-left:8px}
+.tag b.hot{color:var(--amber)} .tag b.live{color:var(--red)} .tag b.ok{color:var(--green)}
+.clock{font-family:var(--mono);font-size:15px;letter-spacing:.1em}
+.clock span{color:var(--muted);font-size:10px;display:block;letter-spacing:.24em;text-transform:uppercase}
+button.plain{background:none;border:1px solid var(--hair);color:var(--ink);font-family:var(--mono);
+  font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;padding:8px 14px;cursor:pointer;transition:.15s}
+button.plain:hover{border-color:var(--amber);color:var(--amber)}
+button.plain.on{background:var(--amber);color:#141005;border-color:var(--amber)}
+/* ---- main grid ---- */
+.main{display:grid;grid-template-columns:300px 1fr 330px;min-height:0}
+.colL{border-right:1px solid var(--hair);display:flex;flex-direction:column;min-height:0}
+.colR{border-left:1px solid var(--hair);display:flex;flex-direction:column;min-height:0}
+.sec{padding:16px 18px;border-bottom:1px solid var(--hair2);min-height:0}
+.sec.fill{flex:1;display:flex;flex-direction:column;overflow:hidden;border-bottom:none}
+.sec-h{font-family:var(--mono);font-size:9.5px;letter-spacing:.3em;text-transform:uppercase;color:var(--amber-dim);margin-bottom:12px;display:flex;justify-content:space-between}
+.sec-h em{font-style:normal;color:var(--muted)}
+/* telemetry */
+.tele{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.tele>div{padding:8px 0}
+.tele>div:nth-child(odd){padding-right:14px;border-right:1px solid var(--hair2)}
+.tele>div:nth-child(even){padding-left:14px}
+.tele>div:nth-child(-n+2){border-bottom:1px solid var(--hair2)}
+.tele .n{font-family:var(--mono);font-size:24px;font-weight:600;color:var(--ink)}
+.tele .n i{font-style:normal;color:var(--amber)}
+.tele .l{font-family:var(--mono);font-size:9px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;margin-top:2px}
+/* log */
+.log{flex:1;overflow-y:auto;font-family:var(--mono);font-size:11.5px;line-height:1.75;padding-right:6px}
+.log div{padding-left:14px;text-indent:-14px}
+.log .u{color:var(--amber)} .log .j{color:var(--ink)} .log .sys{color:var(--muted)}
+.log::-webkit-scrollbar,.feed::-webkit-scrollbar,.tasks::-webkit-scrollbar{width:3px}
+.log::-webkit-scrollbar-thumb,.feed::-webkit-scrollbar-thumb,.tasks::-webkit-scrollbar-thumb{background:var(--amber-dim)}
+/* ---- center ---- */
+.center{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:20px;min-height:0}
+.radar{position:relative;width:min(280px,32vh);aspect-ratio:1;cursor:pointer;flex-shrink:1}
+.radar svg{width:100%;height:100%;display:block}
+.radar .sweep{transform-origin:50% 50%;animation:spin 6s linear infinite}
+.radar.listening .sweep{animation-duration:1.4s}
+.radar.thinking .sweep{animation-duration:.7s;opacity:.9}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.radar .sweep{animation:none}}
+.radar .micglyph{font-family:var(--mono);font-size:11px;letter-spacing:.26em;fill:var(--amber)}
+.radar:focus-visible{outline:2px solid var(--amber);outline-offset:6px}
+.readout{font-family:var(--mono);font-size:14px;letter-spacing:.06em;color:var(--ink);text-align:center;
+  max-width:620px;min-height:42px;line-height:1.6;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:9px 18px}
+.readout .cursor{display:inline-block;width:8px;height:15px;background:var(--amber);vertical-align:-2px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.hint{font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;text-align:center}
+.hint b{color:var(--amber);font-weight:500}
+.keys{display:flex;flex-wrap:wrap;gap:0;justify-content:center;border:1px solid var(--hair)}
+.keys button{background:none;border:none;border-right:1px solid var(--hair);color:var(--muted);font-family:var(--mono);
+  font-size:10px;letter-spacing:.14em;text-transform:uppercase;padding:10px 15px;cursor:pointer;transition:.15s}
+.keys button:last-child{border-right:none}
+.keys button:hover{color:var(--amber);background:rgba(255,176,0,.06)}
+/* ---- right col ---- */
+.feed{list-style:none;flex:1;overflow-y:auto}
+.feed li{padding:10px 0;border-bottom:1px solid var(--hair2)}
+.feed li:last-child{border-bottom:none}
+.feed .h{font-size:14px;font-weight:600;line-height:1.35}
+.feed .s{font-family:var(--mono);font-size:10.5px;color:var(--muted);margin-top:3px;letter-spacing:.04em}
+.empty{color:var(--muted);font-family:var(--mono);font-size:11px;line-height:1.7;padding:6px 0}
+.tasks{list-style:none;flex:1;overflow-y:auto}
+.tasks li{display:flex;gap:11px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--hair2);font-size:14.5px;line-height:1.4}
+.tasks li:last-child{border-bottom:none}
+.tasks .box{flex:none;width:15px;height:15px;border:1px solid var(--amber-dim);margin-top:3px;display:grid;place-items:center;font-size:10px;color:var(--green);cursor:pointer;font-family:var(--mono)}
+.tasks li.done .box{border-color:var(--green)}
+.tasks li.done .txt{color:var(--muted);text-decoration:line-through}
+/* ---- command line ---- */
+.cmd{display:flex;align-items:stretch;border-top:1px solid var(--hair);height:56px}
+.cmd .prompt{display:flex;align-items:center;padding:0 14px;font-family:var(--mono);color:var(--amber);font-size:15px;border-right:1px solid var(--hair2)}
+.cmd input{flex:1;background:none;border:none;outline:none;color:var(--ink);font-family:var(--mono);font-size:14px;letter-spacing:.03em;padding:0 16px}
+.cmd input::placeholder{color:var(--muted)}
+.cmd button{background:none;border:none;border-left:1px solid var(--hair);color:var(--amber);font-family:var(--mono);
+  font-size:11px;letter-spacing:.22em;text-transform:uppercase;padding:0 26px;cursor:pointer;transition:.15s}
+.cmd button:hover{background:rgba(255,176,0,.08)}
+/* ---- settings drawer ---- */
+.modal{position:fixed;inset:0;z-index:60;display:none;place-items:center;background:rgba(6,5,3,.8)}
+.modal.open{display:grid}
+.sheet{width:min(520px,92vw);max-height:88vh;overflow:auto;background:var(--bg2);border:1px solid var(--amber-dim);padding:26px 28px}
+.sheet h2{font-family:var(--mono);font-size:13px;letter-spacing:.3em;color:var(--amber);text-transform:uppercase;margin-bottom:4px}
+.sheet p.sub{color:var(--muted);font-size:13px;margin-bottom:20px;line-height:1.6}
+.field{margin-bottom:16px}
+.field label{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--amber-dim);margin-bottom:7px}
+.field input,.field select{width:100%;background:var(--bg);border:1px solid var(--hair);color:var(--ink);padding:11px 12px;font-family:var(--mono);font-size:13px;outline:none}
+.field input:focus,.field select:focus{border-color:var(--amber)}
+.field small{color:var(--muted);font-size:12px;display:block;margin-top:6px;line-height:1.6}
+.field small a{color:var(--amber)}
+.row{display:flex;gap:10px;margin-top:10px}
+@media (max-width:1080px){
+  body{overflow:auto}
+  .deck{height:auto;min-height:100vh}
+  .main{grid-template-columns:1fr}
+  .colL,.colR{border:none}
+  .top{flex-wrap:wrap;height:auto;padding:10px 0}
+}
+</style>
+</head>
+<body>
+<div class="deck">
+  <!-- TOP STRIP -->
+  <div class="top">
+    <div><div class="wordmark" id="brandName">JARVIS<small>COMMAND DECK</small></div></div>
+    <div><span class="tag">MIC<b id="stMic">STANDBY</b></span></div>
+    <div><span class="tag">WAKE<b id="stWake">OFF</b></span></div>
+    <div><span class="tag">BRAIN<b id="stBrain">COMMANDS</b></span></div>
+    <div><span class="tag">LIBRARY<b id="stDb">LINKING</b></span></div>
+    <div style="gap:12px">
+      <button class="plain" id="wakeBtn" title="Toggle 'Hi Jarvis' wake word">WAKE WORD</button>
+      <button class="plain" id="gearBtn" style="margin-left:10px">CONFIG</button>
+      <div class="clock" style="margin-left:18px"><span id="clockD">—</span><span id="clockT" style="font-size:15px;color:var(--ink);letter-spacing:.1em">--:--</span></div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <!-- LEFT -->
+    <div class="colL">
+      <div class="sec">
+        <div class="sec-h">TELEMETRY <em id="teleTag">LIVE</em></div>
+        <div class="tele">
+          <div><div class="n" id="mActs">—</div><div class="l">KB activities</div></div>
+          <div><div class="n" id="mHaz">—</div><div class="l">Hazard entries</div></div>
+          <div><div class="n"><i id="mJourney">—</i>%</div><div class="l">Journey done</div></div>
+          <div><div class="n" style="color:var(--amber)" id="mAlerts">—</div><div class="l">Follow-ups</div></div>
+        </div>
+      </div>
+      <div class="sec fill">
+        <div class="sec-h">CHANNEL LOG</div>
+        <div class="log" id="log"></div>
+      </div>
+    </div>
+
+    <!-- CENTER -->
+    <div class="center">
+      <div class="radar idle" id="radar" role="button" tabindex="0" aria-label="Activate voice">
+        <svg viewBox="0 0 200 200">
+          <circle cx="100" cy="100" r="98" fill="none" stroke="var(--hair)" stroke-width="1"/>
+          <circle cx="100" cy="100" r="72" fill="none" stroke="var(--hair)" stroke-width="1"/>
+          <circle cx="100" cy="100" r="46" fill="none" stroke="var(--hair)" stroke-width="1"/>
+          <line x1="100" y1="2" x2="100" y2="198" stroke="var(--hair)" stroke-width="1"/>
+          <line x1="2" y1="100" x2="198" y2="100" stroke="var(--hair)" stroke-width="1"/>
+          <g class="sweep"><path d="M100,100 L100,4 A96,96 0 0 1 152,16 Z" fill="rgba(255,176,0,.16)"/>
+          <line x1="100" y1="100" x2="100" y2="4" stroke="var(--amber)" stroke-width="1.5"/></g>
+          <circle cx="100" cy="100" r="20" fill="var(--bg2)" stroke="var(--amber)" stroke-width="1.5"/>
+          <text x="100" y="104" text-anchor="middle" class="micglyph">MIC</text>
+        </svg>
+      </div>
+      <div class="readout" id="readout">BOOTING<span class="cursor"></span></div>
+      <div class="hint" id="hint">TAP RADAR · HOLD <b>SPACE</b> · OR ENABLE <b>WAKE WORD</b> AND SAY "HI JARVIS"</div>
+      <div class="keys">
+        <button onclick="handleCommand('status report')">STATUS</button>
+        <button onclick="handleCommand('what is next for one safe')">ONESAFE</button>
+        <button onclick="handleCommand('what is next for little sprout')">SPROUT</button>
+        <button onclick="handleCommand('what is next for skai')">SKAI</button>
+        <button onclick="handleCommand('open dashboard')">MISSION CTRL</button>
+      </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="colR">
+      <div class="sec fill" id="panel-feed" style="flex:1">
+        <div class="sec-h">INTEL FEED <em id="feedTag">STANDBY</em></div>
+        <ul class="feed" id="feed"><div class="empty">Say "search excavation hazards" or "status report". Results print here.</div></ul>
+      </div>
+      <div class="sec fill" id="panel-roadmap" style="flex:1;border-top:1px solid var(--hair2)">
+        <div class="sec-h">OBJECTIVES <em id="taskTag">SYNCED</em></div>
+        <ul class="tasks" id="tasks"></ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMMAND LINE -->
+  <div class="cmd">
+    <div class="prompt">&gt;_</div>
+    <input id="cmdInput" placeholder='status report · search lifting hazards · open onesafe · what is next for skai' autocomplete="off"/>
+    <button id="sendBtn">EXECUTE</button>
+  </div>
+</div>
+
+<!-- CONFIG -->
+<div class="modal" id="modal">
+  <div class="sheet">
+    <h2>Configuration</h2>
+    <p class="sub">Identity and brain. Everything saves on this computer only.</p>
+    <div class="field"><label>Assistant name (also the wake word)</label><input id="setName" /></div>
+    <div class="field"><label>What it calls you</label><input id="setUser" /></div>
+    <div class="field">
+      <label>Brain</label>
+      <select id="setBrain">
+        <option value="none">Voice commands only (free, no key)</option>
+        <option value="gemini">Google Gemini (free key, full conversation)</option>
+        <option value="anthropic">Claude API key (paid, smartest)</option>
+      </select>
+      <small id="brainHelp"></small>
+    </div>
+    <div class="field" id="keyField" style="display:none">
+      <label>API key</label><input id="setKey" type="password" placeholder="paste key here" />
+      <small id="keyHelp"></small>
+    </div>
+    <div class="row"><button class="plain on" id="saveBtn">SAVE</button><button class="plain" id="closeBtn">CLOSE</button></div>
+  </div>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+const SB="https://drgnimyotoqrzuxflxpy.supabase.co/rest/v1";
+const SBKEY="sb_publishable_0HIvS0GHcoilXvwDqpfNXA_xh2ocXVO";
+const SBH={apikey:SBKEY,Authorization:"Bearer "+SBKEY};
+const DASH_KEY="karthik_dashboard_v2";
+const LAUNCH={
+  drive:"https://drive.google.com", gmail:"https://mail.google.com",
+  calendar:"https://calendar.google.com", analytics:"https://analytics.google.com",
+  coursiv:"https://app.coursiv.io", pagepilot:"https://pagepilot.ai",
+  survey:"https://docs.google.com/forms/d/14FbCzE6DXH_frXxxhQe88qUSwMSkPK1PqTN5ihAjyhc/edit",
+  responses:"https://docs.google.com/spreadsheets/d/1KOau5_mwvmiNUIdHyeh2clr5EH0ofOg4cYhlCRFqOvU/edit",
+  supabase:"https://supabase.com/dashboard/project/drgnimyotoqrzuxflxpy",
+  onesafe:(location.protocol==="file:"?"../SafeFrame/OneSafe/onesafe.html":"onesafe.html"),
+  dashboard:(location.protocol==="file:"?"../Karthik_Dashboard.html":"dashboard.html")
+};
+let state=Object.assign({assistant:"JARVIS",user:"Sir",brain:"none",key:"",wake:false},
+  JSON.parse(localStorage.getItem("jarvis_cfg")||"{}"));
+function saveCfg(){localStorage.setItem("jarvis_cfg",JSON.stringify(state));}
+function wakeName(){return state.assistant.trim().split(/\s+/)[0].toLowerCase();}
+
+/* ---- Mission Control sync (shared localStorage) ---- */
+function dash(){ try{ return JSON.parse(localStorage.getItem(DASH_KEY)); }catch(e){ return null; } }
+function saveDash(d){ localStorage.setItem(DASH_KEY,JSON.stringify(d)); }
+function projSummary(){
+  const s=dash(); if(!s) return null;
+  const out={};
+  for(const p of s.projects){
+    const steps=p.phases.flatMap(ph=>ph.steps.map(st=>({t:st.t,d:!!st.d,f:!!st.f,phase:ph.name})));
+    const done=steps.filter(t=>t.d).length;
+    const cur=steps.find(t=>!t.d);
+    out[p.id]={title:p.title,done,total:steps.length,current:cur?cur.t:"all steps complete",phase:cur?cur.phase:"",
+      flags:steps.filter(t=>t.f&&!t.d).map(t=>t.t)};
+  }
+  return out;
+}
+/* ---- boot ---- */
+renderTasks(); startClock(); applyIdentity(); loadCounts(); renderLocalMetrics(); bootSequence();
+function startClock(){const tick=()=>{const d=new Date();
+  $("#clockT").textContent=d.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+  $("#clockD").textContent=d.toLocaleDateString([],{weekday:"short",month:"short",day:"numeric"}).toUpperCase();};
+  tick();setInterval(tick,1000);}
+function greetWord(){const h=new Date().getHours();return h<12?"Good morning":h<18?"Good afternoon":"Good evening";}
+function applyIdentity(){
+  $("#brandName").firstChild.textContent=state.assistant.toUpperCase();
+  document.title=state.assistant.toUpperCase()+" — Command Deck";
+  $("#stBrain").textContent=(state.brain!=="none"&&state.key)?state.brain.toUpperCase():"COMMANDS";
+  $("#stBrain").className=(state.brain!=="none"&&state.key)?"ok":"";
+  $("#stWake").textContent=state.wake?"ON":"OFF";
+  $("#stWake").className=state.wake?"hot":"";
+  $("#wakeBtn").classList.toggle("on",state.wake);
+  $("#hint").innerHTML=`TAP RADAR · HOLD <b>SPACE</b> · OR ENABLE <b>WAKE WORD</b> AND SAY "HI ${state.assistant.toUpperCase()}"`;
+}
+function bootSequence(){
+  const lines=[["sys","▸ core systems: online"],["sys","▸ voice interface: online"],["sys","▸ onesafe knowledge base: linking"],["sys","▸ mission control: synced"]];
+  let i=0;const step=()=>{ if(i<lines.length){logLine(lines[i][0],lines[i][1]);i++;setTimeout(step,350);}
+    else{const hasBrain=state.brain!=="none"&&state.key;
+      const hi=`${greetWord()}, ${state.user}. All systems nominal.${state.wake?` Wake word armed. Say "hi ${state.assistant}" anytime.`:""}${hasBrain?"":" Brain module offline. Voice commands active."}`;
+      setReadout(hi);logLine("j",state.assistant+": "+hi);speak(hi);
+      if(state.wake) startEngine(); } };
+  setTimeout(step,300);
+}
+function logLine(cls,text){const el=document.createElement("div");el.className=cls;el.textContent=text;
+  $("#log").appendChild(el);$("#log").scrollTop=$("#log").scrollHeight;}
+function setReadout(t){$("#readout").innerHTML=escapeHtml(String(t).length>160?String(t).slice(0,160)+"…":String(t))+'<span class="cursor"></span>';}
+/* ---- metrics ---- */
+async function loadCounts(){
+  try{
+    const opts={headers:{...SBH,Prefer:"count=exact",Range:"0-0"}};
+    const r1=await fetch(SB+"/msra_documents?select=id",opts);
+    const r2=await fetch(SB+"/msra_hazards?select=id",opts);
+    $("#mActs").textContent=(r1.headers.get("content-range")||"/?").split("/")[1];
+    $("#mHaz").textContent=Number((r2.headers.get("content-range")||"/0").split("/")[1]).toLocaleString();
+    $("#stDb").textContent="ONLINE";$("#stDb").className="ok";
+  }catch(e){ $("#stDb").textContent="OFFLINE";$("#stDb").className=""; }
+}
+function renderLocalMetrics(){
+  const d=projSummary();
+  if(!d){ $("#mJourney").textContent="—"; $("#mAlerts").textContent="—"; return; }
+  let done=0,total=0,flags=0;
+  Object.values(d).forEach(p=>{done+=p.done;total+=p.total;flags+=p.flags.length;});
+  $("#mJourney").textContent=Math.round(100*done/total);
+  $("#mAlerts").textContent=flags;
+}
+/* ---- TTS ---- */
+let voice=null,speaking=false;
+function pickVoice(){const vs=speechSynthesis.getVoices();
+  voice=vs.find(v=>/en-GB/i.test(v.lang)&&/male|daniel|arthur|george|ryan/i.test(v.name))
+     ||vs.find(v=>/en-GB/i.test(v.lang))||vs.find(v=>/en/i.test(v.lang))||vs[0]||null;}
+if("speechSynthesis" in window){pickVoice();speechSynthesis.onvoiceschanged=pickVoice;}
+const radar=$("#radar");
+function speak(text){if(!("speechSynthesis" in window))return;speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(String(text).replace(/[*_#`]/g,""));if(voice)u.voice=voice;u.rate=1.04;u.pitch=.9;
+  u.onstart=()=>{speaking=true;radar.classList.add("thinking");pauseEngine();};
+  u.onend=()=>{speaking=false;radar.classList.remove("thinking");resumeEngine();};
+  speechSynthesis.speak(u);}
+/* ---- STT ENGINE (manual + wake word) ---- */
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+let rec=null, engineOn=false, capture=false, captureTimer=null;
+function micState(s,cls){$("#stMic").textContent=s;$("#stMic").className=cls||"";}
+function buildRec(){
+  const r=new SR(); r.lang="en-SG"; r.interimResults=true; r.continuous=true;
+  r.onresult=(e)=>{
+    let finalTxt="",interim="";
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      const t=e.results[i][0].transcript;
+      if(e.results[i].isFinal) finalTxt+=t; else interim+=t;
+    }
+    if(interim&&(capture||!state.wake)) setReadout(interim);
+    if(finalTxt) onSpeech(finalTxt.trim());
+  };
+  r.onerror=(e)=>{
+    if(e.error==="not-allowed"||e.error==="service-not-allowed"){
+      engineOn=false;micState("BLOCKED","live");
+      setReadout("Microphone blocked. Click the mic icon at the right of the address bar, choose Allow, then reload.");
+      logLine("sys","▸ mic permission denied by browser");}
+  };
+  r.onend=()=>{ if(engineOn&&!speaking){ try{r.start();}catch(_){} } else if(!engineOn){ micState("STANDBY"); radar.classList.remove("listening"); } };
+  return r;
+}
+function startEngine(){
+  if(!SR){ setReadout("Voice needs Chrome or Edge. The command line below works everywhere."); return; }
+  if(!rec) rec=buildRec();
+  engineOn=true;
+  try{rec.start();}catch(_){}
+  micState(state.wake?"ARMED":"LIVE",state.wake?"hot":"live");
+  if(!state.wake||capture){radar.classList.add("listening");radar.classList.remove("idle");}
+}
+function stopEngine(){ engineOn=false; try{rec&&rec.stop();}catch(_){} micState("STANDBY"); radar.classList.remove("listening"); radar.classList.add("idle"); }
+function pauseEngine(){ try{rec&&rec.stop();}catch(_){} }
+function resumeEngine(){ if(engineOn&&!speaking){ try{rec.start();}catch(_){} } }
+function beginCapture(prompt){
+  capture=true; clearTimeout(captureTimer);
+  radar.classList.add("listening"); micState("LIVE","live");
+  if(prompt)setReadout(prompt);
+  captureTimer=setTimeout(()=>{ capture=false; if(state.wake){micState("ARMED","hot");radar.classList.remove("listening");setReadout("Standing by.");} else stopEngine(); },9000);
+}
+function onSpeech(text){
+  const low=text.toLowerCase();
+  const wn=wakeName();
+  const wakeRe=new RegExp("\\b(hi|hey|hello|ok|okay|yo)[,\\s]+"+wn+"\\b","i");
+  const bare=new RegExp("^\\s*"+wn+"\\s*[.,!]*\\s*$","i");
+  if(state.wake&&!capture){
+    if(wakeRe.test(low)||bare.test(low)){
+      const rest=low.replace(wakeRe,"").replace(bare,"").replace(/^[,.\s]+/,"").trim();
+      logLine("u","You: "+text);
+      if(rest.length>2){ handleCommand(rest); }
+      else{ speak("Yes, "+state.user+"?"); beginCapture("Listening…"); }
+    }
+    return; // ignore all non-wake chatter
+  }
+  // capturing (after wake) or manual session
+  capture=false; clearTimeout(captureTimer);
+  if(state.wake){micState("ARMED","hot");radar.classList.remove("listening");}
+  else stopEngine();
+  handleCommand(text);
+}
+radar.addEventListener("click",()=>{
+  if(!SR){setReadout("Voice needs Chrome or Edge. Use the command line below.");return;}
+  speechSynthesis.cancel();
+  if(!engineOn) startEngine();
+  beginCapture("Listening…");
+});
+radar.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();radar.click();}});
+document.addEventListener("keydown",e=>{if(e.code==="Space"&&document.activeElement.tagName!=="INPUT"&&!$("#modal").classList.contains("open")){
+  e.preventDefault();radar.click();}});
+$("#wakeBtn").onclick=()=>{
+  state.wake=!state.wake; saveCfg(); applyIdentity();
+  if(state.wake){ startEngine(); micState("ARMED","hot");
+    const msg=`Wake word armed. Say "hi ${state.assistant}" and I'll answer, ${state.user}.`;
+    setReadout(msg);logLine("sys","▸ wake word: on");speak(msg); }
+  else{ stopEngine(); logLine("sys","▸ wake word: off"); setReadout("Wake word disarmed. Tap the radar to speak."); }
+};
+/* ---- command pipeline ---- */
+async function handleCommand(text){
+  if(!text)return;
+  logLine("u","You: "+text);
+  const low=text.toLowerCase();
+  const nav=low.match(/\b(open|go to|take me to|launch|bring up|pull up|show)\b.*\b(one ?safe|drive|e-?mail|mail|gmail|inbox|calendar|schedule|agenda|analytics|coursiv|page ?pilot|survey|responses|supabase|dashboard|mission)\b/);
+  if(nav){const t=nav[2].replace(/\s/g,"");
+    const key=/mail|inbox|gmail/.test(t)?"gmail":/calendar|schedule|agenda/.test(t)?"calendar":/onesafe/.test(t)?"onesafe":/pagepilot/.test(t)?"pagepilot":/dashboard|mission/.test(t)?"dashboard":/analytics/.test(t)?"analytics":/responses/.test(t)?"responses":/survey/.test(t)?"survey":/supabase/.test(t)?"supabase":/coursiv/.test(t)?"coursiv":"drive";
+    const w=window.open(LAUNCH[key],"_blank");
+    const name=key==="gmail"?"email":key==="onesafe"?"OneSafe":key==="dashboard"?"Mission Control":key;
+    const extra=(key==="gmail"||key==="calendar"||key==="drive")?" Reading it aloud arrives in phase two.":"";
+    if(w) replyLocal(`Opening ${name}, ${state.user}.${extra}`);
+    else replyLocal("Popup blocked. Allow popups for this page and try again.");
+    return;}
+  if(/^(hi|hey|hello|good (morning|afternoon|evening))\b/.test(low)&&low.length<40){
+    replyLocal(`${greetWord()}, ${state.user}. All systems nominal. What do you need?`);return;}
+  if(/status report|on my plate|overview|brief me|daily brief/.test(low)){
+    const d=projSummary();
+    if(!d){replyLocal("I can't read Mission Control yet. Open the dashboard once in this browser and I'll sync.");return;}
+    let items=[];let msg="Status report. ";
+    for(const id of ["safeframe","sprout","skai","coursiv"]){ if(d[id]){msg+=`${d[id].title.split("—")[0].trim()}: ${d[id].done} of ${d[id].total} done. `;
+      items.push({h:d[id].title,s:`${d[id].done}/${d[id].total} · next: ${d[id].current.slice(0,70)}`});}}
+    msg+=`Follow-ups pending: ${Object.values(d).reduce((a,p)=>a+p.flags.length,0)}.`;
+    renderFeed("STATUS",items);renderLocalMetrics();
+    replyLocal(msg);return;}
+  let m=low.match(/next (?:for|on|in) (one ?safe|safeframe|sprout|little sprout|skai|coursiv)/)||(/what.?s next|next step/.test(low)?["","safeframe"]:null);
+  if(m){
+    const d=projSummary();
+    if(!d){replyLocal("Open Mission Control once in this browser first, then I can read your roadmap.");return;}
+    const k=m[1].includes("safe")?"safeframe":m[1].includes("sprout")?"sprout":m[1].includes("skai")?"skai":m[1].includes("coursiv")?"coursiv":"safeframe";
+    const p=d[k];
+    replyLocal(`${p.title.split("—")[0].trim()}. Phase: ${p.phase}. Next step, ${state.user}: ${p.current}`+(p.flags.length?` Also flagged: ${p.flags[0]}.`:""));
+    renderTasks(k);return;}
+  m=low.match(/(?:search|find|look up)\s+(.+?)(?:\s+(?:hazards?|msra|in one ?safe))?$/);
+  if(m&&/(search|find|look up)/.test(low)){
+    const term=m[1].replace(/hazards?|msra|in one ?safe/g,"").trim();
+    setReadout("Searching OneSafe: "+term);
+    try{
+      const r=await fetch(SB+`/msra_hazards?select=hazard,injury,msra_documents(activity)&search=wfts(english).${encodeURIComponent(term)}&limit=6`,{headers:SBH});
+      const rows=await r.json();
+      if(!rows.length){replyLocal("No entries found for "+term+", "+state.user+".");return;}
+      renderFeed(term.toUpperCase(),rows.map(x=>({h:x.hazard,s:(x.msra_documents?.activity||"")+(x.injury?" · "+x.injury:"")})));
+      replyLocal(`Found ${rows.length} entries on ${term}. Top result, from ${rows[0].msra_documents.activity}: ${rows[0].hazard}. Full list on the intel feed.`);
+    }catch(e){replyLocal("The OneSafe link is down. Check the internet connection.");}
+    return;}
+  if(state.brain==="none"||!state.key){
+    replyLocal("That needs my brain module, "+state.user+". Open CONFIG and add a free Gemini key. Two minutes.");return;}
+  setReadout("Processing…");radar.classList.add("thinking");
+  try{
+    const res=await askBrain(text);
+    if(res.action)runAction(res.action);
+    const say=res.speak||"Done.";
+    setReadout(say);logLine("j",state.assistant+": "+say);speak(say);
+  }catch(err){
+    const msg="I couldn't reach the brain. Check the API key in CONFIG.";
+    setReadout(msg);logLine("sys","▸ "+(err.message||err));speak(msg);
+  }finally{radar.classList.remove("thinking");}
+}
+function replyLocal(msg){setReadout(msg);logLine("j",state.assistant+": "+msg);speak(msg);}
+function systemPrompt(){
+  return `You are ${state.assistant}, Karthik's voice assistant in the style of Iron Man's JARVIS: concise, competent, lightly witty, calm. Address him as ${state.user} occasionally.
+Karthik (Singapore) runs three ventures. OneSafe: safety-document platform for Singapore construction, live MSRA library (129 activities, 3,639 anonymized hazard rows in his own Supabase), toolbox talks in 6 languages, PE-design guides; upcoming: inspections, registers, permit-to-work, company logins; revenue: subscriptions. Little Sprout: Singapore new-parents guide app, validation survey live, goal 30+ responses, planned one-time S$10-30 pricing. Skai: dropshipping, learning phase, Page Pilot ready. Also: Coursiv AI course. Deadline: apps live in 1-2 months.
+Live roadmap state: ${JSON.stringify(projSummary())||"unavailable"}.
+You have NO direct email/calendar/drive access; if asked, say you'll open it on screen and include an "open" action.
+Reply with ONLY one JSON object, no markdown fences:
+{"speak": string, "action": {"type":"none"|"open"|"feed", ...}}
+- "speak": 1-3 short spoken sentences, plain text.
+- "open": {"type":"open","target":"gmail"|"calendar"|"drive"|"coursiv"|"survey"|"onesafe"|"dashboard"|"pagepilot"}
+- "feed": {"type":"feed","label":string,"items":[{"h":string,"s":string}]} for list-like answers.
+- else "none".`;
+}
+function parseJSON(raw){const clean=String(raw).replace(/```json|```/g,"").trim();
+  const m=clean.match(/\{[\s\S]*\}/);
+  try{return JSON.parse(m?m[0]:clean);}catch(_){return {speak:clean,action:{type:"none"}};}}
+async function askBrain(text){
+  if(state.brain==="gemini"){
+    const url=`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${state.key}`;
+    const r=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({systemInstruction:{parts:[{text:systemPrompt()}]},
+        contents:[{role:"user",parts:[{text:text}]}],
+        generationConfig:{responseMimeType:"application/json"}})});
+    if(!r.ok)throw new Error("gemini HTTP "+r.status);
+    const data=await r.json();
+    return parseJSON(data?.candidates?.[0]?.content?.parts?.[0]?.text||"");
+  }
+  const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",
+    headers:{"Content-Type":"application/json","x-api-key":state.key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+    body:JSON.stringify({model:"claude-sonnet-4-5",max_tokens:800,system:systemPrompt(),messages:[{role:"user",content:text}]})});
+  if(!r.ok)throw new Error("brain HTTP "+r.status);
+  const data=await r.json();
+  return parseJSON((data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("\n"));
+}
+function runAction(a){
+  if(!a||!a.type||a.type==="none")return;
+  if(a.type==="open"&&LAUNCH[a.target]){window.open(LAUNCH[a.target],"_blank");return;}
+  if(a.type==="feed"&&Array.isArray(a.items)){renderFeed((a.label||"RESULTS").toUpperCase(),a.items);}
+}
+/* ---- render ---- */
+function renderFeed(label,items){$("#feedTag").textContent=label;const ul=$("#feed");ul.innerHTML="";
+  if(!items.length){ul.innerHTML='<div class="empty">Nothing to show.</div>';return;}
+  items.slice(0,8).forEach(it=>{const li=document.createElement("li");
+    li.innerHTML=`<div class="h">${escapeHtml(it.h||"")}</div>${it.s?`<div class="s">${escapeHtml(it.s)}</div>`:""}`;
+    ul.appendChild(li);});}
+let taskProj="safeframe";
+function renderTasks(pid){
+  if(pid)taskProj=pid;
+  const ul=$("#tasks");ul.innerHTML="";
+  const s=dash();
+  if(!s){ul.innerHTML='<div class="empty">Open Mission Control once in this browser. Your roadmap appears here, live-synced.</div>';return;}
+  const p=s.projects.find(x=>x.id===taskProj)||s.projects[0];
+  $("#taskTag").textContent=p.title.split("—")[0].trim().toUpperCase();
+  const steps=p.phases.flatMap((ph,pi)=>ph.steps.map((st,si)=>({st,pi,si})));
+  const open=steps.filter(x=>!x.st.d).slice(0,6), done=steps.filter(x=>x.st.d).slice(-2);
+  [...done,...open].forEach(({st,pi,si})=>{
+    const li=document.createElement("li");if(st.d)li.classList.add("done");
+    li.innerHTML=`<span class="box">${st.d?"✓":""}</span><span class="txt">${escapeHtml(st.t.length>75?st.t.slice(0,75)+"…":st.t)}</span>`;
+    li.querySelector(".box").onclick=()=>{
+      const cur=dash();const pp=cur.projects.find(x=>x.id===p.id);
+      pp.phases[pi].steps[si].d=!pp.phases[pi].steps[si].d;saveDash(cur);renderTasks();renderLocalMetrics();};
+    ul.appendChild(li);});
+}
+function escapeHtml(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+/* ---- command line ---- */
+$("#sendBtn").onclick=sendTyped;
+$("#cmdInput").addEventListener("keydown",e=>{if(e.key==="Enter")sendTyped();});
+function sendTyped(){const v=$("#cmdInput").value.trim();if(!v)return;$("#cmdInput").value="";handleCommand(v);}
+/* ---- config ---- */
+const modal=$("#modal");
+$("#gearBtn").onclick=()=>{syncSettingsUI();modal.classList.add("open");};
+$("#closeBtn").onclick=()=>modal.classList.remove("open");
+modal.addEventListener("click",e=>{if(e.target===modal)modal.classList.remove("open");});
+$("#setBrain").onchange=updateBrainUI;
+function syncSettingsUI(){$("#setName").value=state.assistant;$("#setUser").value=state.user;
+  $("#setBrain").value=state.brain;$("#setKey").value=state.key;updateBrainUI();}
+function updateBrainUI(){const b=$("#setBrain").value;
+  $("#keyField").style.display=b==="none"?"none":"block";
+  const help={none:"Free. Works now: open apps, status reports, roadmap next-steps, OneSafe hazard search, wake word.",
+    gemini:"Free key, no card needed. Adds full conversation with your ventures as context.",
+    anthropic:"Your Claude API key, pay-as-you-go. The smartest option."};
+  $("#brainHelp").textContent=help[b];
+  if(b==="gemini")$("#keyHelp").innerHTML='Get one free at <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>. The key stays on this computer.';
+  if(b==="anthropic")$("#keyHelp").innerHTML='Get one at <a href="https://console.anthropic.com" target="_blank" rel="noopener">console.anthropic.com</a>. The key stays on this computer.';}
+$("#saveBtn").onclick=()=>{state.assistant=$("#setName").value.trim()||"JARVIS";state.user=$("#setUser").value.trim()||"Sir";
+  state.brain=$("#setBrain").value;state.key=$("#setKey").value.trim();saveCfg();
+  applyIdentity();modal.classList.remove("open");
+  replyLocal(state.assistant+" reconfigured and ready, "+state.user+".");};
+</script>
+</body>
+</html>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
