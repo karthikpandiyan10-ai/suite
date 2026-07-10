@@ -375,17 +375,27 @@ function beginCapture(prompt){
   if(prompt)setReadout(prompt);
   captureTimer=setTimeout(()=>{ capture=false; if(state.wake){micState("ARMED","hot");radar.classList.remove("listening");setReadout("Standing by.");} else stopEngine(); },9000);
 }
+function wakePattern(){
+  const wn=wakeName();
+  let namePat=wn.replace(/[.*+?^${}()|[\]\\]/g,"");
+  if(namePat.length<=3){ namePat=namePat.split("").join("\\s*"); }
+  return namePat;
+}
 function onSpeech(text){
   const low=text.toLowerCase();
-  const wn=wakeName();
-  const wakeRe=new RegExp("\\b(hi|hey|hello|ok|okay|yo)[,\\s]+"+wn+"\\b","i");
+  const wn=wakePattern();
+  const wakeRe=new RegExp("\\b(hi|hey|hello|ok|okay|yo|morning|good morning|evening|good evening|afternoon|good afternoon)[,\\s]+"+wn+"\\b","i");
   const bare=new RegExp("^\\s*"+wn+"\\s*[.,!]*\\s*$","i");
   if(state.wake&&!capture){
     if(wakeRe.test(low)||bare.test(low)){
       const rest=low.replace(wakeRe,"").replace(bare,"").replace(/^[,.\s]+/,"").trim();
       logLine("u","You: "+text);
       if(rest.length>2){ handleCommand(rest); }
-      else{ speak("Yes, "+state.user+"?"); beginCapture("Listening…"); }
+      else{
+        const g=/morning/.test(low)?"Good morning":/evening/.test(low)?"Good evening":/afternoon/.test(low)?"Good afternoon":null;
+        if(g){ speak(`${g}, ${state.user}. Standing by. Ask for your plan whenever you're ready.`); }
+        else speak("Yes, "+state.user+"?");
+        beginCapture("Listening…"); }
     }
     return; // ignore all non-wake chatter
   }
@@ -461,6 +471,13 @@ async function handleCommand(text){
       if(d){const fl=Object.values(d).reduce((a,p)=>a+p.flags.length,0); if(fl)msg+=` ${fl} roadmap items flagged for follow-up.`;}
       replyLocal(msg);
     }catch(e){replyLocal("I couldn't reach the daily memory. Check the connection.");}
+    return;}
+  m=low.match(/(?:remind me(?: tomorrow)?(?: to)?|tomorrow (?:i (?:need|want|have) to|we (?:need|have) to))\s+(.+)/);
+  if(m){
+    try{
+      await fetch(SB+"/todo",{method:"POST",headers:{...SBH,"Content-Type":"application/json",Prefer:"return=minimal"},body:JSON.stringify({text:m[1].trim()})});
+      replyLocal(`Noted for tomorrow, ${state.user}: ${m[1].trim()}. It will be on your morning plan.`);
+    }catch(e){replyLocal("Couldn't save that reminder.");}
     return;}
   m=low.match(/(?:add|new)\s+(?:a\s+)?(?:task|to ?do)[:,]?\s+(.+)/);
   if(m){
