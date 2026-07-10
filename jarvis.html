@@ -252,7 +252,20 @@ const LAUNCH={
   responses:"https://docs.google.com/spreadsheets/d/1KOau5_mwvmiNUIdHyeh2clr5EH0ofOg4cYhlCRFqOvU/edit",
   supabase:"https://supabase.com/dashboard/project/drgnimyotoqrzuxflxpy",
   onesafe:(location.protocol==="file:"?"../SafeFrame/OneSafe/onesafe.html":"onesafe.html"),
-  dashboard:(location.protocol==="file:"?"../Karthik_Dashboard.html":"dashboard.html")
+  dashboard:(location.protocol==="file:"?"../Karthik_Dashboard.html":"dashboard.html"),
+  youtube:"https://www.youtube.com", jasper:"https://www.jasper.ai", chatgpt:"https://chatgpt.com",
+  claude:"https://claude.ai", tiktok:"https://www.tiktok.com", amazon:"https://www.amazon.sg",
+  aliexpress:"https://www.aliexpress.com", shopee:"https://shopee.sg", lazada:"https://www.lazada.sg",
+  canva:"https://www.canva.com", shopify:"https://www.shopify.com", google:"https://www.google.com"
+};
+const SEARCHERS={
+  youtube:q=>"https://www.youtube.com/results?search_query="+encodeURIComponent(q),
+  google:q=>"https://www.google.com/search?q="+encodeURIComponent(q),
+  amazon:q=>"https://www.amazon.sg/s?k="+encodeURIComponent(q),
+  aliexpress:q=>"https://www.aliexpress.com/w/wholesale-"+encodeURIComponent(q.replace(/\s+/g,"-"))+".html",
+  shopee:q=>"https://shopee.sg/search?keyword="+encodeURIComponent(q),
+  lazada:q=>"https://www.lazada.sg/catalog/?q="+encodeURIComponent(q),
+  tiktok:q=>"https://www.tiktok.com/search?q="+encodeURIComponent(q)
 };
 let state=Object.assign({assistant:"JARVIS",user:"Sir",brain:"none",key:"",wake:false},
   JSON.parse(localStorage.getItem("jarvis_cfg")||"{}"));
@@ -426,6 +439,27 @@ async function handleCommand(text){
   if(!text)return;
   logLine("u","You: "+text);
   const low=text.toLowerCase();
+  // web search: "search youtube for X" / "search X on youtube" / "find winning products on tiktok"
+  let ws=low.match(/(?:search|find|look up|show me)\s+(?:on\s+)?(youtube|google|amazon|aliexpress|shopee|lazada|tiktok)\s+(?:for\s+)?(.+)/)
+      || low.match(/(?:search|find|look up|show me)\s+(?:for\s+)?(.+?)\s+on\s+(youtube|google|amazon|aliexpress|shopee|lazada|tiktok)$/);
+  if(ws){
+    const site=SEARCHERS[ws[1]]?ws[1]:ws[2], term=(SEARCHERS[ws[1]]?ws[2]:ws[1]).replace(/[.?!]$/,"").trim();
+    if(SEARCHERS[site]){
+      window.open(SEARCHERS[site](term),"_blank");
+      replyLocal(`Searching ${site} for ${term}, ${state.user}.`);
+      return;
+    }
+  }
+  // generic open: "open jasper" -> known site or best-guess domain
+  let go=low.match(/^(?:open|launch|go to|take me to|bring up)\s+([a-z0-9 .]+?)[.?!]*$/);
+  if(go){
+    const name=go[1].trim().replace(/\s+/g,"");
+    if(!LAUNCH[name] && /^[a-z0-9]{2,20}$/.test(name) && !/onesafe|dashboard|mission|mail|inbox|calendar|schedule|agenda|drive|survey|responses|supabase|coursiv|pagepilot|analytics/.test(name)){
+      window.open("https://www."+name+".com","_blank");
+      replyLocal(`Opening ${go[1].trim()}, ${state.user}.`);
+      return;
+    }
+  }
   const nav=low.match(/\b(open|go to|take me to|launch|bring up|pull up|show)\b.*\b(one ?safe|drive|e-?mail|mail|gmail|inbox|calendar|schedule|agenda|analytics|coursiv|page ?pilot|survey|responses|supabase|dashboard|mission)\b/);
   if(nav){const t=nav[2].replace(/\s/g,"");
     const key=/mail|inbox|gmail/.test(t)?"gmail":/calendar|schedule|agenda/.test(t)?"calendar":/onesafe/.test(t)?"onesafe":/pagepilot/.test(t)?"pagepilot":/dashboard|mission/.test(t)?"dashboard":/analytics/.test(t)?"analytics":/responses/.test(t)?"responses":/survey/.test(t)?"survey":/supabase/.test(t)?"supabase":/coursiv/.test(t)?"coursiv":"drive";
