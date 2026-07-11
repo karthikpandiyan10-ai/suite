@@ -271,6 +271,9 @@ const LAUNCH={
   supabase:"https://supabase.com/dashboard/project/drgnimyotoqrzuxflxpy",
   onesafe:(location.protocol==="file:"?"../SafeFrame/OneSafe/onesafe.html":"onesafe.html"),
   dashboard:(location.protocol==="file:"?"../Karthik_Dashboard.html":"dashboard.html"),
+  littlesprout:(location.protocol==="file:"?"../Little Sprout/little-sprout.html":"little-sprout.html"),
+  sproutpage:(location.protocol==="file:"?"../Little Sprout/little-sprout.html":"little-sprout.html"),
+  sprout:(location.protocol==="file:"?"../Little Sprout/little-sprout.html":"little-sprout.html"),
   youtube:"https://www.youtube.com", jasper:"https://www.jasper.ai", chatgpt:"https://chatgpt.com",
   claude:"https://claude.ai", tiktok:"https://www.tiktok.com", amazon:"https://www.amazon.sg",
   aliexpress:"https://www.aliexpress.com", shopee:"https://shopee.sg", lazada:"https://www.lazada.sg",
@@ -446,7 +449,7 @@ function onSpeech(text){
         beginCapture("Listening…"); }
     }
     // HOT COMMANDS: site names work WITHOUT the wake word — "go youtube", "google crane safety"
-    const hot=low.match(/\b(youtube|google|whatsapp|gmail|drive|calendar|onesafe|one safe|dashboard|shopee|lazada|amazon|aliexpress|tiktok|canva|shopify|jasper|chatgpt|claude|coursiv|supabase|mom|wsh)\b/);
+    const hot=low.match(/\b(youtube|google|whatsapp|gmail|drive|calendar|onesafe|one safe|dashboard|little sprout|sprout|shopee|lazada|amazon|aliexpress|tiktok|canva|shopify|jasper|chatgpt|claude|coursiv|supabase|mom|wsh)\b/);
     if(hot && (/(open|go|goto|search|find|look|play|launch|visit|check|show|take)/.test(low) || low.split(/\s+/).length<=4)){
       logLine("u","You: "+text);
       handleCommand(low);
@@ -627,17 +630,18 @@ async function handleCommand(text){
   }
   // SITE CATCH: if he mentions a known site ANYWHERE in the sentence, act on it.
   // "i'm gonna go google" -> open Google. "check on google about lifting plans" -> google-search "lifting plans".
-  let sc=low.match(/\b(youtube|google|whatsapp|gmail|drive|calendar|shopee|lazada|amazon|aliexpress|tiktok|canva|shopify|jasper|chatgpt|claude|coursiv|supabase|mom|wsh|onesafe|one ?safe|dashboard)\b/);
-  if(sc){
+  let sc=low.match(/\b(youtube|google|whatsapp|gmail|drive|calendar|shopee|lazada|amazon|aliexpress|tiktok|canva|shopify|jasper|chatgpt|claude|coursiv|supabase|mom|wsh|onesafe|one ?safe|dashboard|little ?sprout|sprout)\b/);
+  const thinkq=/\b(analy[sz]e|review|advise|advice|opinion|feedback|why|how|should|recommend|suggest|compare|improve|plan for|strategy|think)\b/.test(low);
+  if(sc && !thinkq){
     let key=sc[1].replace(/\s+/g,"");
     // words after the site name = search term (minus glue words)
     let after=low.slice(low.indexOf(sc[1])+sc[1].length)
       .replace(/\b(for|about|on|regarding|related to|the|a|an|some|things?|stuff|info|information)\b/g," ")
       .replace(/\s+/g," ").trim();
     if(after.length>2 && SEARCHERS[key]){ safeOpen(SEARCHERS[key](after), key+" results for "+after); return; }
-    const openIntent=new RegExp("\\b(open(?: up)?|go(?: to| on)?|goto|visit|launch|start|take me to|bring up|pull up)\\s+(?:the\\s+)?"+sc[1].replace(/\s+/g,"\\s+")).test(low);
-    if(LAUNCH[key] && (openIntent || after.length<=2)){ safeOpen(LAUNCH[key], key); return; }
-    // otherwise fall through — a question ABOUT the site goes to Google below
+    const openIntent=new RegExp("\\b(open(?: up)?|go(?: to| on)?|goto|visit|launch|start|take me to|bring up|pull up|show)\\s+(?:the\\s+|my\\s+)?"+sc[1].replace(/\s+/g,"\\s+")).test(low);
+    if(LAUNCH[key] && (openIntent || low.split(/\s+/).length<=3)){ safeOpen(LAUNCH[key], key); return; }
+    // otherwise fall through — a question ABOUT the site goes to the brain / Google below
   }
   // default web search: "search X" / "find out about X" / "look up X" / "find X"
   let gs=low.match(/^(?:search|look ?up|find out(?: more)?(?: about)?|find|check)\s+(?:for\s+|about\s+|on\s+)?(.+)$/);
