@@ -476,7 +476,8 @@ async function handleCommand(text){
   let go=low.match(/^(?:open|launch|go to|take me to|bring up)\s+([a-z0-9 .]+?)[.?!]*$/);
   if(go){
     const name=go[1].trim().replace(/\s+/g,"");
-    if(!LAUNCH[name] && /^[a-z0-9]{2,20}$/.test(name) && !/onesafe|dashboard|mission|mail|inbox|calendar|schedule|agenda|drive|survey|responses|supabase|coursiv|pagepilot|analytics/.test(name)){
+    if(LAUNCH[name]){ safeOpen(LAUNCH[name], go[1].trim()); return; }
+    if(/^[a-z0-9]{2,20}$/.test(name) && !/onesafe|dashboard|mission|mail|inbox|calendar|schedule|agenda|drive|survey|responses|supabase|coursiv|pagepilot|analytics/.test(name)){
       safeOpen("https://www."+name+".com", go[1].trim());
       return;
     }
