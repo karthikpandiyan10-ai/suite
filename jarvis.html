@@ -664,7 +664,7 @@ function parseJSON(raw){const clean=String(raw).replace(/```json|```/g,"").trim(
   try{return JSON.parse(m?m[0]:clean);}catch(_){return {speak:clean,action:{type:"none"}};}}
 async function askBrain(text){
   if(state.brain==="gemini"){
-    const url=`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${state.key}`;
+    const url=`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${state.key}`;
     const r=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},
       body:JSON.stringify({systemInstruction:{parts:[{text:systemPrompt()}]},
         contents:[{role:"user",parts:[{text:text}]}],
