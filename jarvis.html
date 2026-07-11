@@ -536,7 +536,7 @@ function renderVentures(){
 }
 renderTasks(); startClock(); applyIdentity(); loadCounts(); renderLocalMetrics(); loadNotes(); gStatus(); renderVentures(); setInterval(renderVentures,120000); bootSequence();
 /* ---- self-updater: pull new builds automatically when idle ---- */
-const SK_VER="v19";
+const SK_VER="v20";
 setInterval(async()=>{try{
   if(speaking||capture)return;
   const txt=await (await fetch(location.pathname,{cache:"reload"})).text();
@@ -585,7 +585,7 @@ function applyIdentity(){
   $("#hint").innerHTML=`TAP RADAR · HOLD <b>SPACE</b> · OR ENABLE <b>WAKE WORD</b> AND SAY "HI ${state.assistant.toUpperCase()}"`;
 }
 function bootSequence(){
-  const lines=[["sys","▸ SK core v19: mic watchdog online — the ear revives itself if it ever goes silent. Long conversations now stable."],["sys","▸ core systems: online"],["sys","▸ voice interface: online"],["sys","▸ onesafe knowledge base: linking"],["sys","▸ mission control: synced"]];
+  const lines=[["sys","▸ SK core v20: handoff online — say: tell Claude to (anything). I dispatch, he builds."],["sys","▸ core systems: online"],["sys","▸ voice interface: online"],["sys","▸ onesafe knowledge base: linking"],["sys","▸ mission control: synced"]];
   let i=0;const step=()=>{ if(i<lines.length){logLine(lines[i][0],lines[i][1]);i++;setTimeout(step,350);}
     else{const hasBrain=state.brain!=="none"&&state.key;
       const hi=`${greetWord()}, ${state.user}. All systems nominal.${state.wake?` Wake word armed. Say "hi ${state.assistant}" anytime.`:""}${hasBrain?"":" Brain module offline. Voice commands active."}`;
@@ -857,6 +857,15 @@ async function handleCommand(text){
       renderFeed("DRIVE: "+term.toUpperCase().slice(0,16),d.files.map(f=>({h:f.name,s:new Date(f.modifiedTime).toLocaleDateString("en-SG"),u:f.webViewLink})));
       replyLocal(`Found ${d.files.length} files for ${term}. Top: ${d.files[0].name}. Tap on the feed to open.`);
     }catch(e){ e.message==="GAUTH"?gExpired():replyLocal("Couldn't reach Drive right now."); }
+    return;}
+  // ---- HANDOFF TO CLAUDE: "tell claude to X" logs a task for the next Claude session ----
+  let hc=low.match(/^(?:tell|ask|get)\s+(?:claude|cloud|clode|clod)\s+(?:to\s+)?(.+)/);
+  if(hc){
+    try{
+      await fetch(SB+"/todo",{method:"POST",headers:{...SBH,"Content-Type":"application/json",Prefer:"return=minimal"},
+        body:JSON.stringify({text:"[FOR CLAUDE] "+hc[1].trim()})});
+      replyLocal("Logged for Claude, "+state.user+": "+hc[1].trim()+". He picks it up the moment you open your next session. I'm the cockpit; he's the engine room.");
+    }catch(e){replyLocal("Couldn't log that for Claude. Check the connection.");}
     return;}
   // ---- THEME PROTOCOLS ----
   let th=low.match(/\b(?:theme|team|tim|teem|time|skin|mode|protocol|suit)\s+(dead ?pool|stark|iron ?man|wolverine|cyan|default|reference|blue)\b/)
