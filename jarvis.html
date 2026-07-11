@@ -15,43 +15,51 @@
 :root{
   --bg:#04070e; --bg2:#0a1322; --ink:#d7eef6; --muted:#6d8a99;
   --amber:#35e6ff; --amber-dim:#2a6b7e; --red:#ff4d5e; --green:#54f0b8;
-  --hair:rgba(53,230,255,.22); --hair2:rgba(215,238,246,.08);
-  --glow:rgba(53,230,255,.12); --line:#153048; --panel:rgba(10,19,34,.82);
+  --hair:rgba(var(--grgb),.22); --hair2:rgba(215,238,246,.08);
+  --glow:rgba(var(--grgb),.12); --line:#153048; --panel:rgba(10,19,34,.82);
+  --grgb:53,230,255;
   --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
   --body:"Rajdhani",system-ui,sans-serif;
   --display:"Orbitron",var(--mono);
 }
+/* ---- MARVEL THEME PROTOCOLS (say: theme deadpool / theme stark / theme wolverine / theme cyan) ---- */
+[data-theme="deadpool"]{--bg:#0a0507;--bg2:#160a0e;--panel:rgba(22,10,14,.85);--line:#3a1420;--ink:#f2dee2;--muted:#8a6d75;
+  --amber:#ff2b4e;--amber-dim:#7e1f31;--red:#ffd23f;--green:#54f0b8;--hair:rgba(255,43,78,.25);--hair2:rgba(242,222,226,.08);--grgb:255,43,78}
+[data-theme="stark"]{--bg:#0b0705;--bg2:#1a0f08;--panel:rgba(26,15,8,.85);--line:#3d2412;--ink:#f5e9d8;--muted:#98816a;
+  --amber:#ffb547;--amber-dim:#8a5c1e;--red:#ff4d5e;--green:#54f0b8;--hair:rgba(255,181,71,.25);--hair2:rgba(245,233,216,.08);--grgb:255,181,71}
+[data-theme="wolverine"]{--bg:#060809;--bg2:#0e1216;--panel:rgba(14,18,22,.85);--line:#3a3414;--ink:#eef2df;--muted:#8a9a6d;
+  --amber:#ffd23f;--amber-dim:#7e6a1f;--red:#ff4d5e;--green:#54f0b8;--hair:rgba(255,210,63,.25);--hair2:rgba(238,242,223,.08);--grgb:255,210,63}
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);overflow:hidden}
 /* ambient reactor glow + holo grid floor: fixed, pointer-events none */
 body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
   background-image:
-    linear-gradient(rgba(53,230,255,.035) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(53,230,255,.035) 1px,transparent 1px),
-    radial-gradient(60% 46% at 50% 44%, rgba(53,230,255,.10), transparent 62%),
-    radial-gradient(38% 30% at 12% 0%, rgba(53,230,255,.05), transparent 70%),
+    linear-gradient(rgba(var(--grgb),.035) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(var(--grgb),.035) 1px,transparent 1px),
+    radial-gradient(60% 46% at 50% 44%, rgba(var(--grgb),.10), transparent 62%),
+    radial-gradient(38% 30% at 12% 0%, rgba(var(--grgb),.05), transparent 70%),
     radial-gradient(38% 30% at 92% 100%, rgba(31,110,160,.08), transparent 70%);
   background-size:44px 44px,44px 44px,auto,auto,auto;
   -webkit-mask-image:radial-gradient(circle at 50% 45%, #000 30%, transparent 88%);
   mask-image:radial-gradient(circle at 50% 45%, #000 30%, transparent 88%)}
 body::after{content:"";position:fixed;left:0;right:0;height:110px;z-index:51;pointer-events:none;
-  background:linear-gradient(180deg, transparent, rgba(53,230,255,.05), transparent);
+  background:linear-gradient(180deg, transparent, rgba(var(--grgb),.05), transparent);
   animation:sweep 10s linear infinite}
 @keyframes sweep{0%{top:-120px}100%{top:100vh}}
 /* HUD Pro micro-animations */
 .wordmark{animation:glitch 6.5s steps(1) infinite}
 @keyframes glitch{
-  0%,90%,100%{text-shadow:0 0 14px rgba(53,230,255,.45)}
-  91%{text-shadow:2px 0 var(--red),-2px 0 var(--amber),0 0 18px rgba(53,230,255,.6)}
+  0%,90%,100%{text-shadow:0 0 14px rgba(var(--grgb),.45)}
+  91%{text-shadow:2px 0 var(--red),-2px 0 var(--amber),0 0 18px rgba(var(--grgb),.6)}
   93%{text-shadow:-2px 0 var(--red),2px 0 var(--amber)}
-  95%{text-shadow:1px 1px var(--red),-1px -1px var(--amber),0 0 20px rgba(53,230,255,.7)}
-  97%{text-shadow:0 0 14px rgba(53,230,255,.45)}}
+  95%{text-shadow:1px 1px var(--red),-1px -1px var(--amber),0 0 20px rgba(var(--grgb),.7)}
+  97%{text-shadow:0 0 14px rgba(var(--grgb),.45)}}
 /* particle field canvas */
 #stars{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.55}
 /* voice visualizer */
 .viz{display:flex;gap:3px;height:24px;align-items:center;justify-content:center;opacity:.22;transition:opacity .3s}
-.viz i{display:block;width:3px;height:3px;background:var(--amber);box-shadow:0 0 6px rgba(53,230,255,.6)}
+.viz i{display:block;width:3px;height:3px;background:var(--amber);box-shadow:0 0 6px rgba(var(--grgb),.6)}
 body.talking .viz{opacity:1}
 body.talking .viz i{animation:vz .45s ease-in-out infinite alternate}
 @keyframes vz{from{height:3px}to{height:22px}}
@@ -59,7 +67,7 @@ body.talking .viz i{animation:vz .45s ease-in-out infinite alternate}
 .cmd{position:relative}
 .cmd::before{content:"";position:absolute;top:-4px;left:0;right:0;height:3px;opacity:.35;
   background:repeating-linear-gradient(45deg,var(--amber) 0 10px,transparent 10px 22px,var(--red) 22px 32px,transparent 32px 44px)}
-.clock span+span{text-shadow:0 0 10px rgba(53,230,255,.5)}
+.clock span+span{text-shadow:0 0 10px rgba(var(--grgb),.5)}
 @media (prefers-reduced-motion:reduce){.wordmark{animation:none}#stars{display:none}body.talking .viz i{animation:none}}
 .tele>div{position:relative;overflow:hidden}
 .tele>div::after{content:"";position:absolute;left:-40%;bottom:0;height:2px;width:40%;
@@ -68,7 +76,7 @@ body.talking .viz i{animation:vz .45s ease-in-out infinite alternate}
 @keyframes scanbar{0%{left:-40%}100%{left:100%}}
 .tele>div:nth-child(2)::after{animation-delay:.8s}.tele>div:nth-child(3)::after{animation-delay:1.6s}.tele>div:nth-child(4)::after{animation-delay:2.4s}
 .feed li,.tasks li{transition:background .25s,transform .25s}
-.feed li:hover,.tasks li:hover{background:rgba(53,230,255,.05);transform:translateX(2px)}
+.feed li:hover,.tasks li:hover{background:rgba(var(--grgb),.05);transform:translateX(2px)}
 .tag b.ok{animation:okblink 3s ease-in-out infinite}
 @keyframes okblink{50%{opacity:.55}}
 /* HUD Pro Max: panel entrance choreography (spring ease, staggered) */
@@ -111,7 +119,7 @@ body.talking .viz i{animation:vz .45s ease-in-out infinite alternate}
 @keyframes tick{to{transform:translateX(-100%)}}
 @media (prefers-reduced-motion:reduce){.ticker-track{animation:none;padding-left:0}}
 /* ---- top strip ---- */
-.top{display:flex;align-items:stretch;border-bottom:1px solid var(--hair);height:58px;background:linear-gradient(180deg, rgba(53,230,255,.04), transparent)}
+.top{display:flex;align-items:stretch;border-bottom:1px solid var(--hair);height:58px;background:linear-gradient(180deg, rgba(var(--grgb),.04), transparent)}
 .top>div{display:flex;align-items:center;padding:0 18px;border-right:1px solid var(--hair2)}
 .top>div:first-child{padding-left:2px}
 .top>div:last-child{border-right:none;margin-left:auto;padding-right:2px}
@@ -122,9 +130,9 @@ body.talking .viz i{animation:vz .45s ease-in-out infinite alternate}
 .tag b.hot{color:var(--amber)} .tag b.live{color:var(--red)} .tag b.ok{color:var(--green)}
 .clock{font-family:var(--mono);font-size:15px;letter-spacing:.1em}
 .clock span{color:var(--muted);font-size:10px;display:block;letter-spacing:.24em;text-transform:uppercase}
-button.plain{background:rgba(53,230,255,.04);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-family:var(--mono);
+button.plain{background:rgba(var(--grgb),.04);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-family:var(--mono);
   font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;padding:8px 14px;cursor:pointer;transition:.15s}
-button.plain:hover{border-color:var(--amber);color:var(--amber);box-shadow:inset 0 0 18px rgba(53,230,255,.08)}
+button.plain:hover{border-color:var(--amber);color:var(--amber);box-shadow:inset 0 0 18px rgba(var(--grgb),.08)}
 button.plain:active{transform:translateY(1px)}
 button.plain.on{background:var(--amber);color:#04121C;border-color:var(--amber)}
 /* ---- main grid ---- */
@@ -143,7 +151,7 @@ button.plain.on{background:var(--amber);color:#04121C;border-color:var(--amber)}
 .tele>div:nth-child(odd){padding-right:14px;border-right:1px solid var(--hair2)}
 .tele>div:nth-child(even){padding-left:14px}
 .tele>div:nth-child(-n+2){border-bottom:1px solid var(--hair2)}
-.tele .n{font-family:var(--display);font-size:24px;font-weight:700;color:var(--ink);text-shadow:0 0 12px rgba(53,230,255,.25)}
+.tele .n{font-family:var(--display);font-size:24px;font-weight:700;color:var(--ink);text-shadow:0 0 12px rgba(var(--grgb),.25)}
 .tele .n i{font-style:normal;color:var(--amber)}
 .tele .l{font-family:var(--mono);font-size:9px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;margin-top:2px}
 /* log */
@@ -155,7 +163,7 @@ button.plain.on{background:var(--amber);color:#04121C;border-color:var(--amber)}
 /* ---- center ---- */
 .center{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:20px;min-height:0}
 .radar{position:relative;width:min(280px,32vh);aspect-ratio:1;cursor:pointer;flex-shrink:1}
-.radar svg{width:100%;height:100%;display:block;filter:drop-shadow(0 0 22px rgba(53,230,255,.14))}
+.radar svg{width:100%;height:100%;display:block;filter:drop-shadow(0 0 22px rgba(var(--grgb),.14))}
 .radar .sweep{transform-origin:50% 50%;animation:spin 6s linear infinite}
 .radar .ring2{transform-origin:50% 50%;animation:spin 28s linear infinite reverse}
 .radar .ring3{transform-origin:50% 50%;animation:spin 45s linear infinite}
@@ -168,7 +176,7 @@ button.plain.on{background:var(--amber);color:#04121C;border-color:var(--amber)}
 .radar:focus-visible{outline:2px solid var(--amber);outline-offset:6px}
 .readout{font-family:var(--mono);font-size:14px;letter-spacing:.06em;color:var(--ink);text-align:center;
   max-width:620px;min-height:42px;line-height:1.6;border:1px solid var(--line);border-radius:12px;padding:10px 20px;
-  background:var(--panel);backdrop-filter:blur(2px);box-shadow:0 0 24px rgba(53,230,255,.08)}
+  background:var(--panel);backdrop-filter:blur(2px);box-shadow:0 0 24px rgba(var(--grgb),.08)}
 .readout .cursor{display:inline-block;width:8px;height:15px;background:var(--amber);vertical-align:-2px;animation:blink 1s steps(1) infinite}
 @keyframes blink{50%{opacity:0}}
 .hint{font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;text-align:center}
@@ -176,8 +184,8 @@ button.plain.on{background:var(--amber);color:#04121C;border-color:var(--amber)}
 .keys{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;border:none}
 .keys button{background:var(--panel);border:1px solid var(--line);border-radius:9px;color:var(--muted);font-family:var(--mono);
   font-size:10px;letter-spacing:.14em;text-transform:uppercase;padding:11px 16px;cursor:pointer;transition:.2s}
-.keys button:hover{border-color:var(--amber);box-shadow:0 0 14px rgba(53,230,255,.3)}
-.keys button:hover{color:var(--amber);background:rgba(53,230,255,.07)}
+.keys button:hover{border-color:var(--amber);box-shadow:0 0 14px rgba(var(--grgb),.3)}
+.keys button:hover{color:var(--amber);background:rgba(var(--grgb),.07)}
 .keys button:active{transform:translateY(1px)}
 /* ---- right col ---- */
 .feed{list-style:none;flex:1;overflow-y:auto}
@@ -199,7 +207,7 @@ button.plain.on{background:var(--amber);color:#04121C;border-color:var(--amber)}
 .cmd input::placeholder{color:var(--muted)}
 .cmd button{background:none;border:none;border-left:1px solid var(--hair);color:var(--amber);font-family:var(--mono);
   font-size:11px;letter-spacing:.22em;text-transform:uppercase;padding:0 26px;cursor:pointer;transition:.15s}
-.cmd button:hover{background:rgba(53,230,255,.09)}
+.cmd button:hover{background:rgba(var(--grgb),.09)}
 /* ---- settings drawer ---- */
 .modal{position:fixed;inset:0;z-index:60;display:none;place-items:center;background:rgba(2,6,11,.72);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 .modal.open{display:grid}
@@ -273,7 +281,7 @@ button.plain.on{background:var(--amber);color:#04121C;border-color:var(--amber)}
           <line x1="2" y1="100" x2="198" y2="100" stroke="var(--hair)" stroke-width="1"/>
           <circle cx="100" cy="100" r="88" fill="none" stroke="var(--amber-dim)" stroke-width="1" stroke-dasharray="3 9" class="ring2"/>
           <circle cx="100" cy="100" r="94" fill="none" stroke="var(--amber)" stroke-width="2" stroke-dasharray="1 11" opacity=".5" class="ring3"/>
-          <g class="sweep"><path d="M100,100 L100,4 A96,96 0 0 1 152,16 Z" fill="rgba(53,230,255,.16)"/>
+          <g class="sweep"><path d="M100,100 L100,4 A96,96 0 0 1 152,16 Z" fill="rgba(var(--grgb),.16)"/>
           <line x1="100" y1="100" x2="100" y2="4" stroke="var(--amber)" stroke-width="1.5"/></g>
           <circle cx="100" cy="100" r="20" fill="var(--bg2)" stroke="var(--amber)" stroke-width="1.5"/>
           <text x="100" y="104" text-anchor="middle" class="micglyph">MIC</text>
@@ -388,9 +396,10 @@ const SEARCHERS={
   lazada:q=>"https://www.lazada.sg/catalog/?q="+encodeURIComponent(q),
   tiktok:q=>"https://www.tiktok.com/search?q="+encodeURIComponent(q)
 };
-let state=Object.assign({assistant:"JARVIS",user:"Sir",brain:"none",key:"",wake:false,voiceName:"",rate:1.04,pitch:0.9,gclient:""},
+let state=Object.assign({assistant:"JARVIS",user:"Sir",brain:"none",key:"",wake:false,voiceName:"",rate:1.04,pitch:0.9,gclient:"",theme:""},
   JSON.parse(localStorage.getItem("jarvis_cfg")||"{}"));
 function saveCfg(){localStorage.setItem("jarvis_cfg",JSON.stringify(state));}
+if(state.theme)document.documentElement.dataset.theme=state.theme;
 function wakeName(){return state.assistant.trim().split(/\s+/)[0].toLowerCase();}
 
 /* ---- Mission Control sync (shared localStorage) ---- */
@@ -510,7 +519,7 @@ renderTasks(); startClock(); applyIdentity(); loadCounts(); renderLocalMetrics()
     for(const p of P){
       p.y-=p.z*0.4; if(p.y<-6){p.y=H+6;p.x=Math.random()*W;}
       x.globalAlpha=0.10+p.z*0.22;
-      x.fillStyle="#35e6ff";
+      x.fillStyle=getComputedStyle(document.documentElement).getPropertyValue("--amber").trim()||"#35e6ff";
       x.fillRect(p.x,p.y,p.s,p.s*3);
     }
     requestAnimationFrame(loop);
@@ -539,7 +548,7 @@ function applyIdentity(){
   $("#hint").innerHTML=`TAP RADAR · HOLD <b>SPACE</b> · OR ENABLE <b>WAKE WORD</b> AND SAY "HI ${state.assistant.toUpperCase()}"`;
 }
 function bootSequence(){
-  const lines=[["sys","▸ SK core v14: rebuilt to your reference design. Orbitron display, electric cyan, holo grid, glass panels."],["sys","▸ core systems: online"],["sys","▸ voice interface: online"],["sys","▸ onesafe knowledge base: linking"],["sys","▸ mission control: synced"]];
+  const lines=[["sys","▸ SK core v15: theme protocols loaded. Say: theme deadpool · theme stark · theme wolverine · theme cyan"],["sys","▸ core systems: online"],["sys","▸ voice interface: online"],["sys","▸ onesafe knowledge base: linking"],["sys","▸ mission control: synced"]];
   let i=0;const step=()=>{ if(i<lines.length){logLine(lines[i][0],lines[i][1]);i++;setTimeout(step,350);}
     else{const hasBrain=state.brain!=="none"&&state.key;
       const hi=`${greetWord()}, ${state.user}. All systems nominal.${state.wake?` Wake word armed. Say "hi ${state.assistant}" anytime.`:""}${hasBrain?"":" Brain module offline. Voice commands active."}`;
@@ -781,6 +790,20 @@ async function handleCommand(text){
       replyLocal(`Found ${d.files.length} files for ${term}. Top: ${d.files[0].name}. Tap on the feed to open.`);
     }catch(e){ e.message==="GAUTH"?gExpired():replyLocal("Couldn't reach Drive right now."); }
     return;}
+  // ---- THEME PROTOCOLS ----
+  let th=low.match(/\b(?:theme|skin|mode|protocol)\s+(dead ?pool|stark|iron ?man|wolverine|cyan|default|reference|blue)\b/)
+       ||low.match(/\b(dead ?pool|stark|iron ?man|wolverine)\s+(?:theme|mode|skin|protocol)\b/);
+  if(th){
+    const k=(th[1]||th[2]||"").replace(/\s+/g,"");
+    const map={deadpool:"deadpool",ironman:"stark",stark:"stark",wolverine:"wolverine",cyan:"",default:"",reference:"",blue:""};
+    if(k in map){
+      const v=map[k];
+      if(v)document.documentElement.dataset.theme=v; else delete document.documentElement.dataset.theme;
+      state.theme=v; saveCfg();
+      replyLocal(v?("Suiting up. "+k.charAt(0).toUpperCase()+k.slice(1)+" protocol engaged, "+state.user+"."):("Back to reference cyan, "+state.user+"."));
+      return;
+    }
+  }
   // ---- NEWS ----
   if(/\b(news|headlines|mothership|straits ?times)\b/.test(low) && !/\bopen\b/.test(low)){
     setReadout("Pulling the headlines…");
