@@ -621,7 +621,7 @@ function renderVentures(){
 }
 renderTasks(); startClock(); applyIdentity(); loadCounts(); renderLocalMetrics(); loadNotes(); gStatus(); renderVentures(); setInterval(renderVentures,120000); bootSequence();
 /* ---- self-updater: pull new builds automatically when idle ---- */
-const SK_VER="v22";
+const SK_VER="v22.1";
 setInterval(async()=>{try{
   if(speaking||capture)return;
   const txt=await (await fetch(location.pathname,{cache:"reload"})).text();
@@ -1198,7 +1198,9 @@ Reply with ONLY one JSON object, no markdown fences:
 function parseJSON(raw){const clean=String(raw).replace(/```json|```/g,"").trim();
   const m=clean.match(/\{[\s\S]*\}/);
   try{return JSON.parse(m?m[0]:clean);}catch(_){return {speak:clean,action:{type:"none"}};}}
-let HIST=[]; // rolling conversation memory for the brain
+let HIST=[]; // rolling conversation memory for the brain (persists across reloads)
+try{HIST=JSON.parse(localStorage.getItem("sk_hist")||"[]");}catch(e){}
+function saveHist(){try{localStorage.setItem("sk_hist",JSON.stringify(HIST.slice(-8)));}catch(e){}}
 async function liveContext(){
   let live="";
   try{
@@ -1228,7 +1230,7 @@ async function askBrain(text){
     if(!r.ok)throw new Error("gemini HTTP "+r.status);
     const data=await r.json();
     const res=parseJSON(data?.candidates?.[0]?.content?.parts?.[0]?.text||"");
-    HIST.push({u:text,a:res.speak||""}); HIST=HIST.slice(-8);
+    HIST.push({u:text,a:res.speak||""}); HIST=HIST.slice(-8); saveHist();
     return res;
   }
   const msgs=[...HIST.slice(-8).flatMap(h=>[{role:"user",content:h.u},{role:"assistant",content:h.a}]),{role:"user",content:text}];
@@ -1238,7 +1240,7 @@ async function askBrain(text){
   if(!r.ok)throw new Error("brain HTTP "+r.status);
   const data=await r.json();
   const res=parseJSON((data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("\n"));
-  HIST.push({u:text,a:res.speak||""}); HIST=HIST.slice(-8);
+  HIST.push({u:text,a:res.speak||""}); HIST=HIST.slice(-8); saveHist();
   return res;
 }
 function runAction(a){
