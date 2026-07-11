@@ -6,29 +6,33 @@
 <title>JARVIS — Command Deck</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#0A0908; --bg2:#0F0D0A; --ink:#E8E3D5; --muted:#7A7466;
-  --amber:#FFB000; --amber-dim:#8A6200; --red:#FF5348; --green:#7DDB8A;
-  --hair:rgba(255,176,0,.16); --hair2:rgba(232,227,213,.09);
+  --bg:#050A13; --bg2:#0A1322; --ink:#D7E7F5; --muted:#54708C;
+  --amber:#3FC1F2; --amber-dim:#1D5F7E; --red:#FF5D66; --green:#43DE9B;
+  --hair:rgba(63,193,242,.18); --hair2:rgba(215,231,245,.08);
+  --glow:rgba(63,193,242,.10);
   --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
-  --body:"Space Grotesk",system-ui,sans-serif;
+  --body:"Chakra Petch",system-ui,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);overflow:hidden}
-/* scanline atmosphere: fixed, pointer-events none */
-body::before{content:"";position:fixed;inset:0;z-index:50;pointer-events:none;
-  background:repeating-linear-gradient(0deg, rgba(0,0,0,.16) 0 1px, transparent 1px 3px);opacity:.5}
+/* ambient reactor glow: fixed, pointer-events none */
+body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(60% 46% at 50% 44%, rgba(63,193,242,.09), transparent 62%),
+    radial-gradient(38% 30% at 12% 0%, rgba(63,193,242,.05), transparent 70%),
+    radial-gradient(38% 30% at 92% 100%, rgba(31,110,160,.07), transparent 70%)}
 body::after{content:"";position:fixed;left:0;right:0;height:110px;z-index:51;pointer-events:none;
-  background:linear-gradient(180deg, transparent, rgba(255,176,0,.045), transparent);
-  animation:sweep 9s linear infinite}
+  background:linear-gradient(180deg, transparent, rgba(63,193,242,.05), transparent);
+  animation:sweep 10s linear infinite}
 @keyframes sweep{0%{top:-120px}100%{top:100vh}}
 @media (prefers-reduced-motion:reduce){body::after{animation:none;display:none}}
 .deck{position:relative;z-index:1;height:100vh;display:grid;grid-template-rows:auto 1fr auto;gap:0;padding:0 22px}
 /* ---- top strip ---- */
-.top{display:flex;align-items:stretch;border-bottom:1px solid var(--hair);height:58px}
+.top{display:flex;align-items:stretch;border-bottom:1px solid var(--hair);height:58px;background:linear-gradient(180deg, rgba(63,193,242,.04), transparent)}
 .top>div{display:flex;align-items:center;padding:0 18px;border-right:1px solid var(--hair2)}
 .top>div:first-child{padding-left:2px}
 .top>div:last-child{border-right:none;margin-left:auto;padding-right:2px}
@@ -39,10 +43,11 @@ body::after{content:"";position:fixed;left:0;right:0;height:110px;z-index:51;poi
 .tag b.hot{color:var(--amber)} .tag b.live{color:var(--red)} .tag b.ok{color:var(--green)}
 .clock{font-family:var(--mono);font-size:15px;letter-spacing:.1em}
 .clock span{color:var(--muted);font-size:10px;display:block;letter-spacing:.24em;text-transform:uppercase}
-button.plain{background:none;border:1px solid var(--hair);color:var(--ink);font-family:var(--mono);
+button.plain{background:rgba(63,193,242,.04);border:1px solid var(--hair);color:var(--ink);font-family:var(--mono);
   font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;padding:8px 14px;cursor:pointer;transition:.15s}
-button.plain:hover{border-color:var(--amber);color:var(--amber)}
-button.plain.on{background:var(--amber);color:#141005;border-color:var(--amber)}
+button.plain:hover{border-color:var(--amber);color:var(--amber);box-shadow:inset 0 0 18px rgba(63,193,242,.08)}
+button.plain:active{transform:translateY(1px)}
+button.plain.on{background:var(--amber);color:#04121C;border-color:var(--amber)}
 /* ---- main grid ---- */
 .main{display:grid;grid-template-columns:300px 1fr 330px;min-height:0}
 .colL{border-right:1px solid var(--hair);display:flex;flex-direction:column;min-height:0}
@@ -69,7 +74,7 @@ button.plain.on{background:var(--amber);color:#141005;border-color:var(--amber)}
 /* ---- center ---- */
 .center{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:20px;min-height:0}
 .radar{position:relative;width:min(280px,32vh);aspect-ratio:1;cursor:pointer;flex-shrink:1}
-.radar svg{width:100%;height:100%;display:block}
+.radar svg{width:100%;height:100%;display:block;filter:drop-shadow(0 0 22px rgba(63,193,242,.14))}
 .radar .sweep{transform-origin:50% 50%;animation:spin 6s linear infinite}
 .radar.listening .sweep{animation-duration:1.4s}
 .radar.thinking .sweep{animation-duration:.7s;opacity:.9}
@@ -78,7 +83,8 @@ button.plain.on{background:var(--amber);color:#141005;border-color:var(--amber)}
 .radar .micglyph{font-family:var(--mono);font-size:11px;letter-spacing:.26em;fill:var(--amber)}
 .radar:focus-visible{outline:2px solid var(--amber);outline-offset:6px}
 .readout{font-family:var(--mono);font-size:14px;letter-spacing:.06em;color:var(--ink);text-align:center;
-  max-width:620px;min-height:42px;line-height:1.6;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:9px 18px}
+  max-width:620px;min-height:42px;line-height:1.6;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:9px 18px;
+  background:linear-gradient(180deg, rgba(63,193,242,.05), transparent)}
 .readout .cursor{display:inline-block;width:8px;height:15px;background:var(--amber);vertical-align:-2px;animation:blink 1s steps(1) infinite}
 @keyframes blink{50%{opacity:0}}
 .hint{font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;text-align:center}
@@ -87,7 +93,8 @@ button.plain.on{background:var(--amber);color:#141005;border-color:var(--amber)}
 .keys button{background:none;border:none;border-right:1px solid var(--hair);color:var(--muted);font-family:var(--mono);
   font-size:10px;letter-spacing:.14em;text-transform:uppercase;padding:10px 15px;cursor:pointer;transition:.15s}
 .keys button:last-child{border-right:none}
-.keys button:hover{color:var(--amber);background:rgba(255,176,0,.06)}
+.keys button:hover{color:var(--amber);background:rgba(63,193,242,.07)}
+.keys button:active{transform:translateY(1px)}
 /* ---- right col ---- */
 .feed{list-style:none;flex:1;overflow-y:auto}
 .feed li{padding:10px 0;border-bottom:1px solid var(--hair2)}
@@ -102,17 +109,18 @@ button.plain.on{background:var(--amber);color:#141005;border-color:var(--amber)}
 .tasks li.done .box{border-color:var(--green)}
 .tasks li.done .txt{color:var(--muted);text-decoration:line-through}
 /* ---- command line ---- */
-.cmd{display:flex;align-items:stretch;border-top:1px solid var(--hair);height:56px}
+.cmd{display:flex;align-items:stretch;border-top:1px solid var(--hair);height:56px;background:linear-gradient(0deg, rgba(63,193,242,.04), transparent)}
 .cmd .prompt{display:flex;align-items:center;padding:0 14px;font-family:var(--mono);color:var(--amber);font-size:15px;border-right:1px solid var(--hair2)}
 .cmd input{flex:1;background:none;border:none;outline:none;color:var(--ink);font-family:var(--mono);font-size:14px;letter-spacing:.03em;padding:0 16px}
 .cmd input::placeholder{color:var(--muted)}
 .cmd button{background:none;border:none;border-left:1px solid var(--hair);color:var(--amber);font-family:var(--mono);
   font-size:11px;letter-spacing:.22em;text-transform:uppercase;padding:0 26px;cursor:pointer;transition:.15s}
-.cmd button:hover{background:rgba(255,176,0,.08)}
+.cmd button:hover{background:rgba(63,193,242,.09)}
 /* ---- settings drawer ---- */
-.modal{position:fixed;inset:0;z-index:60;display:none;place-items:center;background:rgba(6,5,3,.8)}
+.modal{position:fixed;inset:0;z-index:60;display:none;place-items:center;background:rgba(2,6,11,.72);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 .modal.open{display:grid}
-.sheet{width:min(520px,92vw);max-height:88vh;overflow:auto;background:var(--bg2);border:1px solid var(--amber-dim);padding:26px 28px}
+.sheet{width:min(520px,92vw);max-height:88vh;overflow:auto;background:rgba(10,19,34,.92);border:1px solid var(--amber-dim);
+  box-shadow:inset 0 1px 0 rgba(215,231,245,.08), 0 24px 80px rgba(0,0,0,.5);padding:26px 28px}
 .sheet h2{font-family:var(--mono);font-size:13px;letter-spacing:.3em;color:var(--amber);text-transform:uppercase;margin-bottom:4px}
 .sheet p.sub{color:var(--muted);font-size:13px;margin-bottom:20px;line-height:1.6}
 .field{margin-bottom:16px}
@@ -175,7 +183,7 @@ button.plain.on{background:var(--amber);color:#141005;border-color:var(--amber)}
           <circle cx="100" cy="100" r="46" fill="none" stroke="var(--hair)" stroke-width="1"/>
           <line x1="100" y1="2" x2="100" y2="198" stroke="var(--hair)" stroke-width="1"/>
           <line x1="2" y1="100" x2="198" y2="100" stroke="var(--hair)" stroke-width="1"/>
-          <g class="sweep"><path d="M100,100 L100,4 A96,96 0 0 1 152,16 Z" fill="rgba(255,176,0,.16)"/>
+          <g class="sweep"><path d="M100,100 L100,4 A96,96 0 0 1 152,16 Z" fill="rgba(63,193,242,.16)"/>
           <line x1="100" y1="100" x2="100" y2="4" stroke="var(--amber)" stroke-width="1.5"/></g>
           <circle cx="100" cy="100" r="20" fill="var(--bg2)" stroke="var(--amber)" stroke-width="1.5"/>
           <text x="100" y="104" text-anchor="middle" class="micglyph">MIC</text>
@@ -329,7 +337,7 @@ function applyIdentity(){
   $("#hint").innerHTML=`TAP RADAR · HOLD <b>SPACE</b> · OR ENABLE <b>WAKE WORD</b> AND SAY "HI ${state.assistant.toUpperCase()}"`;
 }
 function bootSequence(){
-  const lines=[["sys","▸ SK core v4 — just say: go YouTube · google anything · hazard lifting"],["sys","▸ core systems: online"],["sys","▸ voice interface: online"],["sys","▸ onesafe knowledge base: linking"],["sys","▸ mission control: synced"]];
+  const lines=[["sys","▸ SK core v5 — arc reactor online. Say: go YouTube · google anything · hazard lifting"],["sys","▸ core systems: online"],["sys","▸ voice interface: online"],["sys","▸ onesafe knowledge base: linking"],["sys","▸ mission control: synced"]];
   let i=0;const step=()=>{ if(i<lines.length){logLine(lines[i][0],lines[i][1]);i++;setTimeout(step,350);}
     else{const hasBrain=state.brain!=="none"&&state.key;
       const hi=`${greetWord()}, ${state.user}. All systems nominal.${state.wake?` Wake word armed. Say "hi ${state.assistant}" anytime.`:""}${hasBrain?"":" Brain module offline. Voice commands active."}`;
