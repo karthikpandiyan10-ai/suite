@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Your First 100 Days · V1 Beta</title>
+<style>
+:root{--bg:#FAF6EE;--card:#FFFFFF;--ink:#2C3830;--mut:#7A8378;--green:#3E7C4F;--green-deep:#2C5E3B;--coral:#E8846B;--gold:#D9A441;--line:#E8E1D3;--dad:#4A72B0}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--ink);font-family:-apple-system,'Segoe UI',Roboto,sans-serif;min-height:100vh;padding-bottom:90px}
+.wrap{max-width:520px;margin:0 auto;padding:18px}
+header{padding:22px 18px 6px;max-width:520px;margin:0 auto}
+.brand{font-size:13px;letter-spacing:2.5px;color:var(--green);font-weight:700}
+.beta{font-size:10px;background:var(--gold);color:#fff;border-radius:20px;padding:2px 8px;margin-left:6px;vertical-align:2px}
+h1{font-size:26px;font-weight:800;margin-top:4px;letter-spacing:-.5px}
+.sub{color:var(--mut);font-size:14px;margin-top:2px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;margin-top:14px;box-shadow:0 2px 10px rgba(60,70,50,.05)}
+.pill{display:inline-block;font-size:11px;font-weight:700;letter-spacing:1px;border-radius:20px;padding:4px 12px;margin-bottom:8px}
+.pill.now{background:#FDEBE5;color:var(--coral)}
+.pill.soon{background:#EEF3E9;color:var(--green)}
+.pill.done-p{background:#E9E9E9;color:#999}
+.it-t{font-size:17px;font-weight:800;line-height:1.25}
+.it-w{font-size:14px;color:var(--ink);margin-top:6px;line-height:1.5}
+.it-y{font-size:12.5px;color:var(--mut);margin-top:6px;line-height:1.45}
+.dadbox{margin-top:10px;background:#EFF4FB;border-left:4px solid var(--dad);border-radius:0 10px 10px 0;padding:8px 12px;font-size:13px;color:#2D4A75;line-height:1.45}
+.dadbox b{font-size:11px;letter-spacing:1.5px}
+.donebtn{margin-top:12px;width:100%;padding:11px;border:none;border-radius:12px;background:var(--green);color:#fff;font-size:14px;font-weight:700;cursor:pointer}
+.donebtn.un{background:#DDD;color:#888}
+.tabs{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;max-width:520px;margin:0 auto;border-radius:18px 18px 0 0;box-shadow:0 -4px 20px rgba(0,0,0,.06)}
+.tab{flex:1;text-align:center;padding:12px 4px 16px;font-size:11px;font-weight:700;color:var(--mut);cursor:pointer;letter-spacing:.5px}
+.tab .ic{font-size:20px;display:block;margin-bottom:2px}
+.tab.on{color:var(--green)}
+.hidden{display:none}
+input,select{width:100%;padding:13px;border:1.5px solid var(--line);border-radius:12px;font-size:16px;background:#fff;color:var(--ink);margin-top:6px}
+label{font-size:12px;font-weight:700;letter-spacing:1px;color:var(--mut);display:block;margin-top:14px}
+.cta{margin-top:20px;width:100%;padding:15px;border:none;border-radius:14px;background:var(--green);color:#fff;font-size:16px;font-weight:800;cursor:pointer}
+.week-badge{background:var(--green-deep);color:#fff;border-radius:16px;padding:14px 18px;margin-top:14px}
+.week-badge .big{font-size:22px;font-weight:800}
+.week-badge .sm{font-size:12.5px;opacity:.85;margin-top:2px}
+.prog{height:8px;background:rgba(255,255,255,.25);border-radius:6px;margin-top:10px;overflow:hidden}
+.prog i{display:block;height:100%;background:var(--gold);border-radius:6px}
+.chk{display:flex;align-items:flex-start;gap:10px;padding:10px 2px;border-bottom:1px solid var(--line);cursor:pointer}
+.chk:last-child{border-bottom:none}
+.box{width:22px;height:22px;border:2px solid var(--green);border-radius:7px;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px}
+.chk.c .box{background:var(--green)}
+.chk.c span{text-decoration:line-through;color:var(--mut)}
+.chk span{font-size:14.5px;line-height:1.4}
+.cat{font-size:13px;font-weight:800;letter-spacing:1.5px;color:var(--green);margin:18px 0 4px}
+.money-amt{font-size:26px;font-weight:800;color:var(--green-deep)}
+.money-t{font-size:15px;font-weight:800;margin-top:2px}
+.money-w{font-size:13px;color:var(--mut);margin-top:6px;line-height:1.5}
+.disc{font-size:11.5px;color:var(--mut);line-height:1.5;margin-top:18px;padding:12px;background:#F3EFE5;border-radius:12px}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;margin-top:14px;background:#EFF4FB;border-radius:14px;padding:12px 16px}
+.toggle-row b{color:#2D4A75;font-size:14px}
+.sw{width:52px;height:30px;background:#CCD6E6;border-radius:20px;position:relative;cursor:pointer;transition:.2s}
+.sw.on{background:var(--dad)}
+.sw i{position:absolute;top:3px;left:3px;width:24px;height:24px;background:#fff;border-radius:50%;transition:.2s}
+.sw.on i{left:25px}
+.empty{color:var(--mut);font-size:14px;text-align:center;padding:30px 10px;line-height:1.6}
+.reset{margin-top:14px;background:none;border:none;color:var(--mut);font-size:12px;text-decoration:underline;cursor:pointer;width:100%}
+</style>
+</head>
+<body>
+<header>
+<span class="brand">YOUR FIRST 100 DAYS</span><span class="beta">V1 BETA · name coming</span>
+<h1 id="hTitle">Hello.</h1>
+<div class="sub" id="hSub">One clear answer, every week.</div>
+</header>
+
+<div class="wrap">
+<!-- SETUP -->
+<div id="setup">
+<div class="card">
+<div class="it-t">Let's set up — 20 seconds.</div>
+<label>BABY'S NAME OR NICKNAME (OPTIONAL)</label>
+<input id="sName" placeholder="e.g. Bubba">
+<label>HAS BABY ARRIVED?</label>
+<select id="sMode"><option value="due">Not yet — I have a due date</option><option value="born">Yes — baby is here</option></select>
+<label id="sDateL">DUE DATE</label>
+<input id="sDate" type="date">
+<label>WHO'S READING?</label>
+<select id="sWho"><option value="both">Both of us</option><option value="mum">Mum</option><option value="dad">Dad</option></select>
+<button class="cta" onclick="saveSetup()">Show me what's due now</button>
+</div>
+<div class="disc">Everything stays on your phone — nothing is uploaded, no account needed. Medical items are checkpoints, not prescriptions: your polyclinic / paediatrician confirms the exact schedule. Verify government amounts on LifeSG.</div>
+</div>
+
+<!-- TODAY -->
+<div id="today" class="hidden">
+<div class="week-badge">
+<div class="big" id="wkBig"></div>
+<div class="sm" id="wkSm"></div>
+<div class="prog"><i id="wkBar" style="width:0%"></i></div>
+</div>
+<div class="toggle-row"><b>👨 Dad Mode — show my part</b><div class="sw" id="dadSw" onclick="toggleDad()"><i></i></div></div>
+<div id="feedNow"></div>
+<div id="feedSoon"></div>
+<button class="reset" onclick="resetAll()">change dates / start over</button>
+</div>
+
+<!-- TIMELINE -->
+<div id="timeline" class="hidden"></div>
+
+<!-- CHECKLIST -->
+<div id="checklist" class="hidden"></div>
+
+<!-- MONEY -->
+<div id="money" class="hidden">
+<div class="card"><div class="money-amt">S$11,000</div><div class="money-t">Baby Bonus Cash Gift</div><div class="money-w">For your 1st or 2nd child (S$13,000 from the 3rd). Paid in stages over 6.5 years. <b>One action:</b> apply once on LifeSG — can even be done before birth.</div></div>
+<div class="card"><div class="money-amt">up to S$6,000 matched</div><div class="money-t">CDA — Child Development Account</div><div class="money-w">Open a free CDA at POSB, OCBC or UOB. You get a S$5,000 First Step deposit without saving anything, then the government matches what you save dollar-for-dollar (cap S$6,000 for 1st/2nd child). Pays for vaccines, check-ups, childcare. <b>One action:</b> pick a bank this week — all three are fine, choose where you already bank.</div></div>
+<div class="card"><div class="money-amt">S$4,000</div><div class="money-t">MediSave Grant for Newborns</div><div class="money-w">Automatic — lands in baby's MediSave after birth registration. Covers MediShield Life premiums and approved vaccinations. <b>One action:</b> nothing. It's automatic.</div></div>
+<div class="card"><div class="money-amt">16 wks + 4 wks</div><div class="money-t">Maternity & Paternity Leave</div><div class="money-w">16 weeks government-paid maternity leave; 4 weeks government-paid paternity leave for dads. <b>One action (dad):</b> tell HR your dates at least 1 month ahead.</div></div>
+<div class="disc">Amounts current as of mid-2026 — always confirm on <b>LifeSG</b> or madeforfamilies.gov.sg before making money decisions.</div>
+</div>
+</div>
+
+<div class="tabs" id="tabbar" style="display:none">
+<div class="tab on" data-v="today" onclick="go('today',this)"><span class="ic">🏠</span>TODAY</div>
+<div class="tab" data-v="timeline" onclick="go('timeline',this)"><span class="ic">🗓️</span>TIMELINE</div>
+<div class="tab" data-v="checklist" onclick="go('checklist',this)"><span class="ic">✅</span>CHECKLIST</div>
+<div class="tab" data-v="money" onclick="go('money',this)"><span class="ic">💰</span>MONEY</div>
+</div>
+
+<script>
+// ---------- DATA: the First 100 Days timeline ----------
+// wk = weeks relative to birth (negative = pregnancy weeks before due date, using due date as wk0)
+const ITEMS=[
+{wk:-12,end:-8,t:"Book your antenatal classes",w:"One clear answer: KKH, NUH and Thomson all run weekend couple classes. Book ONE — that's enough.",y:"Couples who attend together report far less panic in the delivery room.",d:"Dads: this class is for you more than her. You'll learn what to actually do during labour."},
+{wk:-12,end:-6,t:"Apply Baby Bonus + choose your CDA bank",w:"Do both on LifeSG in one 15-minute sitting. Pick POSB, OCBC or UOB — whichever you already use.",y:"Apply before birth and the S$5,000 First Step money lands days after registration — right when spending starts.",d:"This is a dad job. Laptop, coffee, 15 minutes, done."},
+{wk:-10,end:-6,t:"Plan the confinement month",w:"Decide ONE: confinement nanny (book now — good ones go 3+ months ahead), confinement food delivery, or family help.",y:"Deciding late means paying more for whoever is left.",d:"Dads: if it's a nanny, you're the one interviewing and booking. Budget S$3,000–4,500 for 28 days."},
+{wk:-10,end:-4,t:"Sort baby's insurance plan",w:"One clear answer: get hospitalisation cover (Integrated Shield) sorted to start from birth. Life plans can wait.",y:"Newborn hospital stays are the #1 unexpected cost in year one.",d:"Dads: get 2 quotes max, decide in one evening. Don't over-research this."},
+{wk:-8,end:-4,t:"The Big Buy — once, correctly",w:"Open the Checklist tab → 'Before baby comes'. Buy that list, skip the rest. Cot, car seat, stroller are the only big-ticket must-haves.",y:"SG parents waste hundreds on warmers, sterilisers and wipes-warmers that end up in the storeroom.",d:"Dads: you own the car seat — buy it AND install it before week 36. Practice clipping it twice."},
+{wk:-6,end:-3,t:"Pack the hospital bag",w:"Checklist tab → 'Hospital bag'. Pack it by week 36, park it by the door.",y:"1 in 8 first babies come before week 38.",d:"Dads: pack YOUR bag too — charger, snacks, change of clothes. You'll be there 2–3 days."},
+{wk:-6,end:-2,t:"Pre-register at your hospital",w:"Pre-admission registration online (KKH/NUH/private). Save the antenatal card photo on BOTH phones.",y:"Labour-day admin with no pre-registration is the worst version of paperwork.",d:"Dads: know the drive, the drop-off point, and where to park at 3am."},
+{wk:-4,end:0,t:"Know the 3 signs it's time",w:"Waters breaking, contractions 5 minutes apart lasting 1 minute, or reduced baby movement → go in. When unsure: call the delivery suite, they'd rather you ask.",y:"One clear answer beats 40 panicked Google tabs at midnight.",d:"Dads: your job is timing contractions and driving calmly. Download nothing — a clock is enough."},
+{wk:0,end:1,t:"Baby is here — 3 things happen in hospital",w:"BCG + first Hepatitis B jab are usually given before discharge, and you can often register the birth at the hospital counter itself.",y:"Registering at the hospital saves a separate trip. You have 42 days, but same-week is painless.",d:"Dads: birth registration is yours. Bring both ICs + marriage cert. 20 minutes."},
+{wk:0,end:2,t:"Jaundice check — the day 3–5 visit",w:"Almost every SG newborn gets checked at the polyclinic or paed around day 3–5. Book it before you leave hospital.",y:"Jaundice is common, treatable, and only risky when ignored.",d:"Dads: you drive, you carry, you ask the questions. Mum should not be walking around on day 4."},
+{wk:0,end:4,t:"Confinement: mum's ONE job is recovery",w:"Sleep when baby sleeps, eat properly, and watch for red flags: fever, heavy bleeding, or feeling hopeless for days — call the doctor, not Google.",y:"SG mums are hospitalised for exhaustion and infection far more than anyone admits.",d:"Dads: the answer to 'what can I do?' is nights, nappies, dishes, visitors-bouncer. Guard her sleep like it's your job — it is."},
+{wk:1,end:4,t:"Money admin lands this month",w:"Check: Baby Bonus approved, CDA open, S$5,000 First Step in. MediSave S$4,000 arrives automatically.",y:"Money tab has every amount. 10 minutes of checking = thousands secured.",d:"Dads: this whole card is yours."},
+{wk:3,end:5,t:"The 1-month checkpoint",w:"Baby's 1-month check + 2nd Hepatitis B jab (clinic confirms exact timing). Book the polyclinic slot a week ahead.",y:"This visit also catches feeding and weight issues early.",d:"Dads: calendar it. You book, you drive."},
+{wk:3,end:5,t:"Full Month — celebrate small",w:"满月! Cake boxes for family, one photo, done. You don't owe anyone a party.",y:"You'll be running on 4 hours of sleep — protect your energy.",d:"Dads: order the cakes. One website, 20 minutes."},
+{wk:5,end:7,t:"Mum's 6-week postnatal check",w:"For MUM, not baby. Book it and go — recovery, mood and body all get checked.",y:"Half of SG mums skip this one. Don't.",d:"Dads: you take baby duty that morning. Non-negotiable."},
+{wk:7,end:10,t:"The 2-month jabs",w:"First big vaccination round (6-in-1 combo + others per the national schedule — clinic confirms). Paracetamol dose for after: ask the nurse, write it down.",y:"Baby may be fussy for 24–48h after. That's normal — fever above 38.5°C that persists is not.",d:"Dads: one parent holds, one parent comforts after. Be the second one."},
+{wk:10,end:14,t:"Look ahead: 4-month jabs + your 100th day",w:"Book the 4-month vaccination slot now. And day 100 is coming — that's YOUR milestone as much as baby's.",y:"You survived the hardest stretch of parenting. It gets lighter from here.",d:"Dads: plan something small for the 100th day — you both earned it."}
+];
+const CHECKS={
+"HOSPITAL BAG":["IC + marriage cert + antenatal card","Baby: 2 outfits, mittens, swaddle, going-home set","Mum: nursing bras, maternity pads, toiletries, comfortable clothes","Dad: charger, snacks, change of clothes","Car seat installed and checked"],
+"BEFORE BABY COMES":["Cot / co-sleeper + firm mattress","Car seat (installed, practiced)","Stroller","6–8 bottles + brush (even if breastfeeding)","Newborn diapers — ONE pack only (sizes change fast)","Zip sleepsuits x6 (zips, never buttons, trust us)","Muslin cloths x8","Baby carrier","Thermometer","Confinement plan booked"],
+"ADMIN & MONEY":["Baby Bonus applied on LifeSG","CDA bank chosen + account open","Birth registered (within 42 days)","Baby's Integrated Shield insurance from birth","Paternity leave dates told to HR","Maternity leave confirmed with HR"],
+"FIRST MONTH":["Jaundice check day 3–5 booked","1-month check + jab booked","Full month cakes ordered","Mum's 6-week check booked","Emergency numbers saved on both phones"]};
+// ---------- STATE ----------
+let cfg=JSON.parse(localStorage.getItem('f100_cfg')||'null');
+let done=JSON.parse(localStorage.getItem('f100_done')||'{}');
+let chk=JSON.parse(localStorage.getItem('f100_chk')||'{}');
+function save(){localStorage.setItem('f100_done',JSON.stringify(done));localStorage.setItem('f100_chk',JSON.stringify(chk))}
+document.getElementById('sMode').onchange=e=>{document.getElementById('sDateL').textContent=e.target.value==='born'?'BABY\'S BIRTH DATE':'DUE DATE'};
+function saveSetup(){const d=document.getElementById('sDate').value;if(!d){alert('Pick the date first 🙂');return}
+cfg={name:document.getElementById('sName').value.trim(),mode:document.getElementById('sMode').value,date:d,who:document.getElementById('sWho').value,dad:document.getElementById('sWho').value!=='mum'};
+localStorage.setItem('f100_cfg',JSON.stringify(cfg));boot()}
+function resetAll(){if(confirm('Start over? Your ticks are kept.')){localStorage.removeItem('f100_cfg');location.reload()}}
+function weeksNow(){const ref=new Date(cfg.date+'T00:00:00');return (Date.now()-ref.getTime())/(7*24*3600*1000)}
+function dayNum(){return Math.floor(weeksNow()*7)}
+// ---------- RENDER ----------
+function boot(){if(!cfg){return}
+document.getElementById('setup').classList.add('hidden');
+document.getElementById('tabbar').style.display='flex';
+document.getElementById('today').classList.remove('hidden');
+const n=cfg.name?cfg.name:'little one';
+const w=weeksNow();const day=dayNum();
+document.getElementById('hTitle').textContent=day<0?`Counting down to ${n} 💛`:`Day ${Math.min(day,100)} with ${n}`;
+document.getElementById('hSub').textContent='One clear answer, every week. No forums. No ten opinions.';
+const big=document.getElementById('wkBig'),sm=document.getElementById('wkSm'),bar=document.getElementById('wkBar');
+if(day<0){const wksLeft=Math.ceil(-w);big.textContent=`${wksLeft} week${wksLeft>1?'s':''} to go`;sm.textContent='Third trimester — build the nest, calmly.';bar.style.width=Math.max(4,100+ (w/13)*100)+'%'}
+else{big.textContent=`Day ${Math.min(day,100)} of 100`;sm.textContent=day>100?'You made it past 100 days! V2 will carry on from here.':'The first 100 days — the steep part. You\'re doing it.';bar.style.width=Math.min(100,day)+'%'}
+const sw=document.getElementById('dadSw');sw.classList.toggle('on',!!cfg.dad);
+renderFeed();renderTimeline();renderChecklist();
+}
+function toggleDad(){cfg.dad=!cfg.dad;localStorage.setItem('f100_cfg',JSON.stringify(cfg));document.getElementById('dadSw').classList.toggle('on',cfg.dad);renderFeed();renderTimeline()}
+function card(it,idx,state){const k='i'+idx;const isDone=!!done[k];
+return `<div class="card"><span class="pill ${isDone?'done-p':state==='now'?'now':'soon'}">${isDone?'DONE ✓':state==='now'?'DUE NOW':'COMING UP'}</span>
+<div class="it-t">${it.t}</div><div class="it-w">${it.w}</div><div class="it-y">Why: ${it.y}</div>
+${cfg.dad&&it.d?`<div class="dadbox"><b>DAD'S PART</b><br>${it.d}</div>`:''}
+<button class="donebtn ${isDone?'un':''}" onclick="mark('${k}')">${isDone?'Undo':'Mark done'}</button></div>`}
+function mark(k){done[k]=!done[k];save();renderFeed();renderTimeline()}
+function renderFeed(){const w=weeksNow();let now='',soon='';
+ITEMS.forEach((it,i)=>{if(w>=it.wk&&w<=it.end){now+=card(it,i,'now')}else if(it.wk>w&&it.wk-w<=3){soon+=card(it,i,'soon')}});
+document.getElementById('feedNow').innerHTML=now||'<div class="empty">Nothing urgent right now.<br>Go hold your baby — that IS the task. 💛</div>';
+document.getElementById('feedSoon').innerHTML=soon?'<div class="cat" style="margin-top:22px">COMING UP</div>'+soon:''}
+function renderTimeline(){const w=weeksNow();let h='';
+ITEMS.forEach((it,i)=>{const state=w>=it.wk&&w<=it.end?'now':it.end<w?'past':'soon';h+=card(it,i,state==='now'?'now':'soon')});
+document.getElementById('timeline').innerHTML=h}
+function renderChecklist(){let h='';Object.keys(CHECKS).forEach(cat=>{h+=`<div class="cat">${cat}</div><div class="card" style="padding:8px 16px">`;
+CHECKS[cat].forEach((c,i)=>{const k=cat+'|'+i;const on=!!chk[k];h+=`<div class="chk ${on?'c':''}" onclick="tick('${k.replace(/'/g,"\\'")}')"><div class="box">${on?'✓':''}</div><span>${c}</span></div>`});h+='</div>'});
+document.getElementById('checklist').innerHTML=h}
+function tick(k){chk[k]=!chk[k];save();renderChecklist()}
+function go(v,el){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));el.classList.add('on');
+['today','timeline','checklist','money'].forEach(x=>document.getElementById(x).classList.add('hidden'));
+document.getElementById(v).classList.remove('hidden');window.scrollTo(0,0)}
+boot();
+</script>
+</body>
+</html>
