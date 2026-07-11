@@ -707,15 +707,16 @@ async function liveContext(){
 async function askBrain(text){
   const live=await liveContext();
   if(state.brain==="gemini"){
-    const url=`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${state.key}`;
+    const MODELS=["gemini-3.1-flash-lite","gemini-3-flash-preview","gemini-flash-lite-latest","gemini-flash-latest"];
     const contents=[...HIST.slice(-8).flatMap(h=>[{role:"user",parts:[{text:h.u}]},{role:"model",parts:[{text:h.a}]}]),
       {role:"user",parts:[{text:text}]}];
-    const call=()=>fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({systemInstruction:{parts:[{text:systemPrompt(live)}]},
+    const call=(m)=>fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${state.key}`,
+      {method:"POST",headers:{"Content-Type":"application/json"},
+       body:JSON.stringify({systemInstruction:{parts:[{text:systemPrompt(live)}]},
         contents,
         generationConfig:{responseMimeType:"application/json"}})});
-    let r=await call();
-    if(r.status===429){ setReadout("Brain is catching its breath… retrying"); await new Promise(res=>setTimeout(res,7000)); r=await call(); }
+    let r=null;
+    for(const m of MODELS){ r=await call(m); if(r.status!==429 && r.status!==404) break; }
     if(r.status===429)throw new Error("RATE");
     if(!r.ok)throw new Error("gemini HTTP "+r.status);
     const data=await r.json();
