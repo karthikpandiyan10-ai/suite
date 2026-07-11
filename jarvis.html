@@ -33,7 +33,21 @@ body::after{content:"";position:fixed;left:0;right:0;height:110px;z-index:51;poi
   background:linear-gradient(180deg, transparent, rgba(63,193,242,.05), transparent);
   animation:sweep 10s linear infinite}
 @keyframes sweep{0%{top:-120px}100%{top:100vh}}
-@media (prefers-reduced-motion:reduce){body::after{animation:none;display:none}}
+/* HUD Pro micro-animations */
+.wordmark{animation:glowpulse 4s ease-in-out infinite}
+@keyframes glowpulse{50%{text-shadow:0 0 16px rgba(63,193,242,.5)}}
+.tele>div{position:relative;overflow:hidden}
+.tele>div::after{content:"";position:absolute;left:-40%;bottom:0;height:2px;width:40%;
+  background:linear-gradient(90deg,transparent,var(--amber),transparent);opacity:.55;
+  animation:scanbar 3.4s ease-in-out infinite}
+@keyframes scanbar{0%{left:-40%}100%{left:100%}}
+.tele>div:nth-child(2)::after{animation-delay:.8s}.tele>div:nth-child(3)::after{animation-delay:1.6s}.tele>div:nth-child(4)::after{animation-delay:2.4s}
+.feed li,.tasks li{transition:background .25s,transform .25s}
+.feed li:hover,.tasks li:hover{background:rgba(63,193,242,.05);transform:translateX(2px)}
+.tag b.ok{animation:okblink 3s ease-in-out infinite}
+@keyframes okblink{50%{opacity:.55}}
+@media (prefers-reduced-motion:reduce){body::after,.wordmark,.tele>div::after,.tag b.ok{animation:none}}
+@media (prefers-reduced-motion:reduce){body::after{display:none}}
 .deck{position:relative;z-index:1;height:100vh;display:grid;grid-template-rows:auto 1fr auto;gap:0;padding:0 22px}
 /* ---- top strip ---- */
 .top{display:flex;align-items:stretch;border-bottom:1px solid var(--hair);height:58px;background:linear-gradient(180deg, rgba(63,193,242,.04), transparent)}
@@ -354,6 +368,27 @@ async function gFetch(url){
   return r.json();
 }
 function gExpired(){replyLocal("The Google session expired, "+state.user+". Say: connect google.");}
+/* ---- News (Mothership / Straits Times / World) ---- */
+const NEWS_FEEDS=[
+  {name:"Mothership",url:"https://mothership.sg/feed/"},
+  {name:"Straits Times",url:"https://www.straitstimes.com/news/singapore/rss.xml"},
+  {name:"World",url:"https://news.google.com/rss/headlines/section/topic/WORLD?hl=en-SG&gl=SG&ceid=SG:en"}
+];
+async function fetchNews(){
+  const items=[];
+  await Promise.all(NEWS_FEEDS.map(async f=>{
+    try{
+      const r=await fetch("https://api.allorigins.win/raw?url="+encodeURIComponent(f.url));
+      const xml=new DOMParser().parseFromString(await r.text(),"text/xml");
+      [...xml.querySelectorAll("item")].slice(0,3).forEach(it=>{
+        const t=(it.querySelector("title")?.textContent||"").trim();
+        const u=(it.querySelector("link")?.textContent||"").trim();
+        if(t)items.push({h:t,s:f.name,u});
+      });
+    }catch(e){}
+  }));
+  return items;
+}
 async function loadNotes(){
   try{ const rows=await (await fetch(SB+"/venture_notes?select=venture,title,content",{headers:SBH})).json();
     rows.forEach(r=>NOTES[r.venture]=r); }catch(e){}
@@ -383,12 +418,15 @@ function applyIdentity(){
   $("#hint").innerHTML=`TAP RADAR · HOLD <b>SPACE</b> · OR ENABLE <b>WAKE WORD</b> AND SAY "HI ${state.assistant.toUpperCase()}"`;
 }
 function bootSequence(){
-  const lines=[["sys","▸ SK core v9: Google module ready. Say connect google, then: any new emails · what's on my calendar · search drive for a file"],["sys","▸ core systems: online"],["sys","▸ voice interface: online"],["sys","▸ onesafe knowledge base: linking"],["sys","▸ mission control: synced"]];
+  const lines=[["sys","▸ SK core v10: news online (say: news) · projects register (say: my projects) · Google ready (say: connect google)"],["sys","▸ core systems: online"],["sys","▸ voice interface: online"],["sys","▸ onesafe knowledge base: linking"],["sys","▸ mission control: synced"]];
   let i=0;const step=()=>{ if(i<lines.length){logLine(lines[i][0],lines[i][1]);i++;setTimeout(step,350);}
     else{const hasBrain=state.brain!=="none"&&state.key;
       const hi=`${greetWord()}, ${state.user}. All systems nominal.${state.wake?` Wake word armed. Say "hi ${state.assistant}" anytime.`:""}${hasBrain?"":" Brain module offline. Voice commands active."}`;
       setReadout(hi);logLine("j",state.assistant+": "+hi);speak(hi);
-      if(state.wake) startEngine(); } };
+      if(state.wake) startEngine();
+      // dashboard feel: preload headlines into the idle feed
+      fetchNews().then(items=>{ try{ if(items.length && $("#feedTag").textContent==="STANDBY"){ renderFeed("NEWS",items); } }catch(e){} });
+    } };
   setTimeout(step,300);
 }
 function logLine(cls,text){const el=document.createElement("div");el.className=cls;el.textContent=text;
@@ -621,6 +659,22 @@ async function handleCommand(text){
       renderFeed("DRIVE: "+term.toUpperCase().slice(0,16),d.files.map(f=>({h:f.name,s:new Date(f.modifiedTime).toLocaleDateString("en-SG"),u:f.webViewLink})));
       replyLocal(`Found ${d.files.length} files for ${term}. Top: ${d.files[0].name}. Tap on the feed to open.`);
     }catch(e){ e.message==="GAUTH"?gExpired():replyLocal("Couldn't reach Drive right now."); }
+    return;}
+  // ---- NEWS ----
+  if(/\b(news|headlines|mothership|straits ?times)\b/.test(low) && !/\bopen\b/.test(low)){
+    setReadout("Pulling the headlines…");
+    const items=await fetchNews();
+    if(!items.length){replyLocal("News feeds aren't responding right now, "+state.user+".");return;}
+    renderFeed("NEWS",items);
+    replyLocal(`Headlines, ${state.user}. ${items.slice(0,3).map(i=>i.h).join(". ")}. More on the feed, tap any to read.`);
+    return;}
+  // ---- PROJECTS REGISTER ----
+  if(/\b(my projects?|list (of )?projects|show (me )?(the )?projects|all projects|project register)\b/.test(low)){
+    try{
+      const rows=await (await fetch(SB+"/projects?select=name,status,url,summary&order=id",{headers:SBH})).json();
+      renderFeed("PROJECTS",rows.map(p=>({h:p.name+" · "+p.status,s:(p.summary||"").slice(0,80),u:p.url||undefined})));
+      replyLocal(`${rows.length} projects on the register, ${state.user}: ${rows.map(p=>p.name).join(", ")}. Details on the feed.`);
+    }catch(e){replyLocal("Couldn't reach the project register.");}
     return;}
   // ---- WHATSAPP: compose a share message ----
   if(/\b(share|send|blast)\b.*\bwhatsapp\b/.test(low)||/\bwhatsapp\b.*\b(share|send|blast)\b/.test(low)){
