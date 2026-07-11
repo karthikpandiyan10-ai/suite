@@ -621,7 +621,7 @@ function renderVentures(){
 }
 renderTasks(); startClock(); applyIdentity(); loadCounts(); renderLocalMetrics(); loadNotes(); gStatus(); renderVentures(); setInterval(renderVentures,120000); bootSequence();
 /* ---- self-updater: pull new builds automatically when idle ---- */
-const SK_VER="v22.1";
+const SK_VER="v23";
 setInterval(async()=>{try{
   if(speaking||capture)return;
   const txt=await (await fetch(location.pathname,{cache:"reload"})).text();
@@ -670,7 +670,7 @@ function applyIdentity(){
   $("#hint").innerHTML=`TAP RADAR · HOLD <b>SPACE</b> · OR ENABLE <b>WAKE WORD</b> AND SAY "HI ${state.assistant.toUpperCase()}"`;
 }
 function bootSequence(){
-  const lines=[["sys","▸ SK core v22 PRECISION EARS: after the wake word, Gemini transcribes your real voice. Accurate hearing at last."],["sys","▸ core systems: online"],["sys","▸ voice interface: online"],["sys","▸ onesafe knowledge base: linking"],["sys","▸ mission control: synced"]];
+  const lines=[["sys","▸ SK core v23: content calendar online. Ask me: what do I post today. Claude writes, you post, I schedule."],["sys","▸ core systems: online"],["sys","▸ voice interface: online"],["sys","▸ onesafe knowledge base: linking"],["sys","▸ mission control: synced"]];
   let i=0;const step=()=>{ if(i<lines.length){logLine(lines[i][0],lines[i][1]);i++;setTimeout(step,350);}
     else{const hasBrain=state.brain!=="none"&&state.key;
       const hi=`${greetWord()}, ${state.user}. All systems nominal.${state.wake?` Wake word armed. Say "hi ${state.assistant}" anytime.`:""}${hasBrain?"":" Brain module offline. Voice commands active."}`;
@@ -1002,6 +1002,19 @@ async function handleCommand(text){
       return;
     }
   }
+  // ---- CONTENT CALENDAR: "what do I post today" ----
+  if(/\b(what.*post|post today|content (calendar|plan|today)|today.*content)\b/.test(low)){
+    try{
+      const today=new Date().toISOString().slice(0,10);
+      const rows=await (await fetch(SB+"/content_calendar?select=post_date,post_time,platform,venture,hook,caption&status=eq.planned&post_date=lte."+today+"&order=post_date&limit=6",{headers:SBH})).json();
+      const up=await (await fetch(SB+"/content_calendar?select=post_date,post_time,platform,venture,hook&status=eq.planned&post_date=gt."+today+"&order=post_date&limit=3",{headers:SBH})).json();
+      if(!rows.length&&!up.length){replyLocal("Content calendar is clear, "+state.user+". Ask Claude to load the next batch.");return;}
+      const items=[...rows.map(r=>({h:"TODAY "+r.post_time+" · "+r.platform+" · "+r.hook.slice(0,60),s:(r.caption||"").slice(0,90)})),
+                   ...up.map(r=>({h:r.post_date.slice(5)+" · "+r.platform+" · "+r.hook.slice(0,60),s:"upcoming"}))];
+      renderFeed("CONTENT CALENDAR",items);
+      replyLocal(rows.length?("You have "+rows.length+" post"+(rows.length>1?"s":"")+" due, "+state.user+". First: "+rows[0].platform+" at "+rows[0].post_time+": "+rows[0].hook.slice(0,80)+". Full captions on the feed."):("Nothing due today. Next up: "+up[0].post_date+" on "+up[0].platform+"."));
+    }catch(e){replyLocal("Couldn't reach the content calendar.");}
+    return;}
   // ---- NEWS ----
   if(/\b(news|headlines|mothership|straits ?times)\b/.test(low) && !/\bopen\b/.test(low)){
     setReadout("Pulling the headlines…");
