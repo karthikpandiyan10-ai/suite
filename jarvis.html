@@ -536,7 +536,7 @@ function renderVentures(){
 }
 renderTasks(); startClock(); applyIdentity(); loadCounts(); renderLocalMetrics(); loadNotes(); gStatus(); renderVentures(); setInterval(renderVentures,120000); bootSequence();
 /* ---- self-updater: pull new builds automatically when idle ---- */
-const SK_VER="v20";
+const SK_VER="v21";
 setInterval(async()=>{try{
   if(speaking||capture)return;
   const txt=await (await fetch(location.pathname,{cache:"reload"})).text();
@@ -585,7 +585,7 @@ function applyIdentity(){
   $("#hint").innerHTML=`TAP RADAR · HOLD <b>SPACE</b> · OR ENABLE <b>WAKE WORD</b> AND SAY "HI ${state.assistant.toUpperCase()}"`;
 }
 function bootSequence(){
-  const lines=[["sys","▸ SK core v20: handoff online — say: tell Claude to (anything). I dispatch, he builds."],["sys","▸ core systems: online"],["sys","▸ voice interface: online"],["sys","▸ onesafe knowledge base: linking"],["sys","▸ mission control: synced"]];
+  const lines=[["sys","▸ SK core v21 PATIENCE: I wait until you finish speaking (2s silence) before acting. No more cutting you off."],["sys","▸ core systems: online"],["sys","▸ voice interface: online"],["sys","▸ onesafe knowledge base: linking"],["sys","▸ mission control: synced"]];
   let i=0;const step=()=>{ if(i<lines.length){logLine(lines[i][0],lines[i][1]);i++;setTimeout(step,350);}
     else{const hasBrain=state.brain!=="none"&&state.key;
       const hi=`${greetWord()}, ${state.user}. All systems nominal.${state.wake?` Wake word armed. Say "hi ${state.assistant}" anytime.`:""}${hasBrain?"":" Brain module offline. Voice commands active."}`;
@@ -636,6 +636,12 @@ function speak(text){if(!("speechSynthesis" in window))return;speechSynthesis.ca
 /* ---- STT ENGINE (manual + wake word) ---- */
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 let rec=null, engineOn=false, capture=false, captureTimer=null, convo=false;
+let capBuf="", capDebounce=null;
+function armCaptureTimeout(ms){
+  clearTimeout(captureTimer);
+  captureTimer=setTimeout(()=>{ capture=false; convo=false; capBuf=""; clearTimeout(capDebounce);
+    if(state.wake){micState("ARMED","hot");radar.classList.remove("listening");setReadout("Standing by.");} else stopEngine(); },ms||12000);
+}
 function micState(s,cls){$("#stMic").textContent=s;$("#stMic").className=cls||"";}
 let recAlive=0, recRunning=false;
 function buildRec(){
@@ -650,7 +656,8 @@ function buildRec(){
       const t=e.results[i][0].transcript;
       if(e.results[i].isFinal) finalTxt+=t; else interim+=t;
     }
-    if(interim&&(capture||!state.wake)) setReadout(interim);
+    if(capture){ armCaptureTimeout(12000); } // keep the window open while he's still talking
+    if(interim&&(capture||!state.wake)) setReadout((capBuf?capBuf+" ":"")+interim);
     if(finalTxt) onSpeech(finalTxt.trim());
   };
   r.onerror=(e)=>{
@@ -685,10 +692,10 @@ function stopEngine(){ engineOn=false; try{rec&&rec.stop();}catch(_){} micState(
 function pauseEngine(){ try{rec&&rec.stop();}catch(_){} }
 function resumeEngine(){ if(engineOn&&!speaking&&!recRunning){ try{rec.start();}catch(_){ setTimeout(()=>{ if(engineOn&&!speaking&&!recRunning){try{rec.start();}catch(__){}} },400); } } }
 function beginCapture(prompt){
-  capture=true; clearTimeout(captureTimer);
+  capture=true; capBuf=""; clearTimeout(capDebounce);
   radar.classList.add("listening"); micState("LIVE","live");
   if(prompt)setReadout(prompt);
-  captureTimer=setTimeout(()=>{ capture=false; convo=false; if(state.wake){micState("ARMED","hot");radar.classList.remove("listening");setReadout("Standing by.");} else stopEngine(); },9000);
+  armCaptureTimeout(12000);
 }
 function wakePattern(){
   const wn=wakeName();
@@ -731,11 +738,18 @@ function onSpeech(text){
     }
     return; // ignore other non-wake chatter
   }
-  // capturing (after wake) or manual session
-  capture=false; clearTimeout(captureTimer);
-  if(state.wake){micState("ARMED","hot");radar.classList.remove("listening");}
-  convo=true; // keep the conversation going after SK replies
-  handleCommand(text);
+  // capturing (after wake) or manual session:
+  // PATIENCE MODE — collect everything he says; only act after ~2s of true silence (no more cutting him off)
+  capBuf=(capBuf?capBuf+" ":"")+text;
+  setReadout(capBuf);
+  clearTimeout(capDebounce);
+  capDebounce=setTimeout(()=>{
+    const full=capBuf.trim(); capBuf="";
+    capture=false; clearTimeout(captureTimer);
+    if(state.wake){micState("ARMED","hot");radar.classList.remove("listening");}
+    convo=true; // keep the conversation going after SK replies
+    handleCommand(full);
+  },2000);
 }
 radar.addEventListener("click",()=>{
   if(!SR){setReadout("Voice needs Chrome or Edge. Use the command line below.");return;}
@@ -857,6 +871,22 @@ async function handleCommand(text){
       renderFeed("DRIVE: "+term.toUpperCase().slice(0,16),d.files.map(f=>({h:f.name,s:new Date(f.modifiedTime).toLocaleDateString("en-SG"),u:f.webViewLink})));
       replyLocal(`Found ${d.files.length} files for ${term}. Top: ${d.files[0].name}. Tap on the feed to open.`);
     }catch(e){ e.message==="GAUTH"?gExpired():replyLocal("Couldn't reach Drive right now."); }
+    return;}
+  // ---- HELP: what can you do ----
+  if(/^(help|what can you do|commands?|show commands|checklist|menu)$/.test(low)||/\b(help me use|how do i use) (you|sk)\b/.test(low)){
+    renderFeed("COMMAND CHECKLIST",[
+      {h:"open youtube / google / whatsapp / instagram…",s:"opens any site"},
+      {h:"dashboard · open onesafe · open little sprout",s:"opens ON the deck · say: close view"},
+      {h:"any new emails · what's on my calendar",s:"needs: connect google"},
+      {h:"search drive for (file)",s:"finds your Google Drive files"},
+      {h:"news · my projects · status report · follow-ups",s:"live boards"},
+      {h:"my plan today · remind me tomorrow to… · add task…",s:"day management"},
+      {h:"hazard (topic)",s:"searches your 3,639-row safety library"},
+      {h:"teach me the faceless method / analyze (venture)",s:"brain answers with next steps"},
+      {h:"tell claude to (anything)",s:"sends the job to Claude's desk"},
+      {h:"theme deadpool / stark / wolverine / cyan",s:"changes the suit"},
+      {h:"that's all",s:"ends the conversation"}]);
+    replyLocal("Checklist is on the feed, "+state.user+". Speak after my reply ends, pause two seconds when done, and I act.");
     return;}
   // ---- HANDOFF TO CLAUDE: "tell claude to X" logs a task for the next Claude session ----
   let hc=low.match(/^(?:tell|ask|get)\s+(?:claude|cloud|clode|clod)\s+(?:to\s+)?(.+)/);
