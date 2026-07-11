@@ -468,6 +468,91 @@ async function gFetch(url){
   return r.json();
 }
 function gExpired(){replyLocal("The Google session expired, "+state.user+". Say: connect google.");}
+/* ---- PRECISION EARS: record real audio, transcribe with Gemini (far more accurate than the browser mic) ---- */
+let mediaStream=null, pAudioCtx=null;
+function precisionOn(){ return state.brain==="gemini" && !!state.key && state.ears!=="basic"; }
+async function ensureMic(){ if(!mediaStream){ mediaStream=await navigator.mediaDevices.getUserMedia({audio:true}); } return mediaStream; }
+async function recordUtterance(maxMs,silenceMs){
+  const stream=await ensureMic();
+  const mr=new MediaRecorder(stream,{mimeType:"audio/webm;codecs=opus"});
+  const chunks=[]; mr.ondataavailable=e=>{if(e.data.size)chunks.push(e.data);};
+  pAudioCtx=pAudioCtx||new (window.AudioContext||window.webkitAudioContext)();
+  if(pAudioCtx.state==="suspended"){try{await pAudioCtx.resume();}catch(e){}}
+  const src=pAudioCtx.createMediaStreamSource(stream);
+  const an=pAudioCtx.createAnalyser(); an.fftSize=512; src.connect(an);
+  const buf=new Uint8Array(an.fftSize);
+  let spoke=false,lastLoud=Date.now(),t0=Date.now();
+  mr.start(120);
+  await new Promise(res=>{
+    const iv=setInterval(()=>{
+      an.getByteTimeDomainData(buf);
+      let rms=0; for(let i=0;i<buf.length;i++){const v=(buf[i]-128)/128;rms+=v*v;} rms=Math.sqrt(rms/buf.length);
+      if(rms>0.02){spoke=true;lastLoud=Date.now();}
+      const now=Date.now();
+      if((spoke&&now-lastLoud>(silenceMs||1500))||(now-t0>(maxMs||14000))){clearInterval(iv);res();}
+    },80);
+  });
+  mr.stop(); await new Promise(r=>mr.onstop=r);
+  try{src.disconnect();}catch(e){}
+  return {blob:new Blob(chunks,{type:"audio/webm"}),spoke};
+}
+async function blobToWav(blob){
+  const ab=await blob.arrayBuffer();
+  pAudioCtx=pAudioCtx||new (window.AudioContext||window.webkitAudioContext)();
+  const dec=await pAudioCtx.decodeAudioData(ab.slice(0));
+  const len=Math.max(1,Math.ceil(dec.duration*16000));
+  const off=new OfflineAudioContext(1,len,16000);
+  const s=off.createBufferSource(); s.buffer=dec; s.connect(off.destination); s.start();
+  const rendered=await off.startRendering();
+  const ch=rendered.getChannelData(0);
+  const out=new ArrayBuffer(44+ch.length*2); const dv=new DataView(out);
+  const wstr=(o,t)=>{for(let i=0;i<t.length;i++)dv.setUint8(o+i,t.charCodeAt(i));};
+  wstr(0,"RIFF");dv.setUint32(4,36+ch.length*2,true);wstr(8,"WAVE");wstr(12,"fmt ");
+  dv.setUint32(16,16,true);dv.setUint16(20,1,true);dv.setUint16(22,1,true);
+  dv.setUint32(24,16000,true);dv.setUint32(28,32000,true);dv.setUint16(32,2,true);dv.setUint16(34,16,true);
+  wstr(36,"data");dv.setUint32(40,ch.length*2,true);
+  for(let i=0;i<ch.length;i++){const v=Math.max(-1,Math.min(1,ch[i]));dv.setInt16(44+i*2,v<0?v*0x8000:v*0x7FFF,true);}
+  return new Blob([out],{type:"audio/wav"});
+}
+async function transcribeGemini(blob){
+  const wav=await blobToWav(blob);
+  const b64=await new Promise(r=>{const fr=new FileReader();fr.onload=()=>r(String(fr.result).split(",")[1]);fr.readAsDataURL(wav);});
+  const body={contents:[{role:"user",parts:[
+    {inlineData:{mimeType:"audio/wav",data:b64}},
+    {text:"Transcribe this English (Singapore accent) speech EXACTLY as spoken. Output ONLY the transcription text, no quotes, no commentary."}]}]};
+  for(const m of ["gemini-3.1-flash-lite","gemini-3-flash-preview","gemini-flash-lite-latest"]){
+    try{
+      const ctl=new AbortController(); setTimeout(()=>ctl.abort(),15000);
+      const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${state.key}`,
+        {method:"POST",headers:{"Content-Type":"application/json"},signal:ctl.signal,body:JSON.stringify(body)});
+      if(!r.ok)continue;
+      const d=await r.json();
+      const t=(d?.candidates?.[0]?.content?.parts?.[0]?.text||"").trim();
+      if(t)return t;
+    }catch(e){}
+  }
+  return null;
+}
+let preciseBusy=false;
+async function preciseCapture(){
+  if(preciseBusy)return; preciseBusy=true;
+  try{
+    pauseEngine();
+    capture=true; micState("LIVE","live"); radar.classList.add("listening");
+    setReadout("Listening with precision… speak, then pause.");
+    const {blob,spoke}=await recordUtterance(14000,1500);
+    capture=false;
+    if(!spoke){ if(state.wake){micState("ARMED","hot");radar.classList.remove("listening");setReadout("Standing by.");} resumeEngine(); return; }
+    radar.classList.add("thinking"); setReadout("Understanding…");
+    const text=await transcribeGemini(blob);
+    radar.classList.remove("thinking");
+    if(state.wake){micState("ARMED","hot");radar.classList.remove("listening");}
+    resumeEngine();
+    if(text&&text.length>1){ logLine("u","You: "+text); convo=true; await handleCommand(normalizeHeard(text).toLowerCase()); }
+    else{ replyLocal("I couldn't catch that clearly, "+state.user+". Once more?"); }
+  }catch(e){ radar.classList.remove("thinking"); resumeEngine(); replyLocal("Precision ear glitch. Try again."); }
+  finally{ preciseBusy=false; }
+}
 /* ---- News (Mothership / Straits Times / World) ---- */
 const NEWS_FEEDS=[
   {name:"Mothership",url:"https://mothership.sg/feed/"},
@@ -536,7 +621,7 @@ function renderVentures(){
 }
 renderTasks(); startClock(); applyIdentity(); loadCounts(); renderLocalMetrics(); loadNotes(); gStatus(); renderVentures(); setInterval(renderVentures,120000); bootSequence();
 /* ---- self-updater: pull new builds automatically when idle ---- */
-const SK_VER="v21";
+const SK_VER="v22";
 setInterval(async()=>{try{
   if(speaking||capture)return;
   const txt=await (await fetch(location.pathname,{cache:"reload"})).text();
@@ -585,7 +670,7 @@ function applyIdentity(){
   $("#hint").innerHTML=`TAP RADAR · HOLD <b>SPACE</b> · OR ENABLE <b>WAKE WORD</b> AND SAY "HI ${state.assistant.toUpperCase()}"`;
 }
 function bootSequence(){
-  const lines=[["sys","▸ SK core v21 PATIENCE: I wait until you finish speaking (2s silence) before acting. No more cutting you off."],["sys","▸ core systems: online"],["sys","▸ voice interface: online"],["sys","▸ onesafe knowledge base: linking"],["sys","▸ mission control: synced"]];
+  const lines=[["sys","▸ SK core v22 PRECISION EARS: after the wake word, Gemini transcribes your real voice. Accurate hearing at last."],["sys","▸ core systems: online"],["sys","▸ voice interface: online"],["sys","▸ onesafe knowledge base: linking"],["sys","▸ mission control: synced"]];
   let i=0;const step=()=>{ if(i<lines.length){logLine(lines[i][0],lines[i][1]);i++;setTimeout(step,350);}
     else{const hasBrain=state.brain!=="none"&&state.key;
       const hi=`${greetWord()}, ${state.user}. All systems nominal.${state.wake?` Wake word armed. Say "hi ${state.assistant}" anytime.`:""}${hasBrain?"":" Brain module offline. Voice commands active."}`;
@@ -692,6 +777,7 @@ function stopEngine(){ engineOn=false; try{rec&&rec.stop();}catch(_){} micState(
 function pauseEngine(){ try{rec&&rec.stop();}catch(_){} }
 function resumeEngine(){ if(engineOn&&!speaking&&!recRunning){ try{rec.start();}catch(_){ setTimeout(()=>{ if(engineOn&&!speaking&&!recRunning){try{rec.start();}catch(__){}} },400); } } }
 function beginCapture(prompt){
+  if(precisionOn()){ preciseCapture(); return; }
   capture=true; capBuf=""; clearTimeout(capDebounce);
   radar.classList.add("listening"); micState("LIVE","live");
   if(prompt)setReadout(prompt);
@@ -872,6 +958,9 @@ async function handleCommand(text){
       replyLocal(`Found ${d.files.length} files for ${term}. Top: ${d.files[0].name}. Tap on the feed to open.`);
     }catch(e){ e.message==="GAUTH"?gExpired():replyLocal("Couldn't reach Drive right now."); }
     return;}
+  // ---- EARS MODE ----
+  if(/\b(basic|old|normal) ears?\b/.test(low)){ state.ears="basic"; saveCfg(); replyLocal("Basic ears on. Fast but less accurate."); return; }
+  if(/\b(precision|precise|better|good|new) ears?\b/.test(low)){ state.ears=""; saveCfg(); replyLocal("Precision ears on, "+state.user+". I record you and Gemini transcribes. Speak, then pause."); return; }
   // ---- HELP: what can you do ----
   if(/^(help|what can you do|commands?|show commands|checklist|menu)$/.test(low)||/\b(help me use|how do i use) (you|sk)\b/.test(low)){
     renderFeed("COMMAND CHECKLIST",[
