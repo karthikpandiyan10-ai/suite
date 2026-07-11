@@ -539,7 +539,7 @@ async function handleCommand(text){
     }
   }
   // ---- daily brief + todos ----
-  if(/(plan|brief|supposed to do|to ?do|things to do|my day|daily)/.test(low) && !/add|new|complete|done|finish/.test(low)){
+  if(/(my (plan|day)\b|plan (for )?(today|tomorrow|the day)|daily brief|brief me|morning brief|supposed to do|things to do|to ?do list|my to ?dos?\b|what.?s? today)/.test(low) && !/add|new|complete|done|finish/.test(low)){
     setReadout("Compiling your day…");
     try{
       const b=(await (await fetch(SB+"/daily_brief?select=brief_date,lines&order=id.desc&limit=1",{headers:SBH})).json())[0];
@@ -596,25 +596,24 @@ async function handleCommand(text){
       }catch(e){replyLocal("The OneSafe link is down. Check the internet connection.");}
       return;}
   }
+  // SITE CATCH: if he mentions a known site ANYWHERE in the sentence, act on it.
+  // "i'm gonna go google" -> open Google. "check on google about lifting plans" -> google-search "lifting plans".
+  let sc=low.match(/\b(youtube|google|whatsapp|gmail|drive|calendar|shopee|lazada|amazon|aliexpress|tiktok|canva|shopify|jasper|chatgpt|claude|coursiv|supabase|mom|wsh|onesafe|one ?safe|dashboard)\b/);
+  if(sc){
+    let key=sc[1].replace(/\s+/g,"");
+    // words after the site name = search term (minus glue words)
+    let after=low.slice(low.indexOf(sc[1])+sc[1].length)
+      .replace(/\b(for|about|on|regarding|related to|the|a|an|some|things?|stuff|info|information)\b/g," ")
+      .replace(/\s+/g," ").trim();
+    if(after.length>2 && SEARCHERS[key]){ safeOpen(SEARCHERS[key](after), key+" results for "+after); return; }
+    if(LAUNCH[key]){ safeOpen(LAUNCH[key], key); return; }
+  }
   // default web search: "search X" / "find out about X" / "look up X" / "find X"
   let gs=low.match(/^(?:search|look ?up|find out(?: more)?(?: about)?|find|check)\s+(?:for\s+|about\s+|on\s+)?(.+)$/);
   if(gs && gs[1].trim().length>1){
     const term=gs[1].trim();
     safeOpen(SEARCHERS.google(term), "Google results for "+term);
     return;
-  }
-  // LAST-CHANCE SITE CATCH: if he mentions a known site ANYWHERE, act on it.
-  // "i'm gonna go google" -> open Google. "google crane lifting rules" anywhere in a ramble -> search it.
-  let sc=low.match(/\b(youtube|google|whatsapp|gmail|drive|calendar|shopee|lazada|amazon|aliexpress|tiktok|canva|shopify|jasper|chatgpt|claude|coursiv|supabase|mom|wsh|onesafe|one ?safe|dashboard)\b/);
-  if(sc){
-    let key=sc[1].replace(/\s+/g,""); if(key==="onesafe")key="onesafe";
-    // words after the site name = search term (minus glue words)
-    let after=low.slice(low.indexOf(sc[1])+sc[1].length)
-      .replace(/\b(for|about|on|regarding|related to|the|a|an|some|things?|stuff|info|information)\b/g," ")
-      .replace(/\s+/g," ").trim();
-    if(after.length>2 && SEARCHERS[key]){ safeOpen(SEARCHERS[key](after), key+" results for "+after); return; }
-    if(after.length>2 && !SEARCHERS[key] && LAUNCH[key]){ safeOpen(LAUNCH[key], key); return; }
-    if(LAUNCH[key]){ safeOpen(LAUNCH[key], key); return; }
   }
   if(state.brain==="none"||!state.key){
     renderFeed("TAP TO SEARCH WEB",[{h:"Google: "+text.slice(0,60),s:"tap to open web results",u:SEARCHERS.google(text)}]);
