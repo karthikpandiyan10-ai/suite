@@ -190,7 +190,7 @@ button.plain.on{background:var(--amber);color:#04121C;border-color:var(--amber)}
         </svg>
       </div>
       <div class="readout" id="readout">BOOTING<span class="cursor"></span></div>
-      <div class="hint" id="hint">TAP RADAR · HOLD <b>SPACE</b> · OR ENABLE <b>WAKE WORD</b> AND SAY "HI JARVIS"</div>
+      <div class="hint" id="hint">SAY "HI SK" ONCE · THEN JUST KEEP TALKING · SAY <b>"THAT'S ALL"</b> TO END</div>
       <div class="keys">
         <button onclick="handleCommand('my plan today')">TODAY</button>
         <button onclick="handleCommand('status report')">STATUS</button>
@@ -337,7 +337,7 @@ function applyIdentity(){
   $("#hint").innerHTML=`TAP RADAR · HOLD <b>SPACE</b> · OR ENABLE <b>WAKE WORD</b> AND SAY "HI ${state.assistant.toUpperCase()}"`;
 }
 function bootSequence(){
-  const lines=[["sys","▸ SK core v5: arc reactor online. Say: go YouTube · google anything · hazard lifting"],["sys","▸ core systems: online"],["sys","▸ voice interface: online"],["sys","▸ onesafe knowledge base: linking"],["sys","▸ mission control: synced"]];
+  const lines=[["sys","▸ SK core v6: conversation mode. Say hi SK once, then just keep talking. Say that's all to end."],["sys","▸ core systems: online"],["sys","▸ voice interface: online"],["sys","▸ onesafe knowledge base: linking"],["sys","▸ mission control: synced"]];
   let i=0;const step=()=>{ if(i<lines.length){logLine(lines[i][0],lines[i][1]);i++;setTimeout(step,350);}
     else{const hasBrain=state.brain!=="none"&&state.key;
       const hi=`${greetWord()}, ${state.user}. All systems nominal.${state.wake?` Wake word armed. Say "hi ${state.assistant}" anytime.`:""}${hasBrain?"":" Brain module offline. Voice commands active."}`;
@@ -378,11 +378,13 @@ const radar=$("#radar");
 function speak(text){if(!("speechSynthesis" in window))return;speechSynthesis.cancel();
   const u=new SpeechSynthesisUtterance(String(text).replace(/[*_#`]/g,""));if(voice)u.voice=voice;u.rate=state.rate||1.04;u.pitch=state.pitch||0.9;
   u.onstart=()=>{speaking=true;radar.classList.add("thinking");pauseEngine();};
-  u.onend=()=>{speaking=false;radar.classList.remove("thinking");resumeEngine();};
+  u.onend=()=>{speaking=false;radar.classList.remove("thinking");resumeEngine();
+    // CONVERSATION MODE: after SK replies to a voice command, reopen the mic so Karthik keeps talking hands-free
+    if(convo&&engineOn){ setTimeout(()=>{ if(convo&&engineOn&&!speaking) beginCapture("Listening… (say \"that's all\" to end)"); },250); }};
   speechSynthesis.speak(u);}
 /* ---- STT ENGINE (manual + wake word) ---- */
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-let rec=null, engineOn=false, capture=false, captureTimer=null;
+let rec=null, engineOn=false, capture=false, captureTimer=null, convo=false;
 function micState(s,cls){$("#stMic").textContent=s;$("#stMic").className=cls||"";}
 function buildRec(){
   const r=new SR(); r.lang="en-SG"; r.interimResults=true; r.continuous=true;
@@ -419,7 +421,7 @@ function beginCapture(prompt){
   capture=true; clearTimeout(captureTimer);
   radar.classList.add("listening"); micState("LIVE","live");
   if(prompt)setReadout(prompt);
-  captureTimer=setTimeout(()=>{ capture=false; if(state.wake){micState("ARMED","hot");radar.classList.remove("listening");setReadout("Standing by.");} else stopEngine(); },9000);
+  captureTimer=setTimeout(()=>{ capture=false; convo=false; if(state.wake){micState("ARMED","hot");radar.classList.remove("listening");setReadout("Standing by.");} else stopEngine(); },9000);
 }
 function wakePattern(){
   const wn=wakeName();
@@ -436,7 +438,7 @@ function onSpeech(text){
     if(wakeRe.test(low)||bare.test(low)){
       const rest=low.replace(wakeRe,"").replace(bare,"").replace(/^[,.\s]+/,"").trim();
       logLine("u","You: "+text);
-      if(rest.length>2){ handleCommand(rest); }
+      if(rest.length>2){ convo=true; handleCommand(rest); }
       else{
         const g=/morning/.test(low)?"Good morning":/evening/.test(low)?"Good evening":/afternoon/.test(low)?"Good afternoon":null;
         if(g){ speak(`${g}, ${state.user}. Standing by. Ask for your plan whenever you're ready.`); }
@@ -455,7 +457,7 @@ function onSpeech(text){
   // capturing (after wake) or manual session
   capture=false; clearTimeout(captureTimer);
   if(state.wake){micState("ARMED","hot");radar.classList.remove("listening");}
-  else stopEngine();
+  convo=true; // keep the conversation going after SK replies
   handleCommand(text);
 }
 radar.addEventListener("click",()=>{
@@ -484,6 +486,14 @@ async function handleCommand(text){
     .replace(/^(?:please\s+)?(?:can you|could you|would you|will you|help me(?: to)?|i (?:want|wanna|need|would like)(?: to)?|let'?s|kindly)\s+/,"")
     .replace(/\s+(?:please|for me|now|thanks?|thank you|leh|lah|ah)[\s.?!]*$/,"")
     .replace(/[.?!]+\s*$/,"").trim();
+  // end of conversation: "that's all" / "go to sleep" / "standby"
+  if(/^(stop|stop listening|standby|stand by|go to sleep|sleep|that'?s? all|nothing else|no more|dismiss|quiet|silence|never ?mind|thank you|thanks)$/.test(low)){
+    convo=false; capture=false; clearTimeout(captureTimer);
+    if(state.wake){ micState("ARMED","hot"); radar.classList.remove("listening"); }
+    else stopEngine();
+    replyLocal("Standing by, "+state.user+". Call me when you need me.");
+    return;
+  }
   // site-targeted search: "search youtube for X" / "search X on youtube" / "youtube funny cats"
   let ws=low.match(/^(?:search|find|look ?up|show me|check)\s+(?:on\s+)?(youtube|google|amazon|aliexpress|shopee|lazada|tiktok)\s+(?:for\s+)?(.+)/)
       || low.match(/^(?:search|find|look ?up|show me|check)\s+(?:for\s+)?(.+?)\s+(?:on|in|at)\s+(youtube|google|amazon|aliexpress|shopee|lazada|tiktok)$/)
@@ -721,7 +731,7 @@ function escapeHtml(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"
 /* ---- command line ---- */
 $("#sendBtn").onclick=sendTyped;
 $("#cmdInput").addEventListener("keydown",e=>{if(e.key==="Enter")sendTyped();});
-function sendTyped(){const v=$("#cmdInput").value.trim();if(!v)return;$("#cmdInput").value="";handleCommand(v);}
+function sendTyped(){const v=$("#cmdInput").value.trim();if(!v)return;$("#cmdInput").value="";convo=false;handleCommand(v);}
 /* ---- config ---- */
 const modal=$("#modal");
 $("#gearBtn").onclick=()=>{syncSettingsUI();modal.classList.add("open");};
