@@ -34,8 +34,28 @@ body::after{content:"";position:fixed;left:0;right:0;height:110px;z-index:51;poi
   animation:sweep 10s linear infinite}
 @keyframes sweep{0%{top:-120px}100%{top:100vh}}
 /* HUD Pro micro-animations */
-.wordmark{animation:glowpulse 4s ease-in-out infinite}
-@keyframes glowpulse{50%{text-shadow:0 0 16px rgba(63,193,242,.5)}}
+.wordmark{animation:glitch 6.5s steps(1) infinite}
+@keyframes glitch{
+  0%,90%,100%{text-shadow:0 0 14px rgba(63,193,242,.45)}
+  91%{text-shadow:2px 0 var(--red),-2px 0 var(--amber),0 0 18px rgba(63,193,242,.6)}
+  93%{text-shadow:-2px 0 var(--red),2px 0 var(--amber)}
+  95%{text-shadow:1px 1px var(--red),-1px -1px var(--amber),0 0 20px rgba(63,193,242,.7)}
+  97%{text-shadow:0 0 14px rgba(63,193,242,.45)}}
+/* particle field canvas */
+#stars{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.55}
+/* voice visualizer */
+.viz{display:flex;gap:3px;height:24px;align-items:center;justify-content:center;opacity:.22;transition:opacity .3s}
+.viz i{display:block;width:3px;height:3px;background:var(--amber);box-shadow:0 0 6px rgba(63,193,242,.6)}
+body.talking .viz{opacity:1}
+body.talking .viz i{animation:vz .45s ease-in-out infinite alternate}
+@keyframes vz{from{height:3px}to{height:22px}}
+/* angled quick-bar + hazard-stripe divider */
+.keys{clip-path:polygon(12px 0,100% 0,calc(100% - 12px) 100%,0 100%);padding:0 6px}
+.cmd{position:relative}
+.cmd::before{content:"";position:absolute;top:-4px;left:0;right:0;height:3px;opacity:.35;
+  background:repeating-linear-gradient(45deg,var(--amber) 0 10px,transparent 10px 22px,var(--red) 22px 32px,transparent 32px 44px)}
+.clock span+span{text-shadow:0 0 10px rgba(63,193,242,.5)}
+@media (prefers-reduced-motion:reduce){.wordmark{animation:none}#stars{display:none}body.talking .viz i{animation:none}}
 .tele>div{position:relative;overflow:hidden}
 .tele>div::after{content:"";position:absolute;left:-40%;bottom:0;height:2px;width:40%;
   background:linear-gradient(90deg,transparent,var(--amber),transparent);opacity:.55;
@@ -131,7 +151,8 @@ button.plain.on{background:var(--amber);color:#04121C;border-color:var(--amber)}
 .radar svg{width:100%;height:100%;display:block;filter:drop-shadow(0 0 22px rgba(63,193,242,.14))}
 .radar .sweep{transform-origin:50% 50%;animation:spin 6s linear infinite}
 .radar .ring2{transform-origin:50% 50%;animation:spin 28s linear infinite reverse}
-@media (prefers-reduced-motion:reduce){.radar .ring2{animation:none}}
+.radar .ring3{transform-origin:50% 50%;animation:spin 45s linear infinite}
+@media (prefers-reduced-motion:reduce){.radar .ring2,.radar .ring3{animation:none}}
 .radar.listening .sweep{animation-duration:1.4s}
 .radar.thinking .sweep{animation-duration:.7s;opacity:.9}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -244,6 +265,7 @@ button.plain.on{background:var(--amber);color:#04121C;border-color:var(--amber)}
           <line x1="100" y1="2" x2="100" y2="198" stroke="var(--hair)" stroke-width="1"/>
           <line x1="2" y1="100" x2="198" y2="100" stroke="var(--hair)" stroke-width="1"/>
           <circle cx="100" cy="100" r="88" fill="none" stroke="var(--amber-dim)" stroke-width="1" stroke-dasharray="3 9" class="ring2"/>
+          <circle cx="100" cy="100" r="94" fill="none" stroke="var(--amber)" stroke-width="2" stroke-dasharray="1 11" opacity=".5" class="ring3"/>
           <g class="sweep"><path d="M100,100 L100,4 A96,96 0 0 1 152,16 Z" fill="rgba(63,193,242,.16)"/>
           <line x1="100" y1="100" x2="100" y2="4" stroke="var(--amber)" stroke-width="1.5"/></g>
           <circle cx="100" cy="100" r="20" fill="var(--bg2)" stroke="var(--amber)" stroke-width="1.5"/>
@@ -468,6 +490,32 @@ function animateNum(el,val,localize){
   requestAnimationFrame(step);
 }
 renderTasks(); startClock(); applyIdentity(); loadCounts(); renderLocalMetrics(); loadNotes(); gStatus(); bootSequence();
+/* ---- cinematic layer: particle field + voice visualizer ---- */
+(function(){
+  if(window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const c=document.createElement("canvas"); c.id="stars"; document.body.appendChild(c);
+  const x=c.getContext("2d"); let W,H;
+  const R=()=>{W=c.width=innerWidth;H=c.height=innerHeight;};
+  addEventListener("resize",R); R();
+  const P=Array.from({length:70},()=>({x:Math.random()*W,y:Math.random()*H,z:Math.random()+0.2,s:Math.random()*1.5+0.5}));
+  (function loop(){
+    x.clearRect(0,0,W,H);
+    for(const p of P){
+      p.y-=p.z*0.4; if(p.y<-6){p.y=H+6;p.x=Math.random()*W;}
+      x.globalAlpha=0.10+p.z*0.22;
+      x.fillStyle="#3FC1F2";
+      x.fillRect(p.x,p.y,p.s,p.s*3);
+    }
+    requestAnimationFrame(loop);
+  })();
+})();
+(function(){
+  const v=document.createElement("div"); v.className="viz"; v.id="viz";
+  for(let i=0;i<26;i++){const s=document.createElement("i");
+    s.style.animationDelay=((i*53)%420)+"ms"; s.style.animationDuration=(320+Math.random()*320)+"ms"; v.appendChild(s);}
+  const ro=$("#readout"); if(ro&&ro.parentNode) ro.parentNode.insertBefore(v,ro.nextSibling);
+  setInterval(()=>{document.body.classList.toggle("talking",!!speaking);},150);
+})();
 function startClock(){const tick=()=>{const d=new Date();
   $("#clockT").textContent=d.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit",second:"2-digit"});
   $("#clockD").textContent=d.toLocaleDateString([],{weekday:"short",month:"short",day:"numeric"}).toUpperCase();};
@@ -484,7 +532,7 @@ function applyIdentity(){
   $("#hint").innerHTML=`TAP RADAR · HOLD <b>SPACE</b> · OR ENABLE <b>WAKE WORD</b> AND SAY "HI ${state.assistant.toUpperCase()}"`;
 }
 function bootSequence(){
-  const lines=[["sys","▸ SK core v12 HUD Pro Max: full motion choreography online · say news, my projects, or open instagram"],["sys","▸ core systems: online"],["sys","▸ voice interface: online"],["sys","▸ onesafe knowledge base: linking"],["sys","▸ mission control: synced"]];
+  const lines=[["sys","▸ SK core v13 CINEMA: particle field · voice visualizer · glitch systems · triple radar. Speak and watch the bars dance."],["sys","▸ core systems: online"],["sys","▸ voice interface: online"],["sys","▸ onesafe knowledge base: linking"],["sys","▸ mission control: synced"]];
   let i=0;const step=()=>{ if(i<lines.length){logLine(lines[i][0],lines[i][1]);i++;setTimeout(step,350);}
     else{const hasBrain=state.brain!=="none"&&state.key;
       const hi=`${greetWord()}, ${state.user}. All systems nominal.${state.wake?` Wake word armed. Say "hi ${state.assistant}" anytime.`:""}${hasBrain?"":" Brain module offline. Voice commands active."}`;
