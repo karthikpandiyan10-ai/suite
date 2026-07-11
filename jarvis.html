@@ -159,6 +159,16 @@ button.plain.on{background:var(--amber);color:#04121C;border-color:var(--amber)}
 .vh b{color:var(--amber);font-weight:600}
 .vh span{color:var(--muted);font-size:10px}
 .vnext{font-size:13.5px;color:var(--ink);margin-top:3px;line-height:1.45}
+/* on-deck overlay: opens own pages inside SK (no popups) */
+#inlineOv{position:fixed;inset:3%;z-index:70;display:none;flex-direction:column;background:var(--bg2);
+  border:1px solid var(--amber);border-radius:12px;box-shadow:0 0 60px rgba(var(--grgb),.35);overflow:hidden}
+#inlineOv.open{display:flex}
+.ov-bar{display:flex;justify-content:space-between;align-items:center;padding:8px 14px;border-bottom:1px solid var(--line);
+  font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--amber);text-transform:uppercase}
+.ov-bar button{background:none;border:1px solid var(--line);border-radius:8px;color:var(--ink);font-family:var(--mono);
+  font-size:10px;letter-spacing:.1em;padding:6px 12px;cursor:pointer}
+.ov-bar button:hover{border-color:var(--amber);color:var(--amber)}
+#ovFrame{flex:1;border:none;width:100%;background:var(--bg)}
 .tele .n i{font-style:normal;color:var(--amber)}
 .tele .l{font-family:var(--mono);font-size:9px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;margin-top:2px}
 /* log */
@@ -525,6 +535,14 @@ function renderVentures(){
   }).join("")||'<div class="empty">No businesses found yet.</div>';
 }
 renderTasks(); startClock(); applyIdentity(); loadCounts(); renderLocalMetrics(); loadNotes(); gStatus(); renderVentures(); setInterval(renderVentures,120000); bootSequence();
+/* ---- self-updater: pull new builds automatically when idle ---- */
+const SK_VER="v17";
+setInterval(async()=>{try{
+  if(speaking||capture)return;
+  const txt=await (await fetch(location.pathname,{cache:"reload"})).text();
+  const m=txt.match(/const SK_VER="([^"]+)"/);
+  if(m&&m[1]!==SK_VER) location.reload();
+}catch(e){}},10*60*1000);
 /* ---- cinematic layer: particle field + voice visualizer ---- */
 (function(){
   if(window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -567,7 +585,7 @@ function applyIdentity(){
   $("#hint").innerHTML=`TAP RADAR · HOLD <b>SPACE</b> · OR ENABLE <b>WAKE WORD</b> AND SAY "HI ${state.assistant.toUpperCase()}"`;
 }
 function bootSequence(){
-  const lines=[["sys","▸ SK core v16: Missions board live (to-dos per business, top-left) · themes: deadpool / stark / wolverine / cyan"],["sys","▸ core systems: online"],["sys","▸ voice interface: online"],["sys","▸ onesafe knowledge base: linking"],["sys","▸ mission control: synced"]];
+  const lines=[["sys","▸ SK core v17: on-deck views (open dashboard shows INSIDE SK) · missions board · self-updating from now on"],["sys","▸ core systems: online"],["sys","▸ voice interface: online"],["sys","▸ onesafe knowledge base: linking"],["sys","▸ mission control: synced"]];
   let i=0;const step=()=>{ if(i<lines.length){logLine(lines[i][0],lines[i][1]);i++;setTimeout(step,350);}
     else{const hasBrain=state.brain!=="none"&&state.key;
       const hi=`${greetWord()}, ${state.user}. All systems nominal.${state.wake?` Wake word armed. Say "hi ${state.assistant}" anytime.`:""}${hasBrain?"":" Brain module offline. Voice commands active."}`;
@@ -719,6 +737,11 @@ async function handleCommand(text){
     .replace(/^(?:please\s+)?(?:can you|could you|would you|will you|help me(?: to)?|i (?:want|wanna|need|would like)(?: to)?|let'?s|kindly)\s+/,"")
     .replace(/\s+(?:please|for me|now|thanks?|thank you|leh|lah|ah)[\s.?!]*$/,"")
     .replace(/[.?!]+\s*$/,"").trim();
+  // close the on-deck view
+  if(/\b(close|hide|exit)\b.*\b(view|deck|overlay|dashboard|page|window|that)\b|^close$/.test(low)){
+    const ov=document.getElementById("inlineOv");
+    if(ov&&ov.classList.contains("open")){ov.classList.remove("open");document.getElementById("ovFrame").src="about:blank";replyLocal("View closed, "+state.user+".");return;}
+  }
   // end of conversation: "that's all" / "go to sleep" / "standby"
   if(/^(stop|stop listening|standby|stand by|go to sleep|sleep|that'?s? all|nothing else|no more|dismiss|quiet|silence|never ?mind|thank you|thanks)$/.test(low)){
     convo=false; capture=false; clearTimeout(captureTimer);
@@ -1075,7 +1098,22 @@ function renderFeed(label,items){$("#feedTag").textContent=label;const ul=$("#fe
     li.innerHTML=`<div class="h">${escapeHtml(it.h||"")}${it.u?' <span style="color:var(--amber)">↗</span>':''}</div>${it.s?`<div class="s">${escapeHtml(it.s)}</div>`:""}`;
     if(it.u){li.style.cursor="pointer";li.onclick=()=>window.open(it.u,"_blank");}
     ul.appendChild(li);});}
+function openInline(url,name){
+  let ov=document.getElementById("inlineOv");
+  if(!ov){
+    ov=document.createElement("div"); ov.id="inlineOv";
+    ov.innerHTML='<div class="ov-bar"><span id="ovTitle"></span><button id="ovClose" type="button">CLOSE ✕</button></div><iframe id="ovFrame" title="on-deck view"></iframe>';
+    document.body.appendChild(ov);
+    document.getElementById("ovClose").onclick=()=>{ov.classList.remove("open");document.getElementById("ovFrame").src="about:blank";};
+  }
+  document.getElementById("ovTitle").textContent=String(name||"VIEW");
+  document.getElementById("ovFrame").src=url;
+  ov.classList.add("open");
+  replyLocal("On the deck: "+name+", "+state.user+". Say close view when done.");
+}
 function safeOpen(url,name){
+  // our own pages open INSIDE the deck (voice-safe, no popup blocking)
+  if(!/^https?:/i.test(url)){ openInline(url,name); return true; }
   const w=window.open(url,"_blank");
   if(w){replyLocal(`Opening ${name}, ${state.user}.`);return true;}
   renderFeed("TAP TO OPEN",[{h:name,s:url.slice(0,60),u:url}]);
