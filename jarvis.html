@@ -536,7 +536,7 @@ function renderVentures(){
 }
 renderTasks(); startClock(); applyIdentity(); loadCounts(); renderLocalMetrics(); loadNotes(); gStatus(); renderVentures(); setInterval(renderVentures,120000); bootSequence();
 /* ---- self-updater: pull new builds automatically when idle ---- */
-const SK_VER="v17";
+const SK_VER="v18";
 setInterval(async()=>{try{
   if(speaking||capture)return;
   const txt=await (await fetch(location.pathname,{cache:"reload"})).text();
@@ -585,7 +585,7 @@ function applyIdentity(){
   $("#hint").innerHTML=`TAP RADAR · HOLD <b>SPACE</b> · OR ENABLE <b>WAKE WORD</b> AND SAY "HI ${state.assistant.toUpperCase()}"`;
 }
 function bootSequence(){
-  const lines=[["sys","▸ SK core v17: on-deck views (open dashboard shows INSIDE SK) · missions board · self-updating from now on"],["sys","▸ core systems: online"],["sys","▸ voice interface: online"],["sys","▸ onesafe knowledge base: linking"],["sys","▸ mission control: synced"]];
+  const lines=[["sys","▸ SK core v18: sharper ears (hi SK understood even when misheard) · brain timeout guard · on-deck views"],["sys","▸ core systems: online"],["sys","▸ voice interface: online"],["sys","▸ onesafe knowledge base: linking"],["sys","▸ mission control: synced"]];
   let i=0;const step=()=>{ if(i<lines.length){logLine(lines[i][0],lines[i][1]);i++;setTimeout(step,350);}
     else{const hasBrain=state.brain!=="none"&&state.key;
       const hi=`${greetWord()}, ${state.user}. All systems nominal.${state.wake?` Wake word armed. Say "hi ${state.assistant}" anytime.`:""}${hasBrain?"":" Brain module offline. Voice commands active."}`;
@@ -680,7 +680,17 @@ function wakePattern(){
   if(namePat.length<=3){ namePat=namePat.split("").join("\\s*"); }
   return namePat;
 }
+function normalizeHeard(t){
+  return String(t)
+    .replace(/\bhighest kid\b/gi,"hi sk").replace(/\bhighest k\b/gi,"hi sk")
+    .replace(/\bhigh sk\b/gi,"hi sk").replace(/\bhi ask\b/gi,"hi sk").replace(/\bhigh ask\b/gi,"hi sk")
+    .replace(/\bhi escape\b/gi,"hi sk").replace(/\bhi is k\b/gi,"hi sk").replace(/\bhighest gay\b/gi,"hi sk")
+    .replace(/\bhi as k\b/gi,"hi sk").replace(/\bhices k\b/gi,"hi sk").replace(/\bhi aski\b/gi,"hi sk")
+    .replace(/\ba shaky\b/gi,"sk").replace(/\bshaky\b/gi,"sk").replace(/\bes ?kay\b/gi,"sk")
+    .replace(/\bass k\b/gi,"sk").replace(/\byes k\b/gi,"sk").replace(/\bsk8\b/gi,"sk");
+}
 function onSpeech(text){
+  text=normalizeHeard(text);
   const low=text.toLowerCase();
   const wn=wakePattern();
   const wakeRe=new RegExp("\\b(hi|hey|hello|ok|okay|yo|morning|good morning|evening|good evening|afternoon|good afternoon)[,\\s]+"+wn+"\\b","i");
@@ -1062,11 +1072,12 @@ async function askBrain(text){
     const MODELS=["gemini-3.1-flash-lite","gemini-3-flash-preview","gemini-flash-lite-latest","gemini-flash-latest"];
     const contents=[...HIST.slice(-8).flatMap(h=>[{role:"user",parts:[{text:h.u}]},{role:"model",parts:[{text:h.a}]}]),
       {role:"user",parts:[{text:text}]}];
-    const call=(m)=>fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${state.key}`,
-      {method:"POST",headers:{"Content-Type":"application/json"},
+    const call=(m)=>{const ctl=new AbortController();setTimeout(()=>ctl.abort(),20000);
+      return fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${state.key}`,
+      {method:"POST",headers:{"Content-Type":"application/json"},signal:ctl.signal,
        body:JSON.stringify({systemInstruction:{parts:[{text:systemPrompt(live)}]},
         contents,
-        generationConfig:{responseMimeType:"application/json"}})});
+        generationConfig:{responseMimeType:"application/json"}})}).catch(()=>({status:429,ok:false}));};
     let r=null;
     for(const m of MODELS){ r=await call(m); if(r.status!==429 && r.status!==404) break; }
     if(r.status===429)throw new Error("RATE");
