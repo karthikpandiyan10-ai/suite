@@ -3,50 +3,69 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>From Two Pink Lines · V1.1 Beta</title>
+<title>From Two Pink Lines · V1.2 Beta</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Nunito+Sans:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#FBF7F0;--card:#FFFFFF;--ink:#33403A;--mut:#8A8F87;--green:#4C8A5E;--green-deep:#2F5E42;--blush:#F4E3DA;--coral:#E07856;--gold:#DCA94B;--line:#ECE5D8;--dad:#4A72B0;--lav:#EFEAF7}
+:root{--bg:#FBF7F0;--card:#FFFFFF;--ink:#33403A;--mut:#8A8F87;--green:#4C8A5E;--green-deep:#2F5E42;--blush:#F4E3DA;--coral:#E07856;--gold:#DCA94B;--line:#ECE5D8;--dad:#4A72B0;--lav:#EFEAF7;--sh:0 4px 20px rgba(80,90,60,.08),0 1px 3px rgba(80,90,60,.06)}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{background:var(--bg);color:var(--ink);font-family:'Nunito Sans',-apple-system,sans-serif;min-height:100vh;padding-bottom:96px}
-.wrap{max-width:520px;margin:0 auto;padding:16px}
-header{max-width:520px;margin:0 auto;padding:26px 20px 18px;background:linear-gradient(135deg,#EAF2E6,#F7EBE2);border-radius:0 0 28px 28px}
-.brand{font-size:12px;letter-spacing:3px;color:var(--green-deep);font-weight:800}
-.beta{font-size:10px;background:var(--gold);color:#fff;border-radius:20px;padding:2px 9px;margin-left:6px;vertical-align:2px;font-weight:800}
-h1{font-family:'Fraunces',serif;font-size:28px;font-weight:800;margin-top:6px;letter-spacing:-.5px;color:var(--green-deep)}
-.sub{color:#6E7A6E;font-size:14px;margin-top:3px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px;margin-top:14px;box-shadow:0 3px 14px rgba(80,90,60,.06);animation:up .35s ease both}
-@keyframes up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:'Nunito Sans',-apple-system,sans-serif;min-height:100vh;padding-bottom:40px;overflow-x:hidden}
+/* floating ambience */
+.blob{position:fixed;border-radius:50%;filter:blur(60px);opacity:.5;z-index:0;pointer-events:none;animation:drift 16s ease-in-out infinite alternate}
+.b1{width:340px;height:340px;background:#EAF2E6;top:-80px;right:-100px}
+.b2{width:280px;height:280px;background:#F7EBE2;top:40%;left:-120px;animation-delay:-6s}
+.b3{width:240px;height:240px;background:#EFEAF7;bottom:-60px;right:-60px;animation-delay:-11s}
+@keyframes drift{from{transform:translate(0,0) scale(1)}to{transform:translate(24px,18px) scale(1.08)}}
+/* ---------- TOP NAV ---------- */
+.topbar{position:sticky;top:0;z-index:100;background:rgba(251,247,240,.86);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.topwrap{max-width:640px;margin:0 auto;padding:10px 16px 0}
+.brandrow{display:flex;align-items:center;justify-content:space-between}
+.brand{font-size:11px;letter-spacing:2.6px;color:var(--green-deep);font-weight:800}
+.beta{font-size:9.5px;background:var(--gold);color:#fff;border-radius:20px;padding:2px 8px;font-weight:800;letter-spacing:.5px}
+nav{display:flex;gap:4px;margin-top:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:8px}
+nav::-webkit-scrollbar{display:none}
+.nv{display:flex;align-items:center;gap:6px;border:none;background:transparent;color:var(--mut);font-family:inherit;font-size:12.5px;font-weight:800;letter-spacing:.3px;padding:9px 14px;border-radius:30px;cursor:pointer;white-space:nowrap;transition:background .22s,color .22s,transform .15s;min-height:40px}
+.nv svg{width:16px;height:16px;stroke-width:2.2}
+.nv:active{transform:scale(.96)}
+.nv.on{background:var(--green-deep);color:#fff;box-shadow:0 4px 14px rgba(47,94,66,.28)}
+.nv:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+/* ---------- LAYOUT ---------- */
+.wrap{max-width:640px;margin:0 auto;padding:14px 16px;position:relative;z-index:1}
+.hero{padding:14px 2px 2px}
+h1{font-family:'Fraunces',serif;font-size:27px;font-weight:800;letter-spacing:-.5px;color:var(--green-deep)}
+.aff{color:#6E7A6E;font-size:14px;margin-top:3px;min-height:20px;transition:opacity .5s}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:18px;margin-top:14px;box-shadow:var(--sh);opacity:0;transform:translateY(14px);animation:rise .45s cubic-bezier(.2,.7,.3,1) forwards}
+@keyframes rise{to{opacity:1;transform:none}}
+.pressable{transition:transform .15s cubic-bezier(.2,.7,.3,1)}
+.pressable:active{transform:scale(.98)}
 .pill{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:1.2px;border-radius:20px;padding:4px 12px;margin-bottom:8px}
 .pill.now{background:#FDE9E0;color:var(--coral)}
 .pill.soon{background:#EAF2E6;color:var(--green)}
 .pill.done-p{background:#ECECEC;color:#9A9A9A}
 .emo{float:right;font-size:26px;margin-left:8px}
-.it-t{font-family:'Fraunces',serif;font-size:18px;font-weight:800;line-height:1.25;color:#2E3B33}
+.it-t{font-family:'Fraunces',serif;font-size:18px;font-weight:800;line-height:1.28;color:#2E3B33}
 .it-w{font-size:14px;margin-top:7px;line-height:1.55}
 .it-y{font-size:12.5px;color:var(--mut);margin-top:7px;line-height:1.5}
 .dadbox{margin-top:10px;background:#EFF4FB;border-left:4px solid var(--dad);border-radius:0 12px 12px 0;padding:9px 12px;font-size:13px;color:#2D4A75;line-height:1.5}
 .dadbox b{font-size:10.5px;letter-spacing:1.5px}
-.donebtn{margin-top:12px;width:100%;padding:11px;border:none;border-radius:12px;background:var(--green);color:#fff;font-size:14px;font-weight:800;cursor:pointer}
+.donebtn{margin-top:12px;width:100%;padding:12px;border:none;border-radius:13px;background:var(--green);color:#fff;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;transition:transform .15s,background .2s;position:relative;overflow:hidden}
+.donebtn:active{transform:scale(.97)}
 .donebtn.un{background:#E2E2E2;color:#909090}
-.tabs{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;max-width:520px;margin:0 auto;border-radius:20px 20px 0 0;box-shadow:0 -5px 22px rgba(0,0,0,.07)}
-.tab{flex:1;text-align:center;padding:11px 2px 15px;font-size:10px;font-weight:800;color:var(--mut);cursor:pointer;letter-spacing:.4px}
-.tab .ic{font-size:19px;display:block;margin-bottom:2px}
-.tab.on{color:var(--green-deep)}
-.hidden{display:none}
-input,select{width:100%;padding:13px;border:1.5px solid var(--line);border-radius:12px;font-size:16px;background:#fff;color:var(--ink);margin-top:6px;font-family:inherit}
-label{font-size:11.5px;font-weight:800;letter-spacing:1.2px;color:var(--mut);display:block;margin-top:14px}
-.cta{margin-top:20px;width:100%;padding:15px;border:none;border-radius:14px;background:var(--green-deep);color:#fff;font-size:16px;font-weight:800;cursor:pointer}
-.week-badge{background:linear-gradient(135deg,var(--green-deep),#3E7A54);color:#fff;border-radius:18px;padding:16px 18px;margin-top:14px;box-shadow:0 6px 18px rgba(47,94,66,.25)}
+.week-badge{background:linear-gradient(135deg,var(--green-deep),#3E7A54);color:#fff;border-radius:20px;padding:16px 18px;margin-top:12px;box-shadow:0 8px 22px rgba(47,94,66,.26);opacity:0;transform:translateY(14px);animation:rise .45s .05s cubic-bezier(.2,.7,.3,1) forwards}
 .week-badge .big{font-family:'Fraunces',serif;font-size:23px;font-weight:800}
 .week-badge .sm{font-size:12.5px;opacity:.88;margin-top:3px}
 .prog{height:9px;background:rgba(255,255,255,.25);border-radius:6px;margin-top:12px;overflow:hidden}
-.prog i{display:block;height:100%;background:var(--gold);border-radius:6px;transition:width .6s}
-.chk{display:flex;align-items:flex-start;gap:10px;padding:10px 2px;border-bottom:1px solid var(--line);cursor:pointer}
+.prog i{display:block;height:100%;background:var(--gold);border-radius:6px;width:0;transition:width 1.1s cubic-bezier(.2,.7,.3,1)}
+input,select{width:100%;padding:13px;border:1.5px solid var(--line);border-radius:13px;font-size:16px;background:#fff;color:var(--ink);margin-top:6px;font-family:inherit;transition:border-color .2s,box-shadow .2s}
+input:focus,select:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(76,138,94,.15)}
+label{font-size:11.5px;font-weight:800;letter-spacing:1.2px;color:var(--mut);display:block;margin-top:14px}
+.cta{margin-top:20px;width:100%;padding:15px;border:none;border-radius:15px;background:var(--green-deep);color:#fff;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit;transition:transform .15s,box-shadow .2s;box-shadow:0 6px 18px rgba(47,94,66,.25)}
+.cta:active{transform:scale(.97)}
+.chk{display:flex;align-items:flex-start;gap:10px;padding:11px 2px;border-bottom:1px solid var(--line);cursor:pointer;transition:opacity .25s}
 .chk:last-child{border-bottom:none}
-.box{width:22px;height:22px;border:2px solid var(--green);border-radius:7px;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px}
-.chk.c .box{background:var(--green)}
+.box{width:23px;height:23px;border:2px solid var(--green);border-radius:8px;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;transition:background .2s,transform .2s}
+.chk.c .box{background:var(--green);transform:scale(1.06)}
 .chk.c span{text-decoration:line-through;color:var(--mut)}
 .chk span{font-size:14.5px;line-height:1.45}
 .cat{font-family:'Fraunces',serif;font-size:16px;font-weight:800;color:var(--green-deep);margin:20px 2px 2px}
@@ -54,41 +73,66 @@ label{font-size:11.5px;font-weight:800;letter-spacing:1.2px;color:var(--mut);dis
 .money-t{font-size:15px;font-weight:800;margin-top:2px}
 .money-w{font-size:13px;color:#6E7468;margin-top:6px;line-height:1.55}
 .disc{font-size:11.5px;color:var(--mut);line-height:1.55;margin-top:18px;padding:13px;background:#F4EFE4;border-radius:14px}
-.toggle-row{display:flex;align-items:center;justify-content:space-between;margin-top:14px;background:#EFF4FB;border-radius:16px;padding:12px 16px}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;margin-top:12px;background:#EFF4FB;border-radius:16px;padding:12px 16px;opacity:0;transform:translateY(14px);animation:rise .45s .1s cubic-bezier(.2,.7,.3,1) forwards}
 .toggle-row b{color:#2D4A75;font-size:14px}
 .sw{width:52px;height:30px;background:#CCD6E6;border-radius:20px;position:relative;cursor:pointer;transition:.2s;flex-shrink:0}
 .sw.on{background:var(--dad)}
-.sw i{position:absolute;top:3px;left:3px;width:24px;height:24px;background:#fff;border-radius:50%;transition:.2s}
+.sw i{position:absolute;top:3px;left:3px;width:24px;height:24px;background:#fff;border-radius:50%;transition:.22s cubic-bezier(.2,.7,.3,1)}
 .sw.on i{left:25px}
+.hidden{display:none!important}
+.view{animation:viewin .3s cubic-bezier(.2,.7,.3,1)}
+@keyframes viewin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 .empty{color:var(--mut);font-size:14px;text-align:center;padding:28px 10px;line-height:1.65}
 .reset{margin-top:14px;background:none;border:none;color:var(--mut);font-size:12px;text-decoration:underline;cursor:pointer;width:100%;font-family:inherit}
 .apt{display:flex;align-items:center;gap:12px;padding:13px 2px;border-bottom:1px solid var(--line)}
 .apt:last-child{border-bottom:none}
-.apt-d{background:var(--blush);border-radius:12px;padding:7px 11px;text-align:center;flex-shrink:0;min-width:58px}
+.apt-d{background:var(--blush);border-radius:13px;padding:7px 11px;text-align:center;flex-shrink:0;min-width:58px}
 .apt-d .dd{font-family:'Fraunces',serif;font-size:19px;font-weight:800;color:var(--coral);line-height:1}
 .apt-d .mm{font-size:10px;font-weight:800;letter-spacing:1px;color:#B07A62;margin-top:2px}
 .apt-i{flex:1}
 .apt-t{font-size:15px;font-weight:800}
 .apt-s{font-size:12px;color:var(--mut);margin-top:1px}
-.apt-x{background:none;border:none;color:#C9C2B4;font-size:18px;cursor:pointer;padding:6px}
-.apt-cal{background:none;border:1.5px solid var(--line);border-radius:10px;font-size:11px;font-weight:800;color:var(--green-deep);padding:6px 9px;cursor:pointer;font-family:inherit}
-.banner{background:#FDE9E0;border:1.5px solid #F2C4AE;border-radius:16px;padding:13px 16px;margin-top:14px;font-size:14px;line-height:1.5;animation:up .35s ease both}
+.apt-x{background:none;border:none;color:#C9C2B4;font-size:18px;cursor:pointer;padding:8px;min-width:36px}
+.apt-cal{background:none;border:1.5px solid var(--line);border-radius:10px;font-size:11px;font-weight:800;color:var(--green-deep);padding:7px 10px;cursor:pointer;font-family:inherit;transition:border-color .2s}
+.banner{background:#FDE9E0;border:1.5px solid #F2C4AE;border-radius:18px;padding:13px 16px;margin-top:12px;font-size:14px;line-height:1.5;animation:pulse2 2.6s ease-in-out infinite,rise .45s cubic-bezier(.2,.7,.3,1) forwards;opacity:0;transform:translateY(14px)}
+@keyframes pulse2{0%,100%{box-shadow:0 0 0 0 rgba(224,120,86,.25)}50%{box-shadow:0 0 0 7px rgba(224,120,86,0)}}
 .banner b{color:var(--coral)}
-.notif-ask{background:var(--lav);border-radius:16px;padding:13px 16px;margin-top:14px;font-size:13px;line-height:1.5;color:#5B4E7A}
-.notif-ask button{margin-top:8px;border:none;background:#7A63B8;color:#fff;border-radius:10px;padding:8px 14px;font-weight:800;font-size:12.5px;cursor:pointer;font-family:inherit}
+.notif-ask{background:var(--lav);border-radius:18px;padding:13px 16px;margin-top:12px;font-size:13px;line-height:1.5;color:#5B4E7A}
+.notif-ask button{margin-top:8px;border:none;background:#7A63B8;color:#fff;border-radius:11px;padding:9px 15px;font-weight:800;font-size:12.5px;cursor:pointer;font-family:inherit}
+/* toast */
+#toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(80px);background:var(--green-deep);color:#fff;border-radius:30px;padding:11px 20px;font-size:13.5px;font-weight:800;box-shadow:0 10px 26px rgba(0,0,0,.22);z-index:300;transition:transform .35s cubic-bezier(.2,.7,.3,1);pointer-events:none;max-width:88vw;text-align:center}
+#toast.show{transform:translateX(-50%) translateY(0)}
+/* confetti petals */
+.petal{position:fixed;width:9px;height:13px;border-radius:60% 60% 60% 60%/70% 70% 50% 50%;z-index:250;pointer-events:none}
+@media (prefers-reduced-motion:reduce){*,.card,.week-badge,.toggle-row,.banner{animation:none!important;transition:none!important;opacity:1!important;transform:none!important}}
+@media(min-width:768px){h1{font-size:32px}.wrap{padding:18px 20px}}
 </style>
 </head>
 <body>
-<header>
-<span class="brand">FROM TWO PINK LINES TO DAY 100</span><span class="beta">V1.1 BETA</span>
-<h1 id="hTitle">Hello.</h1>
-<div class="sub" id="hSub">One clear answer, every week. No forums. No ten opinions.</div>
-</header>
+<div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+
+<div class="topbar">
+<div class="topwrap">
+<div class="brandrow"><span class="brand">FROM TWO PINK LINES TO DAY 100</span><span class="beta">V1.2 BETA</span></div>
+<nav id="nav" style="display:none">
+<button class="nv on" data-v="today" onclick="go('today',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>Today</button>
+<button class="nv" data-v="timeline" onclick="go('timeline',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 21c0-6 0-9 0-12M12 9c0-3 2-5 5-5 0 3-2 5-5 5Zm0 4c0-3-2-5-5-5 0 3 2 5 5 5Z"/></svg>Journey</button>
+<button class="nv" data-v="appts" onclick="go('appts',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 11h18"/></svg>Appts</button>
+<button class="nv" data-v="checklist" onclick="go('checklist',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m4 12 4 4L20 6"/><path d="M4 19h16" opacity=".4"/></svg>Lists</button>
+<button class="nv" data-v="money" onclick="go('money',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9.5 9.5c0-1 1-1.7 2.5-1.7s2.5.7 2.5 1.7-1 1.4-2.5 1.7-2.5.7-2.5 1.7 1 1.7 2.5 1.7 2.5-.7 2.5-1.7"/></svg>Money</button>
+</nav>
+</div>
+</div>
 
 <div class="wrap">
+<div class="hero" id="hero" style="display:none">
+<h1 id="hTitle">Hello.</h1>
+<div class="aff" id="hAff">One clear answer, every week.</div>
+</div>
+
 <!-- SETUP -->
-<div id="setup">
-<div class="card">
+<div id="setup" class="view">
+<div class="card" style="animation-delay:.05s">
 <div class="it-t">Let's set up — 20 seconds. 🌱</div>
 <label>BABY'S NAME OR NICKNAME (OPTIONAL)</label>
 <input id="sName" placeholder="e.g. Bubba">
@@ -109,25 +153,25 @@ label{font-size:11.5px;font-weight:800;letter-spacing:1.2px;color:var(--mut);dis
 </div>
 
 <!-- TODAY -->
-<div id="today" class="hidden">
+<div id="today" class="view hidden">
 <div class="week-badge">
 <div class="big" id="wkBig"></div>
 <div class="sm" id="wkSm"></div>
-<div class="prog"><i id="wkBar" style="width:0%"></i></div>
+<div class="prog"><i id="wkBar"></i></div>
 </div>
 <div id="aptBanner"></div>
 <div id="notifAsk"></div>
-<div class="toggle-row"><b>👨 Dad Mode — show my part</b><div class="sw" id="dadSw" onclick="toggleDad()"><i></i></div></div>
+<div class="toggle-row"><b>👨 Dad Mode — show my part</b><div class="sw" id="dadSw" onclick="toggleDad()" role="switch" tabindex="0"><i></i></div></div>
 <div id="feedNow"></div>
 <div id="feedSoon"></div>
 <button class="reset" onclick="resetAll()">change dates / start over</button>
 </div>
 
 <!-- JOURNEY -->
-<div id="timeline" class="hidden"></div>
+<div id="timeline" class="view hidden"></div>
 
 <!-- APPOINTMENTS -->
-<div id="appts" class="hidden">
+<div id="appts" class="view hidden">
 <div class="card">
 <div class="it-t">Add an appointment 🗓️</div>
 <label>WHAT IS IT?</label>
@@ -138,34 +182,27 @@ label{font-size:11.5px;font-weight:800;letter-spacing:1.2px;color:var(--mut);dis
 <input id="aTime" type="time" value="09:00">
 <button class="cta" onclick="addApt()">Save appointment</button>
 </div>
-<div class="card" id="aptList"></div>
+<div class="card" id="aptList" style="animation-delay:.08s"></div>
 <div class="disc"><b>How reminders work in this beta:</b> the app notifies you 2 days before and on the day — whenever the app is open or was recently opened. For a guaranteed phone alarm, tap 📅 on any appointment to add it to your phone's calendar too. Full push notifications come with the app-store version.</div>
 </div>
 
 <!-- CHECKLIST -->
-<div id="checklist" class="hidden"></div>
+<div id="checklist" class="view hidden"></div>
 
 <!-- MONEY -->
-<div id="money" class="hidden">
+<div id="money" class="view hidden">
 <div class="card"><div class="money-amt">S$11,000</div><div class="money-t">Baby Bonus Cash Gift</div><div class="money-w">For your 1st or 2nd child (S$13,000 from the 3rd). Paid in stages over 6.5 years. 3rd child or more? First Step doubles to S$10,000 and the Large Families Scheme adds more — check LifeSG. <b>One action:</b> apply once on LifeSG — can be done before birth.</div></div>
-<div class="card"><div class="money-amt">up to S$7,000 matched</div><div class="money-t">CDA — Child Development Account</div><div class="money-w">Open a free CDA at POSB, OCBC or UOB. S$5,000 First Step lands without saving anything, then the government matches your deposits dollar-for-dollar (cap S$4,000 for your 1st child, S$7,000 for your 2nd, more from the 3rd). Pays vaccines, check-ups, childcare. <b>One action:</b> pick the bank you already use.</div></div>
-<div class="card"><div class="money-amt">S$5,000</div><div class="money-t">MediSave Grant for Newborns</div><div class="money-w">Automatic after birth registration. Covers MediShield Life premiums and approved vaccinations. <b>One action:</b> nothing — it's automatic.</div></div>
-<div class="card"><div class="money-amt">MediSave up to ~S$900</div><div class="money-t">Pre-delivery expenses claim</div><div class="money-w">Antenatal check-ups, scans and tests can be claimed from MediSave under the Maternity Package when you deliver. <b>One action:</b> keep every receipt in one envelope from today.</div></div>
-<div class="card"><div class="money-amt">16 + 4 + 10 wks</div><div class="money-t">Maternity, Paternity & Shared Leave</div><div class="money-w">16 weeks government-paid maternity leave, 4 weeks paternity leave — PLUS up to 10 weeks Shared Parental Leave (births from 1 Apr 2026) that you split between you. Most employed parents of Singapore-citizen babies qualify — check MOM's eligibility checker. <b>One action (dad):</b> tell HR your dates at least 1 month ahead.</div></div>
+<div class="card" style="animation-delay:.06s"><div class="money-amt">up to S$7,000 matched</div><div class="money-t">CDA — Child Development Account</div><div class="money-w">Open a free CDA at POSB, OCBC or UOB. S$5,000 First Step lands without saving anything, then the government matches your deposits dollar-for-dollar (cap S$4,000 for your 1st child, S$7,000 for your 2nd, more from the 3rd). Pays vaccines, check-ups, childcare. <b>One action:</b> pick the bank you already use.</div></div>
+<div class="card" style="animation-delay:.12s"><div class="money-amt">S$5,000</div><div class="money-t">MediSave Grant for Newborns</div><div class="money-w">Automatic after birth registration. Covers MediShield Life premiums and approved vaccinations. <b>One action:</b> nothing — it's automatic.</div></div>
+<div class="card" style="animation-delay:.18s"><div class="money-amt">MediSave up to ~S$900</div><div class="money-t">Pre-delivery expenses claim</div><div class="money-w">Antenatal check-ups, scans and tests can be claimed from MediSave under the Maternity Package when you deliver. <b>One action:</b> keep every receipt in one envelope from today.</div></div>
+<div class="card" style="animation-delay:.24s"><div class="money-amt">16 + 4 + 10 wks</div><div class="money-t">Maternity, Paternity & Shared Leave</div><div class="money-w">16 weeks government-paid maternity leave, 4 weeks paternity leave — PLUS up to 10 weeks Shared Parental Leave (births from 1 Apr 2026) that you split between you. Most employed parents of Singapore-citizen babies qualify — check MOM's eligibility checker. <b>One action (dad):</b> tell HR your dates at least 1 month ahead.</div></div>
 <div class="disc">Amounts current as of mid-2026 — confirm on <b>LifeSG</b> / madeforfamilies.gov.sg before money decisions.</div>
 </div>
 </div>
 
-<div class="tabs" id="tabbar" style="display:none">
-<div class="tab on" onclick="go('today',this)"><span class="ic">🏠</span>TODAY</div>
-<div class="tab" onclick="go('timeline',this)"><span class="ic">🌱</span>JOURNEY</div>
-<div class="tab" onclick="go('appts',this)"><span class="ic">🗓️</span>APPTS</div>
-<div class="tab" onclick="go('checklist',this)"><span class="ic">✅</span>LISTS</div>
-<div class="tab" onclick="go('money',this)"><span class="ic">💰</span>MONEY</div>
-</div>
+<div id="toast" role="status" aria-live="polite"></div>
 
 <script>
-// wk = weeks relative to DUE DATE (wk0 = due). Pregnancy week = 40 + wk.
 const ITEMS=[
 {wk:-36,end:-32,e:"🤍",t:"Two pink lines — breathe. Here's the whole next step.",w:"Three things, that's all: (1) start a prenatal vitamin with folic acid today, (2) book your first doctor visit for week 8–10 — either a polyclinic (they'll refer you to KKH/NUH, the subsidised route) or a private gynae, (3) stop alcohol and smoking now.",y:"Nothing else on the internet matters this week. These three cover baby's most important growth window.",d:"Dads: your job today is one sentence — 'we've got this.' Then quietly handle dinner and the vitamin run."},
 {wk:-36,end:-30,e:"🏥",t:"Choose your care route (this decides your costs)",w:"One clear answer: Polyclinic → KKH/NUH subsidised = roughly S$1.5–3k total delivery. Private gynae = one doctor throughout, roughly S$8–15k+. You can start polyclinic and switch later; switching private→subsidised late is harder.",y:"This single choice matters more to your wallet than every baby-fair discount combined.",d:"Dads: this is a money decision — sit in on it. Bring the Money tab numbers."},
@@ -173,9 +210,9 @@ const ITEMS=[
 {wk:-29,end:-26,e:"🧬",t:"First-trimester screening window (week 11–13)",w:"One decision: OSCAR scan (~S$300+) or NIPT blood test (~S$700–1,100) — both screen for chromosomal conditions. Ask your doctor which fits you. OSCAR must happen weeks 11–13 — that window is strict. NIPT can be done from week 10 onwards.",y:"Booking early keeps every choice open.",d:"Dads: whatever the results path, you're calm in the room. Questions written down beforehand."},
 {wk:-28,end:-24,e:"📣",t:"Nausea, exhaustion, secrets — surviving trimester one",w:"Eat small and often (dry crackers by the bed), rest without guilt, and tell whoever YOU want, whenever you want — there is no rule about 12 weeks.",y:"Trimester one is the hardest part most people never see. Being kind to yourself is the task.",d:"Dads: she's running a marathon while looking normal. Cook, cover, don't score her tiredness."},
 {wk:-26,end:-20,e:"💼",t:"Work + leave: know your rights early",w:"You're entitled to 16 weeks paid maternity leave, dads get 4 weeks, and there's up to 10 more weeks of Shared Parental Leave to split (births from Apr 2026). Most employed parents of Singapore-citizen babies qualify — check MOM's eligibility checker. Tell HR when YOU are ready — but at least 1 month before taking leave, formally.",y:"Knowing your rights early removes the fear from every HR conversation.",d:"Dads: your 4 weeks are real and government-paid. Plan to actually take them — all of them."},
+{wk:-22,end:-14,e:"🏫",t:"Both returning to work? Join infant care waitlists NOW",w:"Popular infant care centres in Singapore have 6–12 month waitlists. Shortlist 2–3 near home or work and register while pregnant.",y:"This is the one deadline almost every dual-income couple discovers too late.",d:"Dads: you do the centre visits shortlist. Two Saturday mornings, done."},
 {wk:-22,end:-17,e:"🔍",t:"The big anomaly scan (week 20–22)",w:"The detailed scan checks every organ — and yes, you can usually find out boy or girl. Book it in the Appts tab now.",y:"It's the most important scan of the pregnancy, and clinics book out.",d:"Dads: take the morning off. This is the scan where baby becomes a person on screen."},
 {wk:-17,end:-12,e:"🍚",t:"The sugar test (OGTT, week 24–28)",w:"Standard in Singapore: fasting glucose test for gestational diabetes. Fast from midnight, bring something to read, expect 2–3 hours.",y:"1 in 5 SG mums gets gestational diabetes — caught early it's very manageable.",d:"Dads: drive her — fasting + waiting = not a solo morning. Breakfast ready for after."},
-{wk:-22,end:-14,e:"🏫",t:"Both returning to work? Join infant care waitlists NOW",w:"Popular infant care centres in Singapore have 6–12 month waitlists. Shortlist 2–3 near home or work and register while pregnant.",y:"This is the one deadline almost every dual-income couple discovers too late.",d:"Dads: you do the centre visits shortlist. Two Saturday mornings, done."},
 {wk:-14,end:-9,e:"🎓",t:"Book antenatal classes",w:"KKH, NUH and Thomson all run weekend couple classes. Book ONE — that's enough.",y:"Couples who attend together report far less panic in the delivery room.",d:"Dads: this class is for you more than her — it's where you learn your labour job."},
 {wk:-14,end:-8,e:"🏦",t:"Apply Baby Bonus + choose your CDA bank",w:"Both on LifeSG in one 15-minute sitting. Pick POSB, OCBC or UOB — whichever you already use.",y:"Apply before birth and the S$5,000 First Step lands days after registration.",d:"This is a dad job. Laptop, coffee, 15 minutes, done."},
 {wk:-12,end:-8,e:"🍲",t:"Plan the confinement month",w:"Decide ONE: confinement nanny (book now — good ones go 3+ months ahead), confinement food delivery, or family help.",y:"Deciding late means paying more for whoever is left.",d:"Dads: if it's a nanny, you interview and book. Budget S$3,800–5,500 for 28 days, plus levy and insurance."},
@@ -201,6 +238,7 @@ const CHECKS={
 "🛒 BEFORE BABY COMES":["Cot / co-sleeper + firm mattress","Car seat (installed, practiced)","Stroller","6–8 bottles + brush (even if breastfeeding)","Newborn diapers — ONE pack only (sizes change fast)","Zip sleepsuits x6 (zips, never buttons)","Muslin cloths x8","Baby carrier","Thermometer","Confinement plan booked"],
 "🏦 ADMIN & MONEY":["Baby Bonus applied on LifeSG","CDA bank chosen + account open","Birth registered (within 42 days)","Baby's Integrated Shield insurance from birth","Paternity leave dates told to HR","Maternity leave confirmed with HR"],
 "👶 FIRST MONTH":["Jaundice check day 3–5 booked","1-month check booked","Full month cakes ordered","Mum's 6-week check booked","Emergency numbers saved on both phones"]};
+const AFF=["One clear answer, every week. No forums. No ten opinions.","You're doing better than you think. 💛","Small steps. That's how everyone does it.","Rest counts as progress too.","Nobody has it all figured out — you're right on time.","Your baby doesn't need perfect. Just you."];
 // ---------- STATE ----------
 let cfg=JSON.parse(localStorage.getItem('f100_cfg')||'null');
 let done=JSON.parse(localStorage.getItem('f100_done')||'{}');
@@ -211,7 +249,7 @@ function modeUI(){const m=document.getElementById('sMode').value;const L=documen
 if(m==='lmp'){L.textContent='FIRST DAY OF YOUR LAST PERIOD';h.style.display='block'}
 else if(m==='due'){L.textContent='DUE DATE';h.style.display='none'}
 else{L.textContent="BABY'S BIRTH DATE";h.style.display='none'}}
-function saveSetup(){const d=document.getElementById('sDate').value;if(!d){alert('Pick the date first 🙂');return}
+function saveSetup(){const d=document.getElementById('sDate').value;if(!d){toast('Pick the date first 🙂');return}
 const m=document.getElementById('sMode').value;let due=d;
 if(m==='lmp'){const t=new Date(d+'T00:00:00');t.setDate(t.getDate()+280);due=t.toISOString().slice(0,10)}
 cfg={name:document.getElementById('sName').value.trim(),mode:m,date:due,who:document.getElementById('sWho').value,dad:document.getElementById('sWho').value!=='mum'};
@@ -219,46 +257,64 @@ localStorage.setItem('f100_cfg',JSON.stringify(cfg));boot()}
 function resetAll(){if(confirm('Start over? Your ticks and appointments are kept.')){localStorage.removeItem('f100_cfg');location.reload()}}
 function weeksNow(){const ref=new Date(cfg.date+'T00:00:00');return (Date.now()-ref.getTime())/(7*24*3600*1000)}
 function dayNum(){return Math.floor(weeksNow()*7)}
+// ---------- DELIGHT ----------
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),2600)}
+const PRAISE=["One less thing on your mind 💛","Done. You two are a good team.","Tick. Baby's lucky to have you.","Handled. Go rest a bit.","That's the kancheong handled for today."];
+function burst(x,y){if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+const cols=['#4C8A5E','#E07856','#DCA94B','#F4E3DA','#4A72B0'];
+for(let i=0;i<14;i++){const p=document.createElement('div');p.className='petal';p.style.background=cols[i%cols.length];
+p.style.left=x+'px';p.style.top=y+'px';document.body.appendChild(p);
+const a=(Math.random()*2-1)*Math.PI,v=60+Math.random()*90;
+p.animate([{transform:'translate(0,0) rotate(0deg)',opacity:1},{transform:`translate(${Math.cos(a)*v}px,${Math.sin(a)*v-70}px) rotate(${(Math.random()*2-1)*260}deg)`,opacity:0}],{duration:650+Math.random()*350,easing:'cubic-bezier(.2,.7,.3,1)'}).onfinish=()=>p.remove()}}
+let affTimer=null;
+function rotateAff(){const el=document.getElementById('hAff');let i=0;
+if(affTimer)clearInterval(affTimer);
+affTimer=setInterval(()=>{el.style.opacity=0;setTimeout(()=>{i=(i+1)%AFF.length;el.textContent=AFF[i];el.style.opacity=1},500)},7000)}
 // ---------- RENDER ----------
 function boot(){if(!cfg)return;
 document.getElementById('setup').classList.add('hidden');
-document.getElementById('tabbar').style.display='flex';
+document.getElementById('nav').style.display='flex';
+document.getElementById('hero').style.display='block';
 document.getElementById('today').classList.remove('hidden');
 const n=cfg.name||'little one';const w=weeksNow();const day=dayNum();
-document.getElementById('hTitle').textContent=day<0?`Counting down to ${n} 💛`:`Day ${Math.min(day,100)} with ${n}`;
+const hr=new Date().getHours();const greet=hr<5?'Still up?':hr<12?'Good morning':hr<18?'Good afternoon':'Good evening';
+document.getElementById('hTitle').textContent=day<0?`${greet} — counting down to ${n} 💛`:`${greet} — day ${Math.min(day,100)} with ${n}`;
+rotateAff();
 const big=document.getElementById('wkBig'),sm=document.getElementById('wkSm'),bar=document.getElementById('wkBar');
 if(day<0){const pw=Math.max(1,Math.min(41,Math.round(40+w)));big.textContent=`Week ${pw} of pregnancy`;
 sm.textContent=pw<14?'Trimester one — be kind to yourself.':pw<28?'Trimester two — the golden stretch.':'Trimester three — build the nest, calmly.';
-bar.style.width=Math.max(3,pw/40*100)+'%'}
-else{big.textContent=`Day ${Math.min(day,100)} of 100`;sm.textContent=day>100?'Past 100 days — V2 carries on from here!':'The first 100 days — the steep part. You\'re doing it.';bar.style.width=Math.min(100,day)+'%'}
+requestAnimationFrame(()=>bar.style.width=Math.max(3,pw/40*100)+'%')}
+else{big.textContent=`Day ${Math.min(day,100)} of 100`;sm.textContent=day>100?'Past 100 days — V2 carries on from here!':'The first 100 days — the steep part. You\'re doing it.';requestAnimationFrame(()=>bar.style.width=Math.min(100,day)+'%')}
 document.getElementById('dadSw').classList.toggle('on',!!cfg.dad);
 renderFeed();renderTimeline();renderChecklist();renderApts();checkReminders();notifUI();
 }
-function toggleDad(){cfg.dad=!cfg.dad;localStorage.setItem('f100_cfg',JSON.stringify(cfg));document.getElementById('dadSw').classList.toggle('on',cfg.dad);renderFeed();renderTimeline()}
-function card(it,idx,state){const k='i'+idx;const isDone=!!done[k];
-return `<div class="card"><span class="emo">${it.e||''}</span><span class="pill ${isDone?'done-p':state==='now'?'now':'soon'}">${isDone?'DONE ✓':state==='now'?'DUE NOW':'COMING UP'}</span>
+function toggleDad(){cfg.dad=!cfg.dad;localStorage.setItem('f100_cfg',JSON.stringify(cfg));document.getElementById('dadSw').classList.toggle('on',cfg.dad);renderFeed();renderTimeline();toast(cfg.dad?'Dad Mode on 👨':'Dad Mode off')}
+function card(it,idx,state,delay){const k='i'+idx;const isDone=!!done[k];
+return `<div class="card pressable" style="animation-delay:${Math.min(delay*0.06,0.5)}s"><span class="emo">${it.e||''}</span><span class="pill ${isDone?'done-p':state==='now'?'now':'soon'}">${isDone?'DONE ✓':state==='now'?'DUE NOW':'COMING UP'}</span>
 <div class="it-t">${it.t}</div><div class="it-w">${it.w}</div><div class="it-y">Why: ${it.y}</div>
 ${cfg.dad&&it.d?`<div class="dadbox"><b>DAD'S PART</b><br>${it.d}</div>`:''}
-<button class="donebtn ${isDone?'un':''}" onclick="mark('${k}')">${isDone?'Undo':'Mark done'}</button></div>`}
-function mark(k){done[k]=!done[k];save();renderFeed();renderTimeline()}
-function renderFeed(){const w=weeksNow();let now='',soon='';
-ITEMS.forEach((it,i)=>{if(w>=it.wk&&w<=it.end){now+=card(it,i,'now')}else if(it.wk>w&&it.wk-w<=4){soon+=card(it,i,'soon')}});
+<button class="donebtn ${isDone?'un':''}" onclick="mark('${k}',event)">${isDone?'Undo':'Mark done'}</button></div>`}
+function mark(k,ev){const was=!!done[k];done[k]=!was;save();
+if(!was){burst(ev.clientX||innerWidth/2,ev.clientY||innerHeight/2);toast(PRAISE[Math.floor(Math.random()*PRAISE.length)])}
+renderFeed();renderTimeline()}
+function renderFeed(){const w=weeksNow();let now='',soon='';let d=0;
+ITEMS.forEach((it,i)=>{if(w>=it.wk&&w<=it.end){now+=card(it,i,'now',d++)}else if(it.wk>w&&it.wk-w<=4){soon+=card(it,i,'soon',d++)}});
 document.getElementById('feedNow').innerHTML=now||'<div class="empty">Nothing urgent right now.<br>That IS the task — rest. 💛</div>';
 document.getElementById('feedSoon').innerHTML=soon?'<div class="cat" style="margin-top:22px">Coming up</div>'+soon:''}
-function renderTimeline(){const w=weeksNow();let h='';
-ITEMS.forEach((it,i)=>{h+=card(it,i,(w>=it.wk&&w<=it.end)?'now':'soon')});
+function renderTimeline(){const w=weeksNow();let h='';let d=0;
+ITEMS.forEach((it,i)=>{h+=card(it,i,(w>=it.wk&&w<=it.end)?'now':'soon',d++)});
 document.getElementById('timeline').innerHTML=h}
-function renderChecklist(){let h='';Object.keys(CHECKS).forEach(cat=>{h+=`<div class="cat">${cat}</div><div class="card" style="padding:8px 16px">`;
-CHECKS[cat].forEach((c,i)=>{const k=cat+'|'+i;const on=!!chk[k];h+=`<div class="chk ${on?'c':''}" onclick="tick('${k.replace(/'/g,"\\'")}')"><div class="box">${on?'✓':''}</div><span>${c}</span></div>`});h+='</div>'});
+function renderChecklist(){let h='';let d=0;Object.keys(CHECKS).forEach(cat=>{h+=`<div class="cat">${cat}</div><div class="card" style="padding:8px 16px;animation-delay:${Math.min(d*0.06,0.4)}s">`;d++;
+CHECKS[cat].forEach((c,i)=>{const k=cat+'|'+i;const on=!!chk[k];h+=`<div class="chk ${on?'c':''}" onclick="tick('${k.replace(/'/g,"\\'")}',event)"><div class="box">${on?'✓':''}</div><span>${c}</span></div>`});h+='</div>'});
 document.getElementById('checklist').innerHTML=h}
-function tick(k){chk[k]=!chk[k];save();renderChecklist()}
+function tick(k,ev){const was=!!chk[k];chk[k]=!was;save();if(!was){burst(ev.clientX,ev.clientY)}renderChecklist()}
 // ---------- APPOINTMENTS ----------
 function addApt(){const t=document.getElementById('aTitle').value.trim(),d=document.getElementById('aDate').value,tm=document.getElementById('aTime').value||'09:00';
-if(!t||!d){alert('Give it a name and a date 🙂');return}
+if(!t||!d){toast('Give it a name and a date 🙂');return}
 apts.push({t:t,dt:d+'T'+tm,n2:false,n0:false});apts.sort((a,b)=>a.dt<b.dt?-1:1);save();
 document.getElementById('aTitle').value='';document.getElementById('aDate').value='';
 if('Notification' in window&&Notification.permission==='default')Notification.requestPermission().then(notifUI);
-renderApts();checkReminders()}
+renderApts();checkReminders();toast('Saved — I\'ll remind you 🗓️')}
 function delApt(i){apts.splice(i,1);save();renderApts()}
 function icsApt(i){const a=apts[i];const s=new Date(a.dt);const e=new Date(s.getTime()+36e5);
 const f=x=>x.toISOString().replace(/[-:]/g,'').slice(0,15)+'Z';
@@ -271,7 +327,7 @@ el.innerHTML=apts.map((a,i)=>{const d=new Date(a.dt);const days=Math.ceil((d-Dat
 const when=days<0?'passed':days===0?'TODAY':days===1?'tomorrow':'in '+days+' days';
 return `<div class="apt"><div class="apt-d"><div class="dd">${d.getDate()}</div><div class="mm">${MM[d.getMonth()]}</div></div>
 <div class="apt-i"><div class="apt-t">${a.t}</div><div class="apt-s">${d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})} · ${when}</div></div>
-<button class="apt-cal" onclick="icsApt(${i})">📅 +cal</button><button class="apt-x" onclick="delApt(${i})">✕</button></div>`}).join('')}
+<button class="apt-cal" onclick="icsApt(${i})">📅 +cal</button><button class="apt-x" onclick="delApt(${i})" aria-label="delete">✕</button></div>`}).join('')}
 function checkReminders(){const ban=document.getElementById('aptBanner');let msgs=[];
 apts.forEach(a=>{const d=new Date(a.dt);const days=Math.ceil((d-Date.now())/864e5);
 if(days===0)msgs.push(`<b>Today:</b> ${a.t} at ${d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`);
@@ -285,9 +341,10 @@ if(!('Notification' in window)||Notification.permission==='granted'||!apts.lengt
 if(Notification.permission==='default')el.innerHTML='<div class="notif-ask">Want a pop-up reminder 2 days before each appointment?<br><button onclick="Notification.requestPermission().then(notifUI)">Turn on reminders 🔔</button></div>';
 else el.innerHTML=''}
 setInterval(checkReminders,18e5);
-function go(v,el){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));el.classList.add('on');
-['today','timeline','appts','checklist','money'].forEach(x=>document.getElementById(x).classList.add('hidden'));
-document.getElementById(v).classList.remove('hidden');window.scrollTo(0,0)}
+function go(v,el){document.querySelectorAll('.nv').forEach(t=>t.classList.remove('on'));el.classList.add('on');
+['today','timeline','appts','checklist','money'].forEach(x=>{const n=document.getElementById(x);n.classList.add('hidden');n.classList.remove('view')});
+const tgt=document.getElementById(v);tgt.classList.remove('hidden');void tgt.offsetWidth;tgt.classList.add('view');
+window.scrollTo({top:0,behavior:'instant'})}
 modeUI();boot();
 </script>
 </body>
