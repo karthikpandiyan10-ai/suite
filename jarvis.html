@@ -536,7 +536,7 @@ function renderVentures(){
 }
 renderTasks(); startClock(); applyIdentity(); loadCounts(); renderLocalMetrics(); loadNotes(); gStatus(); renderVentures(); setInterval(renderVentures,120000); bootSequence();
 /* ---- self-updater: pull new builds automatically when idle ---- */
-const SK_VER="v18";
+const SK_VER="v19";
 setInterval(async()=>{try{
   if(speaking||capture)return;
   const txt=await (await fetch(location.pathname,{cache:"reload"})).text();
@@ -585,7 +585,7 @@ function applyIdentity(){
   $("#hint").innerHTML=`TAP RADAR · HOLD <b>SPACE</b> · OR ENABLE <b>WAKE WORD</b> AND SAY "HI ${state.assistant.toUpperCase()}"`;
 }
 function bootSequence(){
-  const lines=[["sys","▸ SK core v18: sharper ears (hi SK understood even when misheard) · brain timeout guard · on-deck views"],["sys","▸ core systems: online"],["sys","▸ voice interface: online"],["sys","▸ onesafe knowledge base: linking"],["sys","▸ mission control: synced"]];
+  const lines=[["sys","▸ SK core v19: mic watchdog online — the ear revives itself if it ever goes silent. Long conversations now stable."],["sys","▸ core systems: online"],["sys","▸ voice interface: online"],["sys","▸ onesafe knowledge base: linking"],["sys","▸ mission control: synced"]];
   let i=0;const step=()=>{ if(i<lines.length){logLine(lines[i][0],lines[i][1]);i++;setTimeout(step,350);}
     else{const hasBrain=state.brain!=="none"&&state.key;
       const hi=`${greetWord()}, ${state.user}. All systems nominal.${state.wake?` Wake word armed. Say "hi ${state.assistant}" anytime.`:""}${hasBrain?"":" Brain module offline. Voice commands active."}`;
@@ -637,9 +637,14 @@ function speak(text){if(!("speechSynthesis" in window))return;speechSynthesis.ca
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 let rec=null, engineOn=false, capture=false, captureTimer=null, convo=false;
 function micState(s,cls){$("#stMic").textContent=s;$("#stMic").className=cls||"";}
+let recAlive=0, recRunning=false;
 function buildRec(){
   const r=new SR(); r.lang="en-SG"; r.interimResults=true; r.continuous=true;
+  r.onstart=()=>{recRunning=true;recAlive=Date.now();};
+  r.onaudiostart=()=>{recAlive=Date.now();};
+  r.onspeechstart=()=>{recAlive=Date.now();};
   r.onresult=(e)=>{
+    recAlive=Date.now();
     let finalTxt="",interim="";
     for(let i=e.resultIndex;i<e.results.length;i++){
       const t=e.results[i][0].transcript;
@@ -654,9 +659,20 @@ function buildRec(){
       setReadout("Microphone blocked. Click the mic icon at the right of the address bar, choose Allow, then reload.");
       logLine("sys","▸ mic permission denied by browser");}
   };
-  r.onend=()=>{ if(engineOn&&!speaking){ try{r.start();}catch(_){} } else if(!engineOn){ micState("STANDBY"); radar.classList.remove("listening"); } };
+  r.onend=()=>{ recRunning=false;
+    if(engineOn&&!speaking){ setTimeout(()=>{ if(engineOn&&!speaking&&!recRunning){ try{r.start();}catch(_){ } } },300); }
+    else if(!engineOn){ micState("STANDBY"); radar.classList.remove("listening"); } };
   return r;
 }
+/* MIC WATCHDOG: Chrome's recognition dies silently after rapid start/stop cycles — revive it */
+setInterval(()=>{
+  if(!engineOn||speaking||!rec) return;
+  const stale=Date.now()-recAlive>12000;
+  if(!recRunning||stale){
+    try{rec.abort();}catch(_){}
+    setTimeout(()=>{ if(engineOn&&!speaking){ try{rec.start(); recAlive=Date.now(); logLine("sys","▸ mic engine revived"); }catch(_){ } } },350);
+  }
+},5000);
 function startEngine(){
   if(!SR){ setReadout("Voice needs Chrome or Edge. The command line below works everywhere."); return; }
   if(!rec) rec=buildRec();
@@ -667,7 +683,7 @@ function startEngine(){
 }
 function stopEngine(){ engineOn=false; try{rec&&rec.stop();}catch(_){} micState("STANDBY"); radar.classList.remove("listening"); radar.classList.add("idle"); }
 function pauseEngine(){ try{rec&&rec.stop();}catch(_){} }
-function resumeEngine(){ if(engineOn&&!speaking){ try{rec.start();}catch(_){} } }
+function resumeEngine(){ if(engineOn&&!speaking&&!recRunning){ try{rec.start();}catch(_){ setTimeout(()=>{ if(engineOn&&!speaking&&!recRunning){try{rec.start();}catch(__){}} },400); } } }
 function beginCapture(prompt){
   capture=true; clearTimeout(captureTimer);
   radar.classList.add("listening"); micState("LIVE","live");
