@@ -457,8 +457,7 @@ async function handleCommand(text){
   if(ws){
     const site=SEARCHERS[ws[1]]?ws[1]:ws[2], term=(SEARCHERS[ws[1]]?ws[2]:ws[1]).replace(/[.?!]$/,"").trim();
     if(SEARCHERS[site]){
-      window.open(SEARCHERS[site](term),"_blank");
-      replyLocal(`Searching ${site} for ${term}, ${state.user}.`);
+      safeOpen(SEARCHERS[site](term), site+" results for "+term);
       return;
     }
   }
@@ -467,19 +466,15 @@ async function handleCommand(text){
   if(go){
     const name=go[1].trim().replace(/\s+/g,"");
     if(!LAUNCH[name] && /^[a-z0-9]{2,20}$/.test(name) && !/onesafe|dashboard|mission|mail|inbox|calendar|schedule|agenda|drive|survey|responses|supabase|coursiv|pagepilot|analytics/.test(name)){
-      window.open("https://www."+name+".com","_blank");
-      replyLocal(`Opening ${go[1].trim()}, ${state.user}.`);
+      safeOpen("https://www."+name+".com", go[1].trim());
       return;
     }
   }
   const nav=low.match(/\b(open|go to|take me to|launch|bring up|pull up|show)\b.*\b(one ?safe|drive|e-?mail|mail|gmail|inbox|calendar|schedule|agenda|analytics|coursiv|page ?pilot|survey|responses|supabase|dashboard|mission)\b/);
   if(nav){const t=nav[2].replace(/\s/g,"");
     const key=/mail|inbox|gmail/.test(t)?"gmail":/calendar|schedule|agenda/.test(t)?"calendar":/onesafe/.test(t)?"onesafe":/pagepilot/.test(t)?"pagepilot":/dashboard|mission/.test(t)?"dashboard":/analytics/.test(t)?"analytics":/responses/.test(t)?"responses":/survey/.test(t)?"survey":/supabase/.test(t)?"supabase":/coursiv/.test(t)?"coursiv":"drive";
-    const w=window.open(LAUNCH[key],"_blank");
     const name=key==="gmail"?"email":key==="onesafe"?"OneSafe":key==="dashboard"?"Mission Control":key;
-    const extra=(key==="gmail"||key==="calendar"||key==="drive")?" Reading it aloud arrives in phase two.":"";
-    if(w) replyLocal(`Opening ${name}, ${state.user}.${extra}`);
-    else replyLocal("Popup blocked. Allow popups for this page and try again.");
+    safeOpen(LAUNCH[key], name);
     return;}
   if(/^(hi|hey|hello|good (morning|afternoon|evening))\b/.test(low)&&low.length<40){
     replyLocal(`${greetWord()}, ${state.user}. All systems nominal. What do you need?`);return;}
@@ -620,15 +615,23 @@ async function askBrain(text){
 }
 function runAction(a){
   if(!a||!a.type||a.type==="none")return;
-  if(a.type==="open"&&LAUNCH[a.target]){window.open(LAUNCH[a.target],"_blank");return;}
+  if(a.type==="open"&&LAUNCH[a.target]){safeOpen(LAUNCH[a.target],a.target);return;}
   if(a.type==="feed"&&Array.isArray(a.items)){renderFeed((a.label||"RESULTS").toUpperCase(),a.items);}
 }
 /* ---- render ---- */
 function renderFeed(label,items){$("#feedTag").textContent=label;const ul=$("#feed");ul.innerHTML="";
   if(!items.length){ul.innerHTML='<div class="empty">Nothing to show.</div>';return;}
   items.slice(0,8).forEach(it=>{const li=document.createElement("li");
-    li.innerHTML=`<div class="h">${escapeHtml(it.h||"")}</div>${it.s?`<div class="s">${escapeHtml(it.s)}</div>`:""}`;
+    li.innerHTML=`<div class="h">${escapeHtml(it.h||"")}${it.u?' <span style="color:var(--amber)">↗</span>':''}</div>${it.s?`<div class="s">${escapeHtml(it.s)}</div>`:""}`;
+    if(it.u){li.style.cursor="pointer";li.onclick=()=>window.open(it.u,"_blank");}
     ul.appendChild(li);});}
+function safeOpen(url,name){
+  const w=window.open(url,"_blank");
+  if(w){replyLocal(`Opening ${name}, ${state.user}.`);return true;}
+  renderFeed("TAP TO OPEN",[{h:name,s:url.slice(0,60),u:url}]);
+  replyLocal(`Chrome blocked me from opening tabs by voice, ${state.user}. I put ${name} on the intel feed, tap it. To fix forever: click the blocked-popup icon in the address bar and choose Always allow.`);
+  return false;
+}
 let taskProj="safeframe";
 function renderTasks(pid){
   if(pid)taskProj=pid;
