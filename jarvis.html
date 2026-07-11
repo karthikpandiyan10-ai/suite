@@ -209,7 +209,7 @@ button.plain.on{background:var(--amber);color:#141005;border-color:var(--amber)}
   <!-- COMMAND LINE -->
   <div class="cmd">
     <div class="prompt">&gt;_</div>
-    <input id="cmdInput" placeholder='status report · search lifting hazards · open onesafe · what is next for skai' autocomplete="off"/>
+    <input id="cmdInput" placeholder='open youtube · find out about scaffold rules · hazard lifting · status report' autocomplete="off"/>
     <button id="sendBtn">EXECUTE</button>
   </div>
 </div>
@@ -266,7 +266,9 @@ const LAUNCH={
   youtube:"https://www.youtube.com", jasper:"https://www.jasper.ai", chatgpt:"https://chatgpt.com",
   claude:"https://claude.ai", tiktok:"https://www.tiktok.com", amazon:"https://www.amazon.sg",
   aliexpress:"https://www.aliexpress.com", shopee:"https://shopee.sg", lazada:"https://www.lazada.sg",
-  canva:"https://www.canva.com", shopify:"https://www.shopify.com", google:"https://www.google.com"
+  canva:"https://www.canva.com", shopify:"https://www.shopify.com", google:"https://www.google.com",
+  whatsapp:"https://web.whatsapp.com", mom:"https://www.mom.gov.sg",
+  wsh:"https://www.tal.sg/wshc", wshcouncil:"https://www.tal.sg/wshc", wshc:"https://www.tal.sg/wshc"
 };
 const SEARCHERS={
   youtube:q=>"https://www.youtube.com/results?search_query="+encodeURIComponent(q),
@@ -461,22 +463,30 @@ $("#wakeBtn").onclick=()=>{
 async function handleCommand(text){
   if(!text)return;
   logLine("u","You: "+text);
-  const low=text.toLowerCase();
-  // web search: "search youtube for X" / "search X on youtube" / "find winning products on tiktok"
-  let ws=low.match(/(?:search|find|look up|show me)\s+(?:on\s+)?(youtube|google|amazon|aliexpress|shopee|lazada|tiktok)\s+(?:for\s+)?(.+)/)
-      || low.match(/(?:search|find|look up|show me)\s+(?:for\s+)?(.+?)\s+on\s+(youtube|google|amazon|aliexpress|shopee|lazada|tiktok)$/);
+  // normalise natural speech: strip fillers & politeness so "okay can you open youtube please" works
+  let low=text.toLowerCase().trim()
+    .replace(/^(?:ok(?:ay)?|so|now|erm+|uh+|um+|ah+|eh)[,\s]+/,"")
+    .replace(/^(?:please\s+)?(?:can you|could you|would you|will you|help me(?: to)?|i (?:want|wanna|need|would like)(?: to)?|let'?s|kindly)\s+/,"")
+    .replace(/\s+(?:please|for me|now|thanks?|thank you|leh|lah|ah)[\s.?!]*$/,"")
+    .replace(/[.?!]+\s*$/,"").trim();
+  // site-targeted search: "search youtube for X" / "search X on youtube" / "youtube funny cats"
+  let ws=low.match(/^(?:search|find|look ?up|show me|check)\s+(?:on\s+)?(youtube|google|amazon|aliexpress|shopee|lazada|tiktok)\s+(?:for\s+)?(.+)/)
+      || low.match(/^(?:search|find|look ?up|show me|check)\s+(?:for\s+)?(.+?)\s+(?:on|in|at)\s+(youtube|google|amazon|aliexpress|shopee|lazada|tiktok)$/)
+      || low.match(/^(youtube|google|amazon|aliexpress|shopee|lazada|tiktok)\s+(?:search\s+)?(?:for\s+)?(.{3,})$/);
   if(ws){
     const site=SEARCHERS[ws[1]]?ws[1]:ws[2], term=(SEARCHERS[ws[1]]?ws[2]:ws[1]).replace(/[.?!]$/,"").trim();
-    if(SEARCHERS[site]){
+    if(SEARCHERS[site]&&term){
       safeOpen(SEARCHERS[site](term), site+" results for "+term);
       return;
     }
   }
-  // generic open: "open jasper" -> known site or best-guess domain
-  let go=low.match(/^(?:open|launch|go to|take me to|bring up)\s+([a-z0-9 .]+?)[.?!]*$/);
+  // generic open: "open jasper" / "go google" / "visit shopee" / bare "youtube" -> known site or best-guess domain
+  let go=low.match(/^(?:open(?: up)?|launch|start|visit|go(?: to| on)?|take me to|bring up|pull up)\s+(?:the\s+)?([a-z0-9 .&-]+?)$/);
+  if(!go && LAUNCH[low.replace(/\s+/g,"")]) go=[low,low];
   if(go){
     const name=go[1].trim().replace(/\s+/g,"");
     if(LAUNCH[name]){ safeOpen(LAUNCH[name], go[1].trim()); return; }
+    if(/^[a-z0-9-]+\.[a-z]{2,}$/.test(name)){ safeOpen("https://"+name, go[1].trim()); return; }
     if(/^[a-z0-9]{2,20}$/.test(name) && !/onesafe|dashboard|mission|mail|inbox|calendar|schedule|agenda|drive|survey|responses|supabase|coursiv|pagepilot|analytics/.test(name)){
       safeOpen("https://www."+name+".com", go[1].trim());
       return;
@@ -563,28 +573,44 @@ async function handleCommand(text){
       replyLocal(`Marked complete: ${rows[0].text}. Well done, ${state.user}.`);
     }catch(e){replyLocal("Couldn't update the task.");}
     return;}
-  m=low.match(/(?:search|find|look up)\s+(.+?)(?:\s+(?:hazards?|msra|in one ?safe))?$/);
-  if(m&&/(search|find|look up)/.test(low)){
-    const term=m[1].replace(/hazards?|msra|in one ?safe/g,"").trim();
-    setReadout("Searching OneSafe: "+term);
-    try{
-      const r=await fetch(SB+`/msra_hazards?select=hazard,injury,msra_documents(activity)&search=wfts(english).${encodeURIComponent(term)}&limit=6`,{headers:SBH});
-      const rows=await r.json();
-      if(!rows.length){replyLocal("No entries found for "+term+", "+state.user+".");return;}
-      renderFeed(term.toUpperCase(),rows.map(x=>({h:x.hazard,s:(x.msra_documents?.activity||"")+(x.injury?" · "+x.injury:"")})));
-      replyLocal(`Found ${rows.length} entries on ${term}. Top result, from ${rows[0].msra_documents.activity}: ${rows[0].hazard}. Full list on the intel feed.`);
-    }catch(e){replyLocal("The OneSafe link is down. Check the internet connection.");}
-    return;}
+  // OneSafe hazard search — ONLY when he says hazard / msra / risk / onesafe
+  if(/\b(hazards?|msra|risks?|one ?safe)\b/.test(low) && /\b(search|find|look|check|show|hazards?|risks?|what)\b/.test(low)){
+    const term=low.replace(/\b(search|find|look ?up|check|show me|show|me|what|are|the|for|about|on|in|of|hazards?|msra|one ?safe|risks?|risk assessment)\b/g," ").replace(/\s+/g," ").trim();
+    if(term.length>2){
+      setReadout("Searching OneSafe: "+term);
+      try{
+        const r=await fetch(SB+`/msra_hazards?select=hazard,injury,msra_documents(activity)&search=wfts(english).${encodeURIComponent(term)}&limit=6`,{headers:SBH});
+        const rows=await r.json();
+        if(!rows.length){
+          renderFeed("NOT IN ONESAFE",[{h:"Search Google instead: "+term,s:"tap to open web results",u:SEARCHERS.google(term)}]);
+          replyLocal("Nothing in the OneSafe library for "+term+", "+state.user+". I put a Google search on the feed.");return;}
+        renderFeed(term.toUpperCase(),rows.map(x=>({h:x.hazard,s:(x.msra_documents?.activity||"")+(x.injury?" · "+x.injury:"")})));
+        replyLocal(`Found ${rows.length} entries on ${term}. Top result, from ${rows[0].msra_documents.activity}: ${rows[0].hazard}. Full list on the intel feed.`);
+      }catch(e){replyLocal("The OneSafe link is down. Check the internet connection.");}
+      return;}
+  }
+  // default web search: "search X" / "find out about X" / "look up X" / "find X"
+  let gs=low.match(/^(?:search|look ?up|find out(?: more)?(?: about)?|find|check)\s+(?:for\s+|about\s+|on\s+)?(.+)$/);
+  if(gs && gs[1].trim().length>1){
+    const term=gs[1].trim();
+    safeOpen(SEARCHERS.google(term), "Google results for "+term);
+    return;
+  }
   if(state.brain==="none"||!state.key){
-    replyLocal("That needs my brain module, "+state.user+". Open CONFIG and add a free Gemini key. Two minutes.");return;}
+    renderFeed("TAP TO SEARCH WEB",[{h:"Google: "+text.slice(0,60),s:"tap to open web results",u:SEARCHERS.google(text)}]);
+    replyLocal("For a spoken answer I need my brain module — CONFIG, add a free Gemini key. Meanwhile I put a Google search on the feed, "+state.user+".");return;}
   setReadout("Processing…");radar.classList.add("thinking");
   try{
     const res=await askBrain(text);
     if(res.action)runAction(res.action);
+    if(!res.action||res.action.type==="none"){
+      renderFeed("ANSWER",[{h:res.speak?String(res.speak).slice(0,120):"Done.",s:""},{h:"Search Google: "+text.slice(0,50),s:"tap for web results",u:SEARCHERS.google(text)}]);
+    }
     const say=res.speak||"Done.";
     setReadout(say);logLine("j",state.assistant+": "+say);speak(say);
   }catch(err){
-    const msg="I couldn't reach the brain. Check the API key in CONFIG.";
+    const msg="I couldn't reach the brain. Check the API key in CONFIG. I put a Google search on the feed instead.";
+    renderFeed("TAP TO SEARCH WEB",[{h:"Google: "+text.slice(0,60),s:"brain offline — tap for web results",u:SEARCHERS.google(text)}]);
     setReadout(msg);logLine("sys","▸ "+(err.message||err));speak(msg);
   }finally{radar.classList.remove("thinking");}
 }
