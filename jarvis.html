@@ -659,8 +659,10 @@ async function handleCommand(text){
     const say=res.speak||"Done.";
     setReadout(say);logLine("j",state.assistant+": "+say);speak(say);
   }catch(err){
-    const msg="I couldn't reach the brain. Check the API key in CONFIG. I put a Google search on the feed instead.";
-    renderFeed("TAP TO SEARCH WEB",[{h:"Google: "+text.slice(0,60),s:"brain offline — tap for web results",u:SEARCHERS.google(text)}]);
+    const msg=(err&&err.message==="RATE")
+      ?"The free brain quota needs a short breather, "+state.user+". Wait ten seconds and ask me again."
+      :"I couldn't reach the brain. Check the API key in CONFIG. I put a Google search on the feed instead.";
+    renderFeed("TAP TO SEARCH WEB",[{h:"Google: "+text.slice(0,60),s:"brain busy - tap for web results",u:SEARCHERS.google(text)}]);
     setReadout(msg);logLine("sys","▸ "+(err.message||err));speak(msg);
   }finally{radar.classList.remove("thinking");}
 }
@@ -708,10 +710,13 @@ async function askBrain(text){
     const url=`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${state.key}`;
     const contents=[...HIST.slice(-8).flatMap(h=>[{role:"user",parts:[{text:h.u}]},{role:"model",parts:[{text:h.a}]}]),
       {role:"user",parts:[{text:text}]}];
-    const r=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},
+    const call=()=>fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},
       body:JSON.stringify({systemInstruction:{parts:[{text:systemPrompt(live)}]},
         contents,
         generationConfig:{responseMimeType:"application/json"}})});
+    let r=await call();
+    if(r.status===429){ setReadout("Brain is catching its breath… retrying"); await new Promise(res=>setTimeout(res,7000)); r=await call(); }
+    if(r.status===429)throw new Error("RATE");
     if(!r.ok)throw new Error("gemini HTTP "+r.status);
     const data=await r.json();
     const res=parseJSON(data?.candidates?.[0]?.content?.parts?.[0]?.text||"");
