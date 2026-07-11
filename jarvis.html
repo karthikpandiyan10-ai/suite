@@ -6,55 +6,60 @@
 <title>JARVIS — Command Deck</title>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#050A13">
+<meta name="theme-color" content="#04070e">
 <link rel="icon" type="image/png" href="sk-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#050A13; --bg2:#0A1322; --ink:#D7E7F5; --muted:#54708C;
-  --amber:#3FC1F2; --amber-dim:#1D5F7E; --red:#FF5D66; --green:#43DE9B;
-  --hair:rgba(63,193,242,.18); --hair2:rgba(215,231,245,.08);
-  --glow:rgba(63,193,242,.10);
+  --bg:#04070e; --bg2:#0a1322; --ink:#d7eef6; --muted:#6d8a99;
+  --amber:#35e6ff; --amber-dim:#2a6b7e; --red:#ff4d5e; --green:#54f0b8;
+  --hair:rgba(53,230,255,.22); --hair2:rgba(215,238,246,.08);
+  --glow:rgba(53,230,255,.12); --line:#153048; --panel:rgba(10,19,34,.82);
   --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
-  --body:"Chakra Petch",system-ui,sans-serif;
+  --body:"Rajdhani",system-ui,sans-serif;
+  --display:"Orbitron",var(--mono);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);overflow:hidden}
-/* ambient reactor glow: fixed, pointer-events none */
+/* ambient reactor glow + holo grid floor: fixed, pointer-events none */
 body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
-  background:
-    radial-gradient(60% 46% at 50% 44%, rgba(63,193,242,.09), transparent 62%),
-    radial-gradient(38% 30% at 12% 0%, rgba(63,193,242,.05), transparent 70%),
-    radial-gradient(38% 30% at 92% 100%, rgba(31,110,160,.07), transparent 70%)}
+  background-image:
+    linear-gradient(rgba(53,230,255,.035) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(53,230,255,.035) 1px,transparent 1px),
+    radial-gradient(60% 46% at 50% 44%, rgba(53,230,255,.10), transparent 62%),
+    radial-gradient(38% 30% at 12% 0%, rgba(53,230,255,.05), transparent 70%),
+    radial-gradient(38% 30% at 92% 100%, rgba(31,110,160,.08), transparent 70%);
+  background-size:44px 44px,44px 44px,auto,auto,auto;
+  -webkit-mask-image:radial-gradient(circle at 50% 45%, #000 30%, transparent 88%);
+  mask-image:radial-gradient(circle at 50% 45%, #000 30%, transparent 88%)}
 body::after{content:"";position:fixed;left:0;right:0;height:110px;z-index:51;pointer-events:none;
-  background:linear-gradient(180deg, transparent, rgba(63,193,242,.05), transparent);
+  background:linear-gradient(180deg, transparent, rgba(53,230,255,.05), transparent);
   animation:sweep 10s linear infinite}
 @keyframes sweep{0%{top:-120px}100%{top:100vh}}
 /* HUD Pro micro-animations */
 .wordmark{animation:glitch 6.5s steps(1) infinite}
 @keyframes glitch{
-  0%,90%,100%{text-shadow:0 0 14px rgba(63,193,242,.45)}
-  91%{text-shadow:2px 0 var(--red),-2px 0 var(--amber),0 0 18px rgba(63,193,242,.6)}
+  0%,90%,100%{text-shadow:0 0 14px rgba(53,230,255,.45)}
+  91%{text-shadow:2px 0 var(--red),-2px 0 var(--amber),0 0 18px rgba(53,230,255,.6)}
   93%{text-shadow:-2px 0 var(--red),2px 0 var(--amber)}
-  95%{text-shadow:1px 1px var(--red),-1px -1px var(--amber),0 0 20px rgba(63,193,242,.7)}
-  97%{text-shadow:0 0 14px rgba(63,193,242,.45)}}
+  95%{text-shadow:1px 1px var(--red),-1px -1px var(--amber),0 0 20px rgba(53,230,255,.7)}
+  97%{text-shadow:0 0 14px rgba(53,230,255,.45)}}
 /* particle field canvas */
 #stars{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.55}
 /* voice visualizer */
 .viz{display:flex;gap:3px;height:24px;align-items:center;justify-content:center;opacity:.22;transition:opacity .3s}
-.viz i{display:block;width:3px;height:3px;background:var(--amber);box-shadow:0 0 6px rgba(63,193,242,.6)}
+.viz i{display:block;width:3px;height:3px;background:var(--amber);box-shadow:0 0 6px rgba(53,230,255,.6)}
 body.talking .viz{opacity:1}
 body.talking .viz i{animation:vz .45s ease-in-out infinite alternate}
 @keyframes vz{from{height:3px}to{height:22px}}
-/* angled quick-bar + hazard-stripe divider */
-.keys{clip-path:polygon(12px 0,100% 0,calc(100% - 12px) 100%,0 100%);padding:0 6px}
+/* hazard-stripe divider */
 .cmd{position:relative}
 .cmd::before{content:"";position:absolute;top:-4px;left:0;right:0;height:3px;opacity:.35;
   background:repeating-linear-gradient(45deg,var(--amber) 0 10px,transparent 10px 22px,var(--red) 22px 32px,transparent 32px 44px)}
-.clock span+span{text-shadow:0 0 10px rgba(63,193,242,.5)}
+.clock span+span{text-shadow:0 0 10px rgba(53,230,255,.5)}
 @media (prefers-reduced-motion:reduce){.wordmark{animation:none}#stars{display:none}body.talking .viz i{animation:none}}
 .tele>div{position:relative;overflow:hidden}
 .tele>div::after{content:"";position:absolute;left:-40%;bottom:0;height:2px;width:40%;
@@ -63,7 +68,7 @@ body.talking .viz i{animation:vz .45s ease-in-out infinite alternate}
 @keyframes scanbar{0%{left:-40%}100%{left:100%}}
 .tele>div:nth-child(2)::after{animation-delay:.8s}.tele>div:nth-child(3)::after{animation-delay:1.6s}.tele>div:nth-child(4)::after{animation-delay:2.4s}
 .feed li,.tasks li{transition:background .25s,transform .25s}
-.feed li:hover,.tasks li:hover{background:rgba(63,193,242,.05);transform:translateX(2px)}
+.feed li:hover,.tasks li:hover{background:rgba(53,230,255,.05);transform:translateX(2px)}
 .tag b.ok{animation:okblink 3s ease-in-out infinite}
 @keyframes okblink{50%{opacity:.55}}
 /* HUD Pro Max: panel entrance choreography (spring ease, staggered) */
@@ -80,11 +85,11 @@ body.talking .viz i{animation:vz .45s ease-in-out infinite alternate}
 .feed li:nth-child(7),.tasks li:nth-child(7){animation-delay:270ms}
 .feed li:nth-child(8),.tasks li:nth-child(8){animation-delay:315ms}
 @keyframes itemIn{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:none}}
-/* HUD corner brackets */
-.sec.fill{position:relative}
-.sec.fill::before,.sec.fill::after{content:"";position:absolute;width:14px;height:14px;pointer-events:none;opacity:.65}
-.sec.fill::before{top:4px;left:0;border-top:1px solid var(--amber);border-left:1px solid var(--amber)}
-.sec.fill::after{bottom:4px;right:0;border-bottom:1px solid var(--amber);border-right:1px solid var(--amber)}
+/* HUD corner brackets (reference style: 2px, inset) */
+.sec{position:relative}
+.sec::before,.sec::after{content:"";position:absolute;width:12px;height:12px;pointer-events:none;opacity:.8;border:2px solid var(--amber-dim)}
+.sec::before{top:6px;left:6px;border-right:none;border-bottom:none}
+.sec::after{bottom:6px;right:6px;border-left:none;border-top:none}
 .center{position:relative}
 .center::before,.center::after{content:"";position:absolute;width:18px;height:18px;pointer-events:none;opacity:.5}
 .center::before{top:12px;left:12px;border-top:1px solid var(--amber);border-left:1px solid var(--amber)}
@@ -106,29 +111,31 @@ body.talking .viz i{animation:vz .45s ease-in-out infinite alternate}
 @keyframes tick{to{transform:translateX(-100%)}}
 @media (prefers-reduced-motion:reduce){.ticker-track{animation:none;padding-left:0}}
 /* ---- top strip ---- */
-.top{display:flex;align-items:stretch;border-bottom:1px solid var(--hair);height:58px;background:linear-gradient(180deg, rgba(63,193,242,.04), transparent)}
+.top{display:flex;align-items:stretch;border-bottom:1px solid var(--hair);height:58px;background:linear-gradient(180deg, rgba(53,230,255,.04), transparent)}
 .top>div{display:flex;align-items:center;padding:0 18px;border-right:1px solid var(--hair2)}
 .top>div:first-child{padding-left:2px}
 .top>div:last-child{border-right:none;margin-left:auto;padding-right:2px}
-.wordmark{font-family:var(--mono);font-weight:600;font-size:17px;letter-spacing:.42em;color:var(--amber)}
+.wordmark{font-family:var(--display);font-weight:900;font-size:21px;letter-spacing:.34em;color:var(--amber)}
 .wordmark small{display:block;font-size:8.5px;letter-spacing:.3em;color:var(--muted);font-weight:400}
 .tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
 .tag b{color:var(--ink);font-weight:500;margin-left:8px}
 .tag b.hot{color:var(--amber)} .tag b.live{color:var(--red)} .tag b.ok{color:var(--green)}
 .clock{font-family:var(--mono);font-size:15px;letter-spacing:.1em}
 .clock span{color:var(--muted);font-size:10px;display:block;letter-spacing:.24em;text-transform:uppercase}
-button.plain{background:rgba(63,193,242,.04);border:1px solid var(--hair);color:var(--ink);font-family:var(--mono);
+button.plain{background:rgba(53,230,255,.04);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-family:var(--mono);
   font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;padding:8px 14px;cursor:pointer;transition:.15s}
-button.plain:hover{border-color:var(--amber);color:var(--amber);box-shadow:inset 0 0 18px rgba(63,193,242,.08)}
+button.plain:hover{border-color:var(--amber);color:var(--amber);box-shadow:inset 0 0 18px rgba(53,230,255,.08)}
 button.plain:active{transform:translateY(1px)}
 button.plain.on{background:var(--amber);color:#04121C;border-color:var(--amber)}
 /* ---- main grid ---- */
-.main{display:grid;grid-template-columns:300px 1fr 330px;min-height:0}
-.colL{border-right:1px solid var(--hair);display:flex;flex-direction:column;min-height:0}
-.colR{border-left:1px solid var(--hair);display:flex;flex-direction:column;min-height:0}
-.sec{padding:16px 18px;border-bottom:1px solid var(--hair2);min-height:0}
-.sec.fill{flex:1;display:flex;flex-direction:column;overflow:hidden;border-bottom:none}
-.sec-h{font-family:var(--mono);font-size:9.5px;letter-spacing:.3em;text-transform:uppercase;color:var(--amber-dim);margin-bottom:12px;display:flex;justify-content:space-between}
+.main{display:grid;grid-template-columns:300px 1fr 330px;min-height:0;gap:14px;padding:12px 0}
+.colL{display:flex;flex-direction:column;min-height:0;gap:12px}
+.colR{display:flex;flex-direction:column;min-height:0;gap:12px}
+.sec{padding:14px 16px;min-height:0;background:var(--panel);border:1px solid var(--line);border-radius:12px;
+  backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}
+.sec.fill{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.sec-h{font-family:var(--mono);font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--amber);margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+.sec-h::before{content:"";width:6px;height:6px;background:var(--amber);border-radius:50%;box-shadow:0 0 8px var(--amber);margin-right:8px;flex:none}
 .sec-h em{font-style:normal;color:var(--muted)}
 /* telemetry */
 .tele{display:grid;grid-template-columns:1fr 1fr;gap:0}
@@ -136,7 +143,7 @@ button.plain.on{background:var(--amber);color:#04121C;border-color:var(--amber)}
 .tele>div:nth-child(odd){padding-right:14px;border-right:1px solid var(--hair2)}
 .tele>div:nth-child(even){padding-left:14px}
 .tele>div:nth-child(-n+2){border-bottom:1px solid var(--hair2)}
-.tele .n{font-family:var(--mono);font-size:24px;font-weight:600;color:var(--ink)}
+.tele .n{font-family:var(--display);font-size:24px;font-weight:700;color:var(--ink);text-shadow:0 0 12px rgba(53,230,255,.25)}
 .tele .n i{font-style:normal;color:var(--amber)}
 .tele .l{font-family:var(--mono);font-size:9px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;margin-top:2px}
 /* log */
@@ -148,7 +155,7 @@ button.plain.on{background:var(--amber);color:#04121C;border-color:var(--amber)}
 /* ---- center ---- */
 .center{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:20px;min-height:0}
 .radar{position:relative;width:min(280px,32vh);aspect-ratio:1;cursor:pointer;flex-shrink:1}
-.radar svg{width:100%;height:100%;display:block;filter:drop-shadow(0 0 22px rgba(63,193,242,.14))}
+.radar svg{width:100%;height:100%;display:block;filter:drop-shadow(0 0 22px rgba(53,230,255,.14))}
 .radar .sweep{transform-origin:50% 50%;animation:spin 6s linear infinite}
 .radar .ring2{transform-origin:50% 50%;animation:spin 28s linear infinite reverse}
 .radar .ring3{transform-origin:50% 50%;animation:spin 45s linear infinite}
@@ -160,17 +167,17 @@ button.plain.on{background:var(--amber);color:#04121C;border-color:var(--amber)}
 .radar .micglyph{font-family:var(--mono);font-size:11px;letter-spacing:.26em;fill:var(--amber)}
 .radar:focus-visible{outline:2px solid var(--amber);outline-offset:6px}
 .readout{font-family:var(--mono);font-size:14px;letter-spacing:.06em;color:var(--ink);text-align:center;
-  max-width:620px;min-height:42px;line-height:1.6;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:9px 18px;
-  background:linear-gradient(180deg, rgba(63,193,242,.05), transparent)}
+  max-width:620px;min-height:42px;line-height:1.6;border:1px solid var(--line);border-radius:12px;padding:10px 20px;
+  background:var(--panel);backdrop-filter:blur(2px);box-shadow:0 0 24px rgba(53,230,255,.08)}
 .readout .cursor{display:inline-block;width:8px;height:15px;background:var(--amber);vertical-align:-2px;animation:blink 1s steps(1) infinite}
 @keyframes blink{50%{opacity:0}}
 .hint{font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;text-align:center}
 .hint b{color:var(--amber);font-weight:500}
-.keys{display:flex;flex-wrap:wrap;gap:0;justify-content:center;border:1px solid var(--hair)}
-.keys button{background:none;border:none;border-right:1px solid var(--hair);color:var(--muted);font-family:var(--mono);
-  font-size:10px;letter-spacing:.14em;text-transform:uppercase;padding:10px 15px;cursor:pointer;transition:.15s}
-.keys button:last-child{border-right:none}
-.keys button:hover{color:var(--amber);background:rgba(63,193,242,.07)}
+.keys{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;border:none}
+.keys button{background:var(--panel);border:1px solid var(--line);border-radius:9px;color:var(--muted);font-family:var(--mono);
+  font-size:10px;letter-spacing:.14em;text-transform:uppercase;padding:11px 16px;cursor:pointer;transition:.2s}
+.keys button:hover{border-color:var(--amber);box-shadow:0 0 14px rgba(53,230,255,.3)}
+.keys button:hover{color:var(--amber);background:rgba(53,230,255,.07)}
 .keys button:active{transform:translateY(1px)}
 /* ---- right col ---- */
 .feed{list-style:none;flex:1;overflow-y:auto}
@@ -186,13 +193,13 @@ button.plain.on{background:var(--amber);color:#04121C;border-color:var(--amber)}
 .tasks li.done .box{border-color:var(--green)}
 .tasks li.done .txt{color:var(--muted);text-decoration:line-through}
 /* ---- command line ---- */
-.cmd{display:flex;align-items:stretch;border-top:1px solid var(--hair);height:56px;background:linear-gradient(0deg, rgba(63,193,242,.04), transparent)}
+.cmd{display:flex;align-items:stretch;height:54px;background:var(--panel);border:1px solid var(--line);border-radius:12px;margin-bottom:10px;overflow:hidden;backdrop-filter:blur(2px)}
 .cmd .prompt{display:flex;align-items:center;padding:0 14px;font-family:var(--mono);color:var(--amber);font-size:15px;border-right:1px solid var(--hair2)}
 .cmd input{flex:1;background:none;border:none;outline:none;color:var(--ink);font-family:var(--mono);font-size:14px;letter-spacing:.03em;padding:0 16px}
 .cmd input::placeholder{color:var(--muted)}
 .cmd button{background:none;border:none;border-left:1px solid var(--hair);color:var(--amber);font-family:var(--mono);
   font-size:11px;letter-spacing:.22em;text-transform:uppercase;padding:0 26px;cursor:pointer;transition:.15s}
-.cmd button:hover{background:rgba(63,193,242,.09)}
+.cmd button:hover{background:rgba(53,230,255,.09)}
 /* ---- settings drawer ---- */
 .modal{position:fixed;inset:0;z-index:60;display:none;place-items:center;background:rgba(2,6,11,.72);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 .modal.open{display:grid}
@@ -266,7 +273,7 @@ button.plain.on{background:var(--amber);color:#04121C;border-color:var(--amber)}
           <line x1="2" y1="100" x2="198" y2="100" stroke="var(--hair)" stroke-width="1"/>
           <circle cx="100" cy="100" r="88" fill="none" stroke="var(--amber-dim)" stroke-width="1" stroke-dasharray="3 9" class="ring2"/>
           <circle cx="100" cy="100" r="94" fill="none" stroke="var(--amber)" stroke-width="2" stroke-dasharray="1 11" opacity=".5" class="ring3"/>
-          <g class="sweep"><path d="M100,100 L100,4 A96,96 0 0 1 152,16 Z" fill="rgba(63,193,242,.16)"/>
+          <g class="sweep"><path d="M100,100 L100,4 A96,96 0 0 1 152,16 Z" fill="rgba(53,230,255,.16)"/>
           <line x1="100" y1="100" x2="100" y2="4" stroke="var(--amber)" stroke-width="1.5"/></g>
           <circle cx="100" cy="100" r="20" fill="var(--bg2)" stroke="var(--amber)" stroke-width="1.5"/>
           <text x="100" y="104" text-anchor="middle" class="micglyph">MIC</text>
@@ -503,7 +510,7 @@ renderTasks(); startClock(); applyIdentity(); loadCounts(); renderLocalMetrics()
     for(const p of P){
       p.y-=p.z*0.4; if(p.y<-6){p.y=H+6;p.x=Math.random()*W;}
       x.globalAlpha=0.10+p.z*0.22;
-      x.fillStyle="#3FC1F2";
+      x.fillStyle="#35e6ff";
       x.fillRect(p.x,p.y,p.s,p.s*3);
     }
     requestAnimationFrame(loop);
@@ -532,7 +539,7 @@ function applyIdentity(){
   $("#hint").innerHTML=`TAP RADAR · HOLD <b>SPACE</b> · OR ENABLE <b>WAKE WORD</b> AND SAY "HI ${state.assistant.toUpperCase()}"`;
 }
 function bootSequence(){
-  const lines=[["sys","▸ SK core v13 CINEMA: particle field · voice visualizer · glitch systems · triple radar. Speak and watch the bars dance."],["sys","▸ core systems: online"],["sys","▸ voice interface: online"],["sys","▸ onesafe knowledge base: linking"],["sys","▸ mission control: synced"]];
+  const lines=[["sys","▸ SK core v14: rebuilt to your reference design. Orbitron display, electric cyan, holo grid, glass panels."],["sys","▸ core systems: online"],["sys","▸ voice interface: online"],["sys","▸ onesafe knowledge base: linking"],["sys","▸ mission control: synced"]];
   let i=0;const step=()=>{ if(i<lines.length){logLine(lines[i][0],lines[i][1]);i++;setTimeout(step,350);}
     else{const hasBrain=state.brain!=="none"&&state.key;
       const hi=`${greetWord()}, ${state.user}. All systems nominal.${state.wake?` Wake word armed. Say "hi ${state.assistant}" anytime.`:""}${hasBrain?"":" Brain module offline. Voice commands active."}`;
