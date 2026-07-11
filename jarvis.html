@@ -329,7 +329,7 @@ function applyIdentity(){
   $("#hint").innerHTML=`TAP RADAR · HOLD <b>SPACE</b> · OR ENABLE <b>WAKE WORD</b> AND SAY "HI ${state.assistant.toUpperCase()}"`;
 }
 function bootSequence(){
-  const lines=[["sys","▸ core systems: online"],["sys","▸ voice interface: online"],["sys","▸ onesafe knowledge base: linking"],["sys","▸ mission control: synced"]];
+  const lines=[["sys","▸ SK core v4 — just say: go YouTube · google anything · hazard lifting"],["sys","▸ core systems: online"],["sys","▸ voice interface: online"],["sys","▸ onesafe knowledge base: linking"],["sys","▸ mission control: synced"]];
   let i=0;const step=()=>{ if(i<lines.length){logLine(lines[i][0],lines[i][1]);i++;setTimeout(step,350);}
     else{const hasBrain=state.brain!=="none"&&state.key;
       const hi=`${greetWord()}, ${state.user}. All systems nominal.${state.wake?` Wake word armed. Say "hi ${state.assistant}" anytime.`:""}${hasBrain?"":" Brain module offline. Voice commands active."}`;
@@ -435,7 +435,14 @@ function onSpeech(text){
         else speak("Yes, "+state.user+"?");
         beginCapture("Listening…"); }
     }
-    return; // ignore all non-wake chatter
+    // HOT COMMANDS: site names work WITHOUT the wake word — "go youtube", "google crane safety"
+    const hot=low.match(/\b(youtube|google|whatsapp|gmail|drive|calendar|onesafe|one safe|dashboard|shopee|lazada|amazon|aliexpress|tiktok|canva|shopify|jasper|chatgpt|claude|coursiv|supabase|mom|wsh)\b/);
+    if(hot && (/(open|go|goto|search|find|look|play|launch|visit|check|show|take)/.test(low) || low.split(/\s+/).length<=4)){
+      logLine("u","You: "+text);
+      handleCommand(low);
+      return;
+    }
+    return; // ignore other non-wake chatter
   }
   // capturing (after wake) or manual session
   capture=false; clearTimeout(captureTimer);
@@ -595,6 +602,19 @@ async function handleCommand(text){
     const term=gs[1].trim();
     safeOpen(SEARCHERS.google(term), "Google results for "+term);
     return;
+  }
+  // LAST-CHANCE SITE CATCH: if he mentions a known site ANYWHERE, act on it.
+  // "i'm gonna go google" -> open Google. "google crane lifting rules" anywhere in a ramble -> search it.
+  let sc=low.match(/\b(youtube|google|whatsapp|gmail|drive|calendar|shopee|lazada|amazon|aliexpress|tiktok|canva|shopify|jasper|chatgpt|claude|coursiv|supabase|mom|wsh|onesafe|one ?safe|dashboard)\b/);
+  if(sc){
+    let key=sc[1].replace(/\s+/g,""); if(key==="onesafe")key="onesafe";
+    // words after the site name = search term (minus glue words)
+    let after=low.slice(low.indexOf(sc[1])+sc[1].length)
+      .replace(/\b(for|about|on|regarding|related to|the|a|an|some|things?|stuff|info|information)\b/g," ")
+      .replace(/\s+/g," ").trim();
+    if(after.length>2 && SEARCHERS[key]){ safeOpen(SEARCHERS[key](after), key+" results for "+after); return; }
+    if(after.length>2 && !SEARCHERS[key] && LAUNCH[key]){ safeOpen(LAUNCH[key], key); return; }
+    if(LAUNCH[key]){ safeOpen(LAUNCH[key], key); return; }
   }
   if(state.brain==="none"||!state.key){
     renderFeed("TAP TO SEARCH WEB",[{h:"Google: "+text.slice(0,60),s:"tap to open web results",u:SEARCHERS.google(text)}]);
