@@ -4,6 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>JARVIS — Command Deck</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#050A13">
 <link rel="icon" type="image/png" href="sk-192.png">
@@ -151,6 +152,7 @@ button.plain.on{background:var(--amber);color:#04121C;border-color:var(--amber)}
     <div><span class="tag">WAKE<b id="stWake">OFF</b></span></div>
     <div><span class="tag">BRAIN<b id="stBrain">COMMANDS</b></span></div>
     <div><span class="tag">LIBRARY<b id="stDb">LINKING</b></span></div>
+    <div><span class="tag">GOOGLE<b id="stG">OFF</b></span></div>
     <div style="gap:12px">
       <button class="plain" id="wakeBtn" title="Toggle 'Hi Jarvis' wake word">WAKE WORD</button>
       <button class="plain" id="gearBtn" style="margin-left:10px">CONFIG</button>
@@ -255,6 +257,12 @@ button.plain.on{background:var(--amber);color:#04121C;border-color:var(--amber)}
       <label>API key</label><input id="setKey" type="password" placeholder="paste key here" />
       <small id="keyHelp"></small>
     </div>
+    <div class="field">
+      <label>Google connection (Gmail · Calendar · Drive, read-only)</label>
+      <input id="setGClient" placeholder="paste your Google OAuth Client ID here" />
+      <small>Free. Lets SK read your unread mail, today's calendar and search Drive by voice. Data goes straight from Google to this page; nothing is stored anywhere else.</small>
+      <div class="row"><button class="plain" id="gconnBtn" type="button">CONNECT GOOGLE</button><small id="gStatusTxt" style="align-self:center"></small></div>
+    </div>
     <div class="row"><button class="plain on" id="saveBtn">SAVE</button><button class="plain" id="closeBtn">CLOSE</button></div>
   </div>
 </div>
@@ -293,7 +301,7 @@ const SEARCHERS={
   lazada:q=>"https://www.lazada.sg/catalog/?q="+encodeURIComponent(q),
   tiktok:q=>"https://www.tiktok.com/search?q="+encodeURIComponent(q)
 };
-let state=Object.assign({assistant:"JARVIS",user:"Sir",brain:"none",key:"",wake:false,voiceName:"",rate:1.04,pitch:0.9},
+let state=Object.assign({assistant:"JARVIS",user:"Sir",brain:"none",key:"",wake:false,voiceName:"",rate:1.04,pitch:0.9,gclient:""},
   JSON.parse(localStorage.getItem("jarvis_cfg")||"{}"));
 function saveCfg(){localStorage.setItem("jarvis_cfg",JSON.stringify(state));}
 function wakeName(){return state.assistant.trim().split(/\s+/)[0].toLowerCase();}
@@ -314,6 +322,38 @@ function projSummary(){
   return out;
 }
 let NOTES={};
+/* ---- Google (Gmail/Calendar/Drive, read-only) ---- */
+let GTOK=null; try{GTOK=JSON.parse(localStorage.getItem("sk_gtok")||"null");}catch(e){}
+function gReady(){return GTOK&&GTOK.exp>Date.now()+60000;}
+function gStatus(){const on=gReady();
+  try{$("#stG").textContent=on?"ON":"OFF";$("#stG").className=on?"ok":"";}catch(e){}
+  try{$("#gStatusTxt").textContent=on?"Connected ✓":(state.gclient?"Not connected yet":"");}catch(e){}}
+let gTokenClient=null;
+function gConnect(interactive){
+  if(!state.gclient){replyLocal("First paste your Google Client ID in CONFIG, "+state.user+". I'll walk you through getting one.");return;}
+  if(!(window.google&&google.accounts&&google.accounts.oauth2)){replyLocal("Google sign-in library is still loading. Try again in a few seconds.");return;}
+  if(!gTokenClient){
+    gTokenClient=google.accounts.oauth2.initTokenClient({
+      client_id:state.gclient,
+      scope:"https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/drive.metadata.readonly",
+      callback:(t)=>{ if(t&&t.access_token){
+        GTOK={tok:t.access_token,exp:Date.now()+((t.expires_in||3600)-60)*1000};
+        localStorage.setItem("sk_gtok",JSON.stringify(GTOK)); gStatus();
+        replyLocal("Google is connected, "+state.user+". Try: any new emails. What's on my calendar. Search drive for MSRA.");
+      } },
+      error_callback:(e)=>{ logLine("sys","▸ google auth: "+(e&&e.type||"error")); }
+    });
+  }
+  gTokenClient.requestAccessToken({prompt:interactive?"consent":""});
+}
+async function gFetch(url){
+  if(!gReady()) throw new Error("GAUTH");
+  const r=await fetch(url,{headers:{Authorization:"Bearer "+GTOK.tok}});
+  if(r.status===401){GTOK=null;localStorage.removeItem("sk_gtok");gStatus();throw new Error("GAUTH");}
+  if(!r.ok) throw new Error("google "+r.status);
+  return r.json();
+}
+function gExpired(){replyLocal("The Google session expired, "+state.user+". Say: connect google.");}
 async function loadNotes(){
   try{ const rows=await (await fetch(SB+"/venture_notes?select=venture,title,content",{headers:SBH})).json();
     rows.forEach(r=>NOTES[r.venture]=r); }catch(e){}
@@ -326,7 +366,7 @@ function ventureKey(low){
   return null;
 }
 /* ---- boot ---- */
-renderTasks(); startClock(); applyIdentity(); loadCounts(); renderLocalMetrics(); loadNotes(); bootSequence();
+renderTasks(); startClock(); applyIdentity(); loadCounts(); renderLocalMetrics(); loadNotes(); gStatus(); bootSequence();
 function startClock(){const tick=()=>{const d=new Date();
   $("#clockT").textContent=d.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit",second:"2-digit"});
   $("#clockD").textContent=d.toLocaleDateString([],{weekday:"short",month:"short",day:"numeric"}).toUpperCase();};
@@ -343,7 +383,7 @@ function applyIdentity(){
   $("#hint").innerHTML=`TAP RADAR · HOLD <b>SPACE</b> · OR ENABLE <b>WAKE WORD</b> AND SAY "HI ${state.assistant.toUpperCase()}"`;
 }
 function bootSequence(){
-  const lines=[["sys","▸ SK core v7: admin brain. Ask me to analyze anything. I answer now, with next steps."],["sys","▸ core systems: online"],["sys","▸ voice interface: online"],["sys","▸ onesafe knowledge base: linking"],["sys","▸ mission control: synced"]];
+  const lines=[["sys","▸ SK core v9: Google module ready. Say connect google, then: any new emails · what's on my calendar · search drive for a file"],["sys","▸ core systems: online"],["sys","▸ voice interface: online"],["sys","▸ onesafe knowledge base: linking"],["sys","▸ mission control: synced"]];
   let i=0;const step=()=>{ if(i<lines.length){logLine(lines[i][0],lines[i][1]);i++;setTimeout(step,350);}
     else{const hasBrain=state.brain!=="none"&&state.key;
       const hi=`${greetWord()}, ${state.user}. All systems nominal.${state.wake?` Wake word armed. Say "hi ${state.assistant}" anytime.`:""}${hasBrain?"":" Brain module offline. Voice commands active."}`;
@@ -531,6 +571,69 @@ async function handleCommand(text){
     return;}
   if(/^(hi|hey|hello|good (morning|afternoon|evening))\b/.test(low)&&low.length<40){
     replyLocal(`${greetWord()}, ${state.user}. All systems nominal. What do you need?`);return;}
+  // ---- GOOGLE: connect ----
+  if(/\b(connect|link|sign ?in|log ?in|authorize)\b.*\bgoogle\b/.test(low)||/\bgoogle\b.*\b(connect|sign ?in)\b/.test(low)){
+    gConnect(true); return;}
+  // ---- GOOGLE: unread email ----
+  if(/\b(e-?mails?|inbox|gmail)\b/.test(low) && /\b(check|any|new|read|unread|what|show|latest|my)\b/.test(low) && !/\bopen\b/.test(low)){
+    if(!gReady()){ gExpired(); gConnect(false); return; }
+    setReadout("Checking your inbox…");
+    try{
+      const list=await gFetch("https://gmail.googleapis.com/gmail/v1/users/me/messages?q=is%3Aunread%20category%3Aprimary&maxResults=5");
+      if(!list.messages||!list.messages.length){replyLocal("Inbox is clear, "+state.user+". No unread mail in Primary.");renderFeed("UNREAD MAIL",[]);return;}
+      const items=[];
+      for(const m of list.messages.slice(0,5)){
+        const d=await gFetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/"+m.id+"?format=metadata&metadataHeaders=From&metadataHeaders=Subject");
+        const hd=Object.fromEntries((d.payload.headers||[]).map(x=>[x.name,x.value]));
+        items.push({h:hd.Subject||"(no subject)",s:(hd.From||"").replace(/<[^>]*>/,"").trim(),u:"https://mail.google.com/mail/u/0/#inbox/"+m.id});
+      }
+      renderFeed("UNREAD MAIL",items);
+      replyLocal(`${items.length} unread in Primary, ${state.user}. Top: ${items[0].h}, from ${items[0].s}. Tap any on the feed to open.`);
+    }catch(e){ e.message==="GAUTH"?gExpired():replyLocal("Couldn't reach Gmail right now."); }
+    return;}
+  // ---- GOOGLE: today's calendar ----
+  if(/\b(calendar|schedule|meetings?|appointments?|agenda)\b/.test(low) && !/\bopen\b/.test(low)){
+    if(!gReady()){ gExpired(); gConnect(false); return; }
+    setReadout("Reading your calendar…");
+    try{
+      const now=new Date(); const end=new Date(); end.setHours(23,59,59,999);
+      const tomorrow=/tomorrow/.test(low);
+      if(tomorrow){ now.setDate(now.getDate()+1); now.setHours(0,0,0,0); end.setDate(end.getDate()+1); }
+      const d=await gFetch("https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin="+encodeURIComponent(now.toISOString())+"&timeMax="+encodeURIComponent(end.toISOString())+"&singleEvents=true&orderBy=startTime&maxResults=8");
+      const evs=(d.items||[]).filter(e=>e.status!=="cancelled");
+      if(!evs.length){replyLocal((tomorrow?"Tomorrow":"Today")+" is clear on the calendar, "+state.user+".");renderFeed("CALENDAR",[]);return;}
+      const items=evs.map(e=>{const t=e.start.dateTime?new Date(e.start.dateTime).toLocaleTimeString("en-SG",{hour:"2-digit",minute:"2-digit"}):"All day";
+        return {h:e.summary||"(untitled)",s:t+(e.location?" · "+e.location:""),u:e.htmlLink};});
+      renderFeed(tomorrow?"TOMORROW":"CALENDAR TODAY",items);
+      replyLocal(`${evs.length} on the calendar${tomorrow?" tomorrow":""}, ${state.user}: ${items.slice(0,3).map(i=>i.s.split(" ·")[0]+" "+i.h).join("; ")}.`);
+    }catch(e){ e.message==="GAUTH"?gExpired():replyLocal("Couldn't reach the calendar right now."); }
+    return;}
+  // ---- GOOGLE: drive file search ----
+  let dv=low.match(/(?:search|find|look for|get)\s+(?:my\s+)?(?:file|document|doc)?\s*(.+?)\s+(?:in|on|from)\s+(?:my\s+|google\s+)?drive$/)
+      || low.match(/(?:search|find)\s+(?:google\s+)?drive\s+(?:for\s+)?(.+)/);
+  if(dv){
+    if(!gReady()){ gExpired(); gConnect(false); return; }
+    const term=dv[1].trim();
+    setReadout("Searching Drive: "+term);
+    try{
+      const d=await gFetch("https://www.googleapis.com/drive/v3/files?q="+encodeURIComponent("name contains '"+term.replace(/'/g,"\\'")+"' and trashed=false")+"&pageSize=6&fields=files(name,webViewLink,mimeType,modifiedTime)");
+      if(!d.files||!d.files.length){replyLocal("No Drive files matching "+term+", "+state.user+".");return;}
+      renderFeed("DRIVE: "+term.toUpperCase().slice(0,16),d.files.map(f=>({h:f.name,s:new Date(f.modifiedTime).toLocaleDateString("en-SG"),u:f.webViewLink})));
+      replyLocal(`Found ${d.files.length} files for ${term}. Top: ${d.files[0].name}. Tap on the feed to open.`);
+    }catch(e){ e.message==="GAUTH"?gExpired():replyLocal("Couldn't reach Drive right now."); }
+    return;}
+  // ---- WHATSAPP: compose a share message ----
+  if(/\b(share|send|blast)\b.*\bwhatsapp\b/.test(low)||/\bwhatsapp\b.*\b(share|send|blast)\b/.test(low)){
+    let msg;
+    if(/survey|sprout/.test(low)){
+      msg="Hi! My wife and I are building Little Sprout, a simple app for new and expecting parents in Singapore: checklists, reminders and what to do at every stage. If you're a parent or expecting, could you spare 2 minutes for our survey? Your answers shape what we build 🙏 https://docs.google.com/forms/d/14FbCzE6DXH_frXxxhQe88qUSwMSkPK1PqTN5ihAjyhc/viewform";
+    } else {
+      msg=text.replace(/.*whatsapp(?:\s+(?:saying|that|message))?/i,"").replace(/^[:,\s]+/,"").trim();
+    }
+    if(!msg){replyLocal("Tell me what to send, "+state.user+". For example: share the survey on whatsapp.");return;}
+    safeOpen("https://wa.me/?text="+encodeURIComponent(msg),"WhatsApp share");
+    replyLocal("WhatsApp is opening with the message ready, "+state.user+". Pick the chat and hit send yourself.");
+    return;}
   if(/status report|on my plate|overview|brief me|daily brief/.test(low)){
     const d=projSummary();
     if(!d){replyLocal("I can't read Mission Control yet. Open the dashboard once in this browser and I'll sync.");return;}
@@ -791,6 +894,8 @@ modal.addEventListener("click",e=>{if(e.target===modal)modal.classList.remove("o
 $("#setBrain").onchange=updateBrainUI;
 function syncSettingsUI(){$("#setName").value=state.assistant;$("#setUser").value=state.user;
   $("#setBrain").value=state.brain;$("#setKey").value=state.key;
+  $("#setGClient").value=state.gclient||"";gStatus();
+  $("#gconnBtn").onclick=()=>{state.gclient=$("#setGClient").value.trim();saveCfg();gConnect(true);};
   const sel=$("#setVoice");sel.innerHTML='<option value="">Auto (British male if available)</option>';
   speechSynthesis.getVoices().filter(v=>/^en/i.test(v.lang)||state.voiceName===v.name).forEach(v=>{
     const o=document.createElement("option");o.value=v.name;o.textContent=v.name.replace(/Microsoft |Google /,"")+" ("+v.lang+")";
@@ -814,6 +919,7 @@ function updateBrainUI(){const b=$("#setBrain").value;
   if(b==="anthropic")$("#keyHelp").innerHTML='Get one at <a href="https://console.anthropic.com" target="_blank" rel="noopener">console.anthropic.com</a>. The key stays on this computer.';}
 $("#saveBtn").onclick=()=>{state.assistant=$("#setName").value.trim()||"JARVIS";state.user=$("#setUser").value.trim()||"Sir";
   state.brain=$("#setBrain").value;state.key=$("#setKey").value.trim();
+  state.gclient=$("#setGClient").value.trim();
   state.voiceName=$("#setVoice").value;state.rate=Number($("#setRate").value);state.pitch=Number($("#setPitch").value);
   pickVoice();saveCfg();
   applyIdentity();modal.classList.remove("open");
