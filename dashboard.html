@@ -120,7 +120,7 @@ const DAILY_BRIEF = {date:"11 Jul 2026", lines:["📊 Little Sprout survey: 15/3
 /*DAILY_BRIEF_END*/
 const PROJECTS = [
   {
-    id:"safeframe", accent:"#22D3EE", tag:"One-stop safety platform", title:"SafeFrame",
+    id:"safeframe", accent:"#22D3EE", tag:"One-stop safety platform", title:"OneSafe",
     desc:"One platform for all safety personnel — WSH coordinators, officers, managers. The MSRA knowledge base powers the app: AI documents grounded in your real company MSRAs, not generic text.",
     hint:"Knowledge base now at 3,639 hazard rows across 129 activities, fully anonymized (MSRA_Full_Output). App code in SafeFrame_Toolkit.",
     phases:[
@@ -181,7 +181,7 @@ const PROJECTS = [
       {name:"Validate with real people", steps:[
         {t:"Create Google Form survey — DONE: 'New Parent Survey — Singapore' is live with first responses", f:false, d:true},
         {t:"Define exactly who the target audience is (first-time mums? trying-to-conceive? all three?)", f:false},
-        {t:"Share survey (mum groups, friends, social) and collect 30+ responses", f:true}
+        {t:"Share survey (mum groups, friends, social) and collect 15+ responses", f:true}
       ]},
       {name:"Analyze & decide", steps:[
         {t:"Analyze the feedback with Claude — what do they actually want and would pay for?", f:false},
@@ -406,9 +406,9 @@ function render(){
   const brief=`<div class="w span12" style="--ac:var(--amber)"><h2><span class="dot"></span>Daily Brief — ${esc(DAILY_BRIEF.date)}</h2>
     <div class="tipbox" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:8px">${DAILY_BRIEF.lines.map(l=>`<div class="tip">${esc(l)}</div>`).join("")}</div></div>`;
   document.getElementById("grid").innerHTML = brief +
-    appWidget(state.projects.find(p=>p.id==="safeframe"),4) +
-    appWidget(state.projects.find(p=>p.id==="sprout"),4) +
     appWidget(state.projects.find(p=>p.id==="skai"),4) +
+    appWidget(state.projects.find(p=>p.id==="sprout"),4) +
+    appWidget(state.projects.find(p=>p.id==="safeframe"),4) +
     appWidget(state.projects.find(p=>p.id==="studio"),4) +
     moneyWidget() + coursivWidget() + linksWidget() + skillsWidget();
 }
