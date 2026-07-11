@@ -606,7 +606,9 @@ async function handleCommand(text){
       .replace(/\b(for|about|on|regarding|related to|the|a|an|some|things?|stuff|info|information)\b/g," ")
       .replace(/\s+/g," ").trim();
     if(after.length>2 && SEARCHERS[key]){ safeOpen(SEARCHERS[key](after), key+" results for "+after); return; }
-    if(LAUNCH[key]){ safeOpen(LAUNCH[key], key); return; }
+    const openIntent=new RegExp("\\b(open(?: up)?|go(?: to| on)?|goto|visit|launch|start|take me to|bring up|pull up)\\s+(?:the\\s+)?"+sc[1].replace(/\s+/g,"\\s+")).test(low);
+    if(LAUNCH[key] && (openIntent || after.length<=2)){ safeOpen(LAUNCH[key], key); return; }
+    // otherwise fall through — a question ABOUT the site goes to Google below
   }
   // default web search: "search X" / "find out about X" / "look up X" / "find X"
   let gs=low.match(/^(?:search|look ?up|find out(?: more)?(?: about)?|find|check)\s+(?:for\s+|about\s+|on\s+)?(.+)$/);
