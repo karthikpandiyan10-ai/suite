@@ -46,6 +46,36 @@ body::after{content:"";position:fixed;left:0;right:0;height:110px;z-index:51;poi
 .feed li:hover,.tasks li:hover{background:rgba(63,193,242,.05);transform:translateX(2px)}
 .tag b.ok{animation:okblink 3s ease-in-out infinite}
 @keyframes okblink{50%{opacity:.55}}
+/* HUD Pro Max: panel entrance choreography (spring ease, staggered) */
+.top,.ticker,.colL,.center,.colR,.cmd{animation:panelIn .5s cubic-bezier(.16,1,.3,1) both}
+.ticker{animation-delay:.05s}.colL{animation-delay:.1s}.center{animation-delay:.16s}.colR{animation-delay:.22s}.cmd{animation-delay:.28s}
+@keyframes panelIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+/* feed & task items stagger in */
+.feed li,.tasks li{animation:itemIn .35s cubic-bezier(.16,1,.3,1) both}
+.feed li:nth-child(2),.tasks li:nth-child(2){animation-delay:45ms}
+.feed li:nth-child(3),.tasks li:nth-child(3){animation-delay:90ms}
+.feed li:nth-child(4),.tasks li:nth-child(4){animation-delay:135ms}
+.feed li:nth-child(5),.tasks li:nth-child(5){animation-delay:180ms}
+.feed li:nth-child(6),.tasks li:nth-child(6){animation-delay:225ms}
+.feed li:nth-child(7),.tasks li:nth-child(7){animation-delay:270ms}
+.feed li:nth-child(8),.tasks li:nth-child(8){animation-delay:315ms}
+@keyframes itemIn{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:none}}
+/* HUD corner brackets */
+.sec.fill{position:relative}
+.sec.fill::before,.sec.fill::after{content:"";position:absolute;width:14px;height:14px;pointer-events:none;opacity:.65}
+.sec.fill::before{top:4px;left:0;border-top:1px solid var(--amber);border-left:1px solid var(--amber)}
+.sec.fill::after{bottom:4px;right:0;border-bottom:1px solid var(--amber);border-right:1px solid var(--amber)}
+.center{position:relative}
+.center::before,.center::after{content:"";position:absolute;width:18px;height:18px;pointer-events:none;opacity:.5}
+.center::before{top:12px;left:12px;border-top:1px solid var(--amber);border-left:1px solid var(--amber)}
+.center::after{bottom:12px;right:12px;border-bottom:1px solid var(--amber);border-right:1px solid var(--amber)}
+/* listening halo pulse */
+.radar.listening::after{content:"";position:absolute;inset:16%;border-radius:50%;border:1px solid var(--amber);animation:halo 1.6s ease-out infinite;pointer-events:none}
+@keyframes halo{from{transform:scale(.82);opacity:.7}to{transform:scale(1.22);opacity:0}}
+/* press + focus feedback */
+.keys button:active,.cmd button:active{transform:translateY(1px) scale(.97)}
+.keys button:focus-visible,.cmd button:focus-visible,button.plain:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){.top,.ticker,.colL,.center,.colR,.cmd,.feed li,.tasks li,.radar.listening::after{animation:none}}
 @media (prefers-reduced-motion:reduce){body::after,.wordmark,.tele>div::after,.tag b.ok{animation:none}}
 @media (prefers-reduced-motion:reduce){body::after{display:none}}
 .deck{position:relative;z-index:1;height:100vh;display:grid;grid-template-rows:auto auto 1fr auto;gap:0;padding:0 22px}
@@ -426,6 +456,17 @@ function ventureKey(low){
   return null;
 }
 /* ---- boot ---- */
+function animateNum(el,val,localize){
+  if(!el)return;
+  const target=Number(String(val).replace(/,/g,""));
+  if(!isFinite(target)||window.matchMedia("(prefers-reduced-motion: reduce)").matches){el.textContent=localize?target.toLocaleString():String(val);return;}
+  const t0=performance.now(),dur=900;
+  const step=(t)=>{const p=Math.min(1,(t-t0)/dur),e=1-Math.pow(1-p,3);
+    const cur=Math.round(target*e);
+    el.textContent=localize?cur.toLocaleString():String(cur);
+    if(p<1)requestAnimationFrame(step);};
+  requestAnimationFrame(step);
+}
 renderTasks(); startClock(); applyIdentity(); loadCounts(); renderLocalMetrics(); loadNotes(); gStatus(); bootSequence();
 function startClock(){const tick=()=>{const d=new Date();
   $("#clockT").textContent=d.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit",second:"2-digit"});
@@ -443,7 +484,7 @@ function applyIdentity(){
   $("#hint").innerHTML=`TAP RADAR · HOLD <b>SPACE</b> · OR ENABLE <b>WAKE WORD</b> AND SAY "HI ${state.assistant.toUpperCase()}"`;
 }
 function bootSequence(){
-  const lines=[["sys","▸ SK core v11 HUD Pro: live ticker online · social launchers (say: open instagram) · say news, my projects, or connect google"],["sys","▸ core systems: online"],["sys","▸ voice interface: online"],["sys","▸ onesafe knowledge base: linking"],["sys","▸ mission control: synced"]];
+  const lines=[["sys","▸ SK core v12 HUD Pro Max: full motion choreography online · say news, my projects, or open instagram"],["sys","▸ core systems: online"],["sys","▸ voice interface: online"],["sys","▸ onesafe knowledge base: linking"],["sys","▸ mission control: synced"]];
   let i=0;const step=()=>{ if(i<lines.length){logLine(lines[i][0],lines[i][1]);i++;setTimeout(step,350);}
     else{const hasBrain=state.brain!=="none"&&state.key;
       const hi=`${greetWord()}, ${state.user}. All systems nominal.${state.wake?` Wake word armed. Say "hi ${state.assistant}" anytime.`:""}${hasBrain?"":" Brain module offline. Voice commands active."}`;
@@ -463,8 +504,8 @@ async function loadCounts(){
     const opts={headers:{...SBH,Prefer:"count=exact",Range:"0-0"}};
     const r1=await fetch(SB+"/msra_documents?select=id",opts);
     const r2=await fetch(SB+"/msra_hazards?select=id",opts);
-    $("#mActs").textContent=(r1.headers.get("content-range")||"/?").split("/")[1];
-    $("#mHaz").textContent=Number((r2.headers.get("content-range")||"/0").split("/")[1]).toLocaleString();
+    animateNum($("#mActs"),(r1.headers.get("content-range")||"/?").split("/")[1],false);
+    animateNum($("#mHaz"),Number((r2.headers.get("content-range")||"/0").split("/")[1]),true);
     $("#stDb").textContent="ONLINE";$("#stDb").className="ok";
   }catch(e){ $("#stDb").textContent="OFFLINE";$("#stDb").className=""; }
 }
@@ -473,8 +514,8 @@ function renderLocalMetrics(){
   if(!d){ $("#mJourney").textContent="—"; $("#mAlerts").textContent="—"; return; }
   let done=0,total=0,flags=0;
   Object.values(d).forEach(p=>{done+=p.done;total+=p.total;flags+=p.flags.length;});
-  $("#mJourney").textContent=Math.round(100*done/total);
-  $("#mAlerts").textContent=flags;
+  animateNum($("#mJourney"),Math.round(100*done/total),false);
+  animateNum($("#mAlerts"),flags,false);
 }
 /* ---- TTS ---- */
 let voice=null,speaking=false;
