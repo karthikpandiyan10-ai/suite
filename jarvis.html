@@ -48,7 +48,13 @@ body::after{content:"";position:fixed;left:0;right:0;height:110px;z-index:51;poi
 @keyframes okblink{50%{opacity:.55}}
 @media (prefers-reduced-motion:reduce){body::after,.wordmark,.tele>div::after,.tag b.ok{animation:none}}
 @media (prefers-reduced-motion:reduce){body::after{display:none}}
-.deck{position:relative;z-index:1;height:100vh;display:grid;grid-template-rows:auto 1fr auto;gap:0;padding:0 22px}
+.deck{position:relative;z-index:1;height:100vh;display:grid;grid-template-rows:auto auto 1fr auto;gap:0;padding:0 22px}
+/* live news ticker */
+.ticker{height:26px;overflow:hidden;border-bottom:1px solid var(--hair2);font-family:var(--mono);font-size:10.5px;color:var(--muted);display:flex;align-items:center}
+.ticker-track{display:inline-block;white-space:nowrap;padding-left:100%;animation:tick 60s linear infinite}
+.ticker-track b{color:var(--amber);font-weight:500}
+@keyframes tick{to{transform:translateX(-100%)}}
+@media (prefers-reduced-motion:reduce){.ticker-track{animation:none;padding-left:0}}
 /* ---- top strip ---- */
 .top{display:flex;align-items:stretch;border-bottom:1px solid var(--hair);height:58px;background:linear-gradient(180deg, rgba(63,193,242,.04), transparent)}
 .top>div{display:flex;align-items:center;padding:0 18px;border-right:1px solid var(--hair2)}
@@ -94,6 +100,8 @@ button.plain.on{background:var(--amber);color:#04121C;border-color:var(--amber)}
 .radar{position:relative;width:min(280px,32vh);aspect-ratio:1;cursor:pointer;flex-shrink:1}
 .radar svg{width:100%;height:100%;display:block;filter:drop-shadow(0 0 22px rgba(63,193,242,.14))}
 .radar .sweep{transform-origin:50% 50%;animation:spin 6s linear infinite}
+.radar .ring2{transform-origin:50% 50%;animation:spin 28s linear infinite reverse}
+@media (prefers-reduced-motion:reduce){.radar .ring2{animation:none}}
 .radar.listening .sweep{animation-duration:1.4s}
 .radar.thinking .sweep{animation-duration:.7s;opacity:.9}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -174,6 +182,9 @@ button.plain.on{background:var(--amber);color:#04121C;border-color:var(--amber)}
     </div>
   </div>
 
+  <!-- NEWS TICKER -->
+  <div class="ticker"><div class="ticker-track" id="tickerTrack">▸ SK COMMAND DECK · live headlines loading…</div></div>
+
   <!-- MAIN -->
   <div class="main">
     <!-- LEFT -->
@@ -202,6 +213,7 @@ button.plain.on{background:var(--amber);color:#04121C;border-color:var(--amber)}
           <circle cx="100" cy="100" r="46" fill="none" stroke="var(--hair)" stroke-width="1"/>
           <line x1="100" y1="2" x2="100" y2="198" stroke="var(--hair)" stroke-width="1"/>
           <line x1="2" y1="100" x2="198" y2="100" stroke="var(--hair)" stroke-width="1"/>
+          <circle cx="100" cy="100" r="88" fill="none" stroke="var(--amber-dim)" stroke-width="1" stroke-dasharray="3 9" class="ring2"/>
           <g class="sweep"><path d="M100,100 L100,4 A96,96 0 0 1 152,16 Z" fill="rgba(63,193,242,.16)"/>
           <line x1="100" y1="100" x2="100" y2="4" stroke="var(--amber)" stroke-width="1.5"/></g>
           <circle cx="100" cy="100" r="20" fill="var(--bg2)" stroke="var(--amber)" stroke-width="1.5"/>
@@ -304,6 +316,8 @@ const LAUNCH={
   aliexpress:"https://www.aliexpress.com", shopee:"https://shopee.sg", lazada:"https://www.lazada.sg",
   canva:"https://www.canva.com", shopify:"https://www.shopify.com", google:"https://www.google.com",
   whatsapp:"https://web.whatsapp.com", mom:"https://www.mom.gov.sg",
+  facebook:"https://www.facebook.com", instagram:"https://www.instagram.com",
+  insta:"https://www.instagram.com", linkedin:"https://www.linkedin.com",
   wsh:"https://www.tal.sg/wshc", wshcouncil:"https://www.tal.sg/wshc", wshc:"https://www.tal.sg/wshc"
 };
 const SEARCHERS={
@@ -394,8 +408,12 @@ async function fetchNews(){
       });
     }catch(e){}
   }));
+  if(items.length){try{
+    $("#tickerTrack").innerHTML=items.map(i=>"<b>"+escapeHtml(i.s)+"</b>&nbsp; "+escapeHtml(i.h)).join(" &nbsp;&nbsp;·&nbsp;&nbsp; ");
+  }catch(e){}}
   return items;
 }
+setInterval(()=>{fetchNews();},15*60*1000); // refresh headlines every 15 min
 async function loadNotes(){
   try{ const rows=await (await fetch(SB+"/venture_notes?select=venture,title,content",{headers:SBH})).json();
     rows.forEach(r=>NOTES[r.venture]=r); }catch(e){}
@@ -425,7 +443,7 @@ function applyIdentity(){
   $("#hint").innerHTML=`TAP RADAR · HOLD <b>SPACE</b> · OR ENABLE <b>WAKE WORD</b> AND SAY "HI ${state.assistant.toUpperCase()}"`;
 }
 function bootSequence(){
-  const lines=[["sys","▸ SK core v10: news online (say: news) · projects register (say: my projects) · Google ready (say: connect google)"],["sys","▸ core systems: online"],["sys","▸ voice interface: online"],["sys","▸ onesafe knowledge base: linking"],["sys","▸ mission control: synced"]];
+  const lines=[["sys","▸ SK core v11 HUD Pro: live ticker online · social launchers (say: open instagram) · say news, my projects, or connect google"],["sys","▸ core systems: online"],["sys","▸ voice interface: online"],["sys","▸ onesafe knowledge base: linking"],["sys","▸ mission control: synced"]];
   let i=0;const step=()=>{ if(i<lines.length){logLine(lines[i][0],lines[i][1]);i++;setTimeout(step,350);}
     else{const hasBrain=state.brain!=="none"&&state.key;
       const hi=`${greetWord()}, ${state.user}. All systems nominal.${state.wake?` Wake word armed. Say "hi ${state.assistant}" anytime.`:""}${hasBrain?"":" Brain module offline. Voice commands active."}`;
@@ -537,7 +555,7 @@ function onSpeech(text){
         beginCapture("Listening…"); }
     }
     // HOT COMMANDS: site names work WITHOUT the wake word — "go youtube", "google crane safety"
-    const hot=low.match(/\b(youtube|google|whatsapp|gmail|drive|calendar|onesafe|one safe|dashboard|little sprout|sprout|shopee|lazada|amazon|aliexpress|tiktok|canva|shopify|jasper|chatgpt|claude|coursiv|supabase|mom|wsh)\b/);
+    const hot=low.match(/\b(youtube|google|whatsapp|gmail|drive|calendar|onesafe|one safe|dashboard|little sprout|sprout|shopee|lazada|amazon|aliexpress|tiktok|facebook|instagram|insta|linkedin|canva|shopify|jasper|chatgpt|claude|coursiv|supabase|mom|wsh)\b/);
     if(hot && (/(open|go|goto|search|find|look|play|launch|visit|check|show|take)/.test(low) || low.split(/\s+/).length<=4)){
       logLine("u","You: "+text);
       handleCommand(low);
@@ -797,7 +815,7 @@ async function handleCommand(text){
   }
   // SITE CATCH: if he mentions a known site ANYWHERE in the sentence, act on it.
   // "i'm gonna go google" -> open Google. "check on google about lifting plans" -> google-search "lifting plans".
-  let sc=low.match(/\b(youtube|google|whatsapp|gmail|drive|calendar|shopee|lazada|amazon|aliexpress|tiktok|canva|shopify|jasper|chatgpt|claude|coursiv|supabase|mom|wsh|onesafe|one ?safe|dashboard|little ?sprout|sprout)\b/);
+  let sc=low.match(/\b(youtube|google|whatsapp|gmail|drive|calendar|shopee|lazada|amazon|aliexpress|tiktok|facebook|instagram|insta|linkedin|canva|shopify|jasper|chatgpt|claude|coursiv|supabase|mom|wsh|onesafe|one ?safe|dashboard|little ?sprout|sprout)\b/);
   const thinkq=/\b(analy[sz]e|review|advise|advice|opinion|feedback|why|how|should|recommend|suggest|compare|improve|plan for|strategy|think)\b/.test(low);
   if(sc && !thinkq){
     let key=sc[1].replace(/\s+/g,"");
