@@ -152,6 +152,13 @@ button.plain.on{background:var(--amber);color:#04121C;border-color:var(--amber)}
 .tele>div:nth-child(even){padding-left:14px}
 .tele>div:nth-child(-n+2){border-bottom:1px solid var(--hair2)}
 .tele .n{font-family:var(--display);font-size:24px;font-weight:700;color:var(--ink);text-shadow:0 0 12px rgba(var(--grgb),.25)}
+/* missions widget: to-dos per business */
+.vrow{padding:9px 0;border-bottom:1px dashed var(--line)}
+.vrow:last-child{border-bottom:none}
+.vh{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--mono);font-size:11px;letter-spacing:.14em}
+.vh b{color:var(--amber);font-weight:600}
+.vh span{color:var(--muted);font-size:10px}
+.vnext{font-size:13.5px;color:var(--ink);margin-top:3px;line-height:1.45}
 .tele .n i{font-style:normal;color:var(--amber)}
 .tele .l{font-family:var(--mono);font-size:9px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;margin-top:2px}
 /* log */
@@ -256,8 +263,9 @@ button.plain.on{background:var(--amber);color:#04121C;border-color:var(--amber)}
     <!-- LEFT -->
     <div class="colL">
       <div class="sec">
-        <div class="sec-h">TELEMETRY <em id="teleTag">LIVE</em></div>
-        <div class="tele">
+        <div class="sec-h">MISSIONS <em id="teleTag">TO-DO / BUSINESS</em></div>
+        <div id="ventures"><div class="empty">Syncing your businesses…</div></div>
+        <div class="tele" style="display:none">
           <div><div class="n" id="mActs">—</div><div class="l">KB activities</div></div>
           <div><div class="n" id="mHaz">—</div><div class="l">Hazard entries</div></div>
           <div><div class="n"><i id="mJourney">—</i>%</div><div class="l">Journey done</div></div>
@@ -505,7 +513,18 @@ function animateNum(el,val,localize){
     if(p<1)requestAnimationFrame(step);};
   requestAnimationFrame(step);
 }
-renderTasks(); startClock(); applyIdentity(); loadCounts(); renderLocalMetrics(); loadNotes(); gStatus(); bootSequence();
+function renderVentures(){
+  const box=$("#ventures"); if(!box) return;
+  const d=projSummary();
+  if(!d){box.innerHTML='<div class="empty">Open Mission Control once in this browser and your business to-dos appear here.</div>';return;}
+  const order=[["skai","SKAI"],["sprout","LITTLE SPROUT"],["safeframe","ONESAFE"],["studio","STUDIO"]];
+  box.innerHTML=order.filter(([k])=>d[k]).map(([k,label])=>{
+    const p=d[k];
+    return '<div class="vrow"><div class="vh"><b>'+label+'</b><span>'+p.done+'/'+p.total+' done</span></div>'+
+           '<div class="vnext">▸ '+escapeHtml(String(p.current).slice(0,70))+'</div></div>';
+  }).join("")||'<div class="empty">No businesses found yet.</div>';
+}
+renderTasks(); startClock(); applyIdentity(); loadCounts(); renderLocalMetrics(); loadNotes(); gStatus(); renderVentures(); setInterval(renderVentures,120000); bootSequence();
 /* ---- cinematic layer: particle field + voice visualizer ---- */
 (function(){
   if(window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -548,7 +567,7 @@ function applyIdentity(){
   $("#hint").innerHTML=`TAP RADAR · HOLD <b>SPACE</b> · OR ENABLE <b>WAKE WORD</b> AND SAY "HI ${state.assistant.toUpperCase()}"`;
 }
 function bootSequence(){
-  const lines=[["sys","▸ SK core v15: theme protocols loaded. Say: theme deadpool · theme stark · theme wolverine · theme cyan"],["sys","▸ core systems: online"],["sys","▸ voice interface: online"],["sys","▸ onesafe knowledge base: linking"],["sys","▸ mission control: synced"]];
+  const lines=[["sys","▸ SK core v16: Missions board live (to-dos per business, top-left) · themes: deadpool / stark / wolverine / cyan"],["sys","▸ core systems: online"],["sys","▸ voice interface: online"],["sys","▸ onesafe knowledge base: linking"],["sys","▸ mission control: synced"]];
   let i=0;const step=()=>{ if(i<lines.length){logLine(lines[i][0],lines[i][1]);i++;setTimeout(step,350);}
     else{const hasBrain=state.brain!=="none"&&state.key;
       const hi=`${greetWord()}, ${state.user}. All systems nominal.${state.wake?` Wake word armed. Say "hi ${state.assistant}" anytime.`:""}${hasBrain?"":" Brain module offline. Voice commands active."}`;
@@ -791,8 +810,10 @@ async function handleCommand(text){
     }catch(e){ e.message==="GAUTH"?gExpired():replyLocal("Couldn't reach Drive right now."); }
     return;}
   // ---- THEME PROTOCOLS ----
-  let th=low.match(/\b(?:theme|skin|mode|protocol)\s+(dead ?pool|stark|iron ?man|wolverine|cyan|default|reference|blue)\b/)
-       ||low.match(/\b(dead ?pool|stark|iron ?man|wolverine)\s+(?:theme|mode|skin|protocol)\b/);
+  let th=low.match(/\b(?:theme|team|tim|teem|time|skin|mode|protocol|suit)\s+(dead ?pool|stark|iron ?man|wolverine|cyan|default|reference|blue)\b/)
+       ||low.match(/\b(dead ?pool|stark|iron ?man|wolverine)\s+(?:theme|team|mode|skin|protocol)\b/)
+       ||low.match(/\b(?:change|switch|go|suit up)(?: to| into)?\s+(dead ?pool|stark|iron ?man|wolverine|cyan)\b/);
+  if(!th && low.split(/\s+/).length<=3){ const bare=low.match(/\b(dead ?pool|stark|wolverine)\b/); if(bare) th=[0,bare[1]]; }
   if(th){
     const k=(th[1]||th[2]||"").replace(/\s+/g,"");
     const map={deadpool:"deadpool",ironman:"stark",stark:"stark",wolverine:"wolverine",cyan:"",default:"",reference:"",blue:""};
