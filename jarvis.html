@@ -1082,7 +1082,7 @@ function safeOpen(url,name){
   replyLocal(`Chrome blocked me from opening tabs by voice, ${state.user}. I put ${name} on the intel feed, tap it. To fix forever: click the blocked-popup icon in the address bar and choose Always allow.`);
   return false;
 }
-let taskProj="safeframe";
+var taskProj="safeframe";
 function renderTasks(pid){
   if(pid)taskProj=pid;
   const ul=$("#tasks");ul.innerHTML="";
