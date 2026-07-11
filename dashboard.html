@@ -116,7 +116,7 @@ footer{text-align:center;color:var(--dim);font-size:11.5px;margin-top:24px;font-
 
 <script>
 /*DAILY_BRIEF_START*/
-const DAILY_BRIEF = {date:"10 Jul 2026", lines:["📊 Little Sprout survey: 15/30 real responses (2 test rows excluded) — halfway there. Need 15 more to hit target.","📬 Inbox: Coursiv ChatGPT certificate issued — post it on LinkedIn for free social proof. No Skai / SafeFrame / Supabase signals needing action.","🎯 Today's focus → Little Sprout: drop the survey link into 3 new mum/parent WhatsApp or Facebook groups and close that 15-response gap.","⏳ 1–2 month clock is running. Momentum beats perfection — one concrete win a day gets all three apps live."]};
+const DAILY_BRIEF = {date:"11 Jul 2026", lines:["📊 Little Sprout survey: 15/30 real responses (17 rows, 2 test excluded) — flat since yesterday. Still 15 short; the well's gone quiet and needs a fresh push.","📬 Inbox (24h): GitHub sudo codes for the -ai account (you were authing the suite repo / Pages) + a Supabase Auth nudge — nothing needs action.","🎯 Today's focus → Skai: knock out the next Coursiv lesson, then shortlist 3–5 products with real margin math (cost + shipping + ads < price).","⏳ 1–2 month clock ticking. Little Sprout is stalled and Skai's still learning — pick one concrete win today and bank it. Consistency ships all three."]};
 /*DAILY_BRIEF_END*/
 const PROJECTS = [
   {
@@ -247,6 +247,36 @@ const PROJECTS = [
     notes:""
   },
   {
+    id:"studio", accent:"#A78BFA", tag:"Freelance services", title:"Studio — Video & Marketing",
+    desc:"Paid video editing and marketing services. First client: your friend. Fastest cash of all four ventures — paid per job.",
+    hint:"Golden rule: scope in writing even with friends — deliverables, revisions, deadline, price. Then testimonial, then referrals.",
+    phases:[
+      {name:"Set up the service", steps:[
+        {t:"Define 2-3 fixed packages with prices (e.g. short-form edit / long-form edit / monthly social plan)", f:true},
+        {t:"Write a one-page scope agreement template (deliverables, 2 revisions, deadline, price)", f:false}
+      ]},
+      {name:"Deliver for your friend", steps:[
+        {t:"Agree current job's scope and price in writing", f:true},
+        {t:"Deliver the edit/campaign on time — use Claude for scripts, captions, edit plans", f:false},
+        {t:"Invoice and get paid", f:false}
+      ]},
+      {name:"Grow", steps:[
+        {t:"Ask for a testimonial + 2 referrals after delivery", f:false},
+        {t:"Raise rates for the next client", f:false},
+        {t:"Portfolio page with before/after clips", f:false}
+      ]}
+    ],
+    money:"Per job: short edits ~S$50-150, long-form ~S$150-500, monthly social ~S$500-1,500 (set your own)",
+    playbook:[
+      ["Package the service (3 fixed offers, fixed prices)","Stops the 'friend price' trap; easy to say yes to"],
+      ["Scope in writing, always","Friendships survive contracts, not confusion"],
+      ["Deliver fast and well using AI tools you already have","MONEY: paid on delivery, immediately"],
+      ["Testimonial + referrals after every job","Each client should produce the next one"],
+      ["Raise rates every 2-3 clients","You're underpriced until someone says no"]
+    ],
+    notes:""
+  },
+  {
     id:"coursiv", accent:"#F472B6", tag:"Learning", title:"Coursiv — AI Mastery",
     desc:"ChatGPT & Apps course: 2/13 lessons (15%) as of 8 Jul 2026. Streak active.",
     hint:"After this course: 'AI Side Hustle' and 'AI Copywriting' — both feed directly into Skai.",
@@ -331,7 +361,7 @@ function tick(cb){
   flat(p)[+cb.dataset.g].d=cb.checked; save();
 }
 function moneyWidget(){
-  const rows=[["safeframe","SafeFrame"],["sprout","Little Sprout"],["skai","Skai"]].map(([id,name])=>{
+  const rows=[["safeframe","OneSafe"],["sprout","Little Sprout"],["skai","Skai"],["studio","Studio"]].map(([id,name])=>{
     const p=state.projects.find(x=>x.id===id);
     return `<div class="money-row"><div><b>${name}</b><div class="model">${esc(p.money)}</div></div>
       <div style="text-align:right"><div style="font-size:10px;color:var(--dim);letter-spacing:.08em">TARGET S$/MO</div>
@@ -379,6 +409,7 @@ function render(){
     appWidget(state.projects.find(p=>p.id==="safeframe"),4) +
     appWidget(state.projects.find(p=>p.id==="sprout"),4) +
     appWidget(state.projects.find(p=>p.id==="skai"),4) +
+    appWidget(state.projects.find(p=>p.id==="studio"),4) +
     moneyWidget() + coursivWidget() + linksWidget() + skillsWidget();
 }
 function openOv(id){

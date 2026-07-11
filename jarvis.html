@@ -287,8 +287,20 @@ function projSummary(){
   }
   return out;
 }
+let NOTES={};
+async function loadNotes(){
+  try{ const rows=await (await fetch(SB+"/venture_notes?select=venture,title,content",{headers:SBH})).json();
+    rows.forEach(r=>NOTES[r.venture]=r); }catch(e){}
+}
+function ventureKey(low){
+  if(/one ?safe|safeframe/.test(low))return "onesafe";
+  if(/sprout|little spro|little spot/.test(low))return "sprout";
+  if(/skai|sky|dropship/.test(low))return "skai";
+  if(/studio|video edit|editing|marketing service|freelance|my friend/.test(low))return "studio";
+  return null;
+}
 /* ---- boot ---- */
-renderTasks(); startClock(); applyIdentity(); loadCounts(); renderLocalMetrics(); bootSequence();
+renderTasks(); startClock(); applyIdentity(); loadCounts(); renderLocalMetrics(); loadNotes(); bootSequence();
 function startClock(){const tick=()=>{const d=new Date();
   $("#clockT").textContent=d.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit",second:"2-digit"});
   $("#clockD").textContent=d.toLocaleDateString([],{weekday:"short",month:"short",day:"numeric"}).toUpperCase();};
@@ -488,6 +500,20 @@ async function handleCommand(text){
     const p=d[k];
     replyLocal(`${p.title.split("—")[0].trim()}. Phase: ${p.phase}. Next step, ${state.user}: ${p.current}`+(p.flags.length?` Also flagged: ${p.flags[0]}.`:""));
     renderTasks(k);return;}
+  // ---- venture deep-dive: "tell me about one safe / skai / little sprout / studio" ----
+  if(/(tell me (more )?about|what is|explain|details (about|on|of)|brief me on)/.test(low)){
+    const vk=ventureKey(low);
+    if(vk&&NOTES[vk]){
+      const n=NOTES[vk];
+      const d=projSummary();
+      const prog=d&&d[vk==="onesafe"?"safeframe":vk]?` Progress: ${d[vk==="onesafe"?"safeframe":vk].done} of ${d[vk==="onesafe"?"safeframe":vk].total} roadmap steps done.`:"";
+      renderFeed(n.title.toUpperCase().slice(0,24), n.content.split(". ").filter(x=>x.length>15).slice(0,8).map(x=>({h:x.trim()+".",s:""})));
+      litPanelSafe();
+      const spoken=n.content.split(". ").slice(0,5).join(". ")+"."+prog;
+      replyLocal(spoken);
+      return;
+    }
+  }
   // ---- daily brief + todos ----
   if(/(plan|brief|supposed to do|to ?do|things to do|my day|daily)/.test(low) && !/add|new|complete|done|finish/.test(low)){
     setReadout("Compiling your day…");
@@ -555,11 +581,14 @@ async function handleCommand(text){
     setReadout(msg);logLine("sys","▸ "+(err.message||err));speak(msg);
   }finally{radar.classList.remove("thinking");}
 }
+function litPanelSafe(){try{const el=document.getElementById("panel-feed");el.style.borderColor="var(--amber)";setTimeout(()=>el.style.borderColor="",3000);}catch(e){}}
 function replyLocal(msg){setReadout(msg);logLine("j",state.assistant+": "+msg);speak(msg);}
 function systemPrompt(){
   return `You are ${state.assistant}, Karthik's voice assistant in the style of Iron Man's JARVIS: concise, competent, lightly witty, calm. Address him as ${state.user} occasionally.
 Karthik (Singapore) runs three ventures. OneSafe: safety-document platform for Singapore construction, live MSRA library (129 activities, 3,639 anonymized hazard rows in his own Supabase), toolbox talks in 6 languages, PE-design guides; upcoming: inspections, registers, permit-to-work, company logins; revenue: subscriptions. Little Sprout: Singapore new-parents guide app, validation survey live, goal 30+ responses, planned one-time S$10-30 pricing. Skai: dropshipping, learning phase, Page Pilot ready. Also: Coursiv AI course. Deadline: apps live in 1-2 months.
 Live roadmap state: ${JSON.stringify(projSummary())||"unavailable"}.
+Venture knowledge base (authoritative, use when relevant): ${Object.values(NOTES).map(n=>n.title+": "+n.content).join(" || ")||"loading"}
+He also runs Studio, income stream four: paid video editing and marketing for his friend.
 You have NO direct email/calendar/drive access; if asked, say you'll open it on screen and include an "open" action.
 Reply with ONLY one JSON object, no markdown fences:
 {"speak": string, "action": {"type":"none"|"open"|"feed", ...}}
