@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>From Two Pink Lines · V1.3 Beta</title>
+<title>Our Journey · First 100 Days</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Nunito+Sans:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
@@ -130,7 +130,7 @@ label{font-size:11.5px;font-weight:800;letter-spacing:1.2px;color:var(--mut);dis
 
 <div class="topbar">
 <div class="topwrap">
-<div class="brandrow"><span class="brand">FROM TWO PINK LINES TO DAY 100</span><span class="beta">V1.3 BETA</span></div>
+<div class="brandrow"><span class="brand">OUR JOURNEY · TWO PINK LINES TO DAY 100</span><span class="beta">V1.4 BETA</span></div>
 <nav id="nav" style="display:none">
 <button class="nv on" data-v="today" onclick="go('today',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>Today</button>
 <button class="nv" data-v="timeline" onclick="go('timeline',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 21c0-6 0-9 0-12M12 9c0-3 2-5 5-5 0 3-2 5-5 5Zm0 4c0-3-2-5-5-5 0 3 2 5 5 5Z"/></svg>Journey</button>
@@ -335,7 +335,7 @@ return `<div class="card pressable" style="animation-delay:${Math.min(delay*0.06
 ${cfg.dad&&it.d?`<div class="dadbox"><b>DAD'S PART</b><br>${it.d}</div>`:''}
 <button class="donebtn ${isDone?'un':''}" onclick="mark('${k}',event)">${isDone?'Undo':'Mark done'}</button>
 <button class="sharebtn" onclick="shareTip(${idx})">Share this with someone who needs it 💛</button></div>`}
-async function shareTip(i){const it=ITEMS[i];const txt=it.t+'\n\n'+it.w+'\n\n— from our First 100 Days app 💛';
+async function shareTip(i){const it=ITEMS[i];const txt=it.t+'\n\n'+it.w+'\n\n— from Our Journey 💛';
 if(navigator.share){try{await navigator.share({title:it.t,text:txt})}catch(e){}}
 else{try{await navigator.clipboard.writeText(txt);toast('Copied — paste it anywhere 💛')}catch(e){toast('Could not copy')}}}
 function mark(k,ev){const was=!!done[k];done[k]=!was;save();
