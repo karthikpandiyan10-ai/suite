@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>From Two Pink Lines · V1.2 Beta</title>
+<title>From Two Pink Lines · V1.3 Beta</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Nunito+Sans:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
@@ -104,6 +104,23 @@ label{font-size:11.5px;font-weight:800;letter-spacing:1.2px;color:var(--mut);dis
 #toast.show{transform:translateX(-50%) translateY(0)}
 /* confetti petals */
 .petal{position:fixed;width:9px;height:13px;border-radius:60% 60% 60% 60%/70% 70% 50% 50%;z-index:250;pointer-events:none}
+/* joy layer */
+.floater{position:fixed;bottom:-30px;z-index:0;pointer-events:none;font-size:18px;opacity:0;animation:floatup linear forwards}
+@keyframes floatup{0%{opacity:0;transform:translateY(0) rotate(0)}12%{opacity:.5}80%{opacity:.35}100%{opacity:0;transform:translateY(-105vh) rotate(38deg)}}
+.bless{display:flex;align-items:center;gap:10px;background:linear-gradient(120deg,#F7EBE2,#EAF2E6,#EFEAF7,#F7EBE2);background-size:300% 300%;animation:blessbg 14s ease infinite;border-radius:18px;padding:13px 16px;margin-top:12px;font-size:14px;line-height:1.5;color:#5C6B5C;border:1px solid var(--line)}
+@keyframes blessbg{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.bless .spark{font-size:20px;animation:twink 2.4s ease-in-out infinite}
+@keyframes twink{0%,100%{transform:scale(1) rotate(0)}50%{transform:scale(1.25) rotate(12deg)}}
+.milestone{background:linear-gradient(135deg,#E07856,#DCA94B);color:#fff;border-radius:20px;padding:18px;margin-top:12px;text-align:center;box-shadow:0 8px 24px rgba(224,120,86,.32);animation:rise .5s cubic-bezier(.2,.7,.3,1) both,heartbeat 2.8s ease-in-out 1s infinite}
+@keyframes heartbeat{0%,100%{transform:scale(1)}6%{transform:scale(1.02)}12%{transform:scale(1)}}
+.milestone .mt{font-family:'Fraunces',serif;font-size:20px;font-weight:800}
+.milestone .ms{font-size:13px;opacity:.92;margin-top:4px}
+.sharebtn{margin-top:8px;width:100%;padding:10px;border:1.5px solid var(--line);border-radius:12px;background:#fff;color:var(--green-deep);font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;transition:transform .15s,border-color .2s}
+.sharebtn:active{transform:scale(.97)}
+.card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(80,90,60,.11);transition:transform .25s,box-shadow .25s}
+.prog i{position:relative;overflow:hidden}
+.prog i::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);animation:shimmer 2.6s ease-in-out infinite}
+@keyframes shimmer{0%{transform:translateX(-100%)}60%,100%{transform:translateX(220%)}}
 @media (prefers-reduced-motion:reduce){*,.card,.week-badge,.toggle-row,.banner{animation:none!important;transition:none!important;opacity:1!important;transform:none!important}}
 @media(min-width:768px){h1{font-size:32px}.wrap{padding:18px 20px}}
 </style>
@@ -113,7 +130,7 @@ label{font-size:11.5px;font-weight:800;letter-spacing:1.2px;color:var(--mut);dis
 
 <div class="topbar">
 <div class="topwrap">
-<div class="brandrow"><span class="brand">FROM TWO PINK LINES TO DAY 100</span><span class="beta">V1.2 BETA</span></div>
+<div class="brandrow"><span class="brand">FROM TWO PINK LINES TO DAY 100</span><span class="beta">V1.3 BETA</span></div>
 <nav id="nav" style="display:none">
 <button class="nv on" data-v="today" onclick="go('today',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>Today</button>
 <button class="nv" data-v="timeline" onclick="go('timeline',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 21c0-6 0-9 0-12M12 9c0-3 2-5 5-5 0 3-2 5-5 5Zm0 4c0-3-2-5-5-5 0 3 2 5 5 5Z"/></svg>Journey</button>
@@ -159,6 +176,8 @@ label{font-size:11.5px;font-weight:800;letter-spacing:1.2px;color:var(--mut);dis
 <div class="sm" id="wkSm"></div>
 <div class="prog"><i id="wkBar"></i></div>
 </div>
+<div id="milestone"></div>
+<div class="bless"><span class="spark">✨</span><span id="blessTxt"></span></div>
 <div id="aptBanner"></div>
 <div id="notifAsk"></div>
 <div class="toggle-row"><b>👨 Dad Mode — show my part</b><div class="sw" id="dadSw" onclick="toggleDad()" role="switch" tabindex="0"><i></i></div></div>
@@ -209,6 +228,10 @@ const ITEMS=[
 {wk:-32,end:-28,e:"🩺",t:"The dating scan (week 8–10)",w:"Your first ultrasound confirms the heartbeat and your REAL due date. Book it, put it in the Appts tab, and let the app count down with you.",y:"Everything in this app re-anchors to the due date your doctor confirms here.",d:"Dads: be at this one. It's 10 seconds of sound you'll never forget."},
 {wk:-29,end:-26,e:"🧬",t:"First-trimester screening window (week 11–13)",w:"One decision: OSCAR scan (~S$300+) or NIPT blood test (~S$700–1,100) — both screen for chromosomal conditions. Ask your doctor which fits you. OSCAR must happen weeks 11–13 — that window is strict. NIPT can be done from week 10 onwards.",y:"Booking early keeps every choice open.",d:"Dads: whatever the results path, you're calm in the room. Questions written down beforehand."},
 {wk:-28,end:-24,e:"📣",t:"Nausea, exhaustion, secrets — surviving trimester one",w:"Eat small and often (dry crackers by the bed), rest without guilt, and tell whoever YOU want, whenever you want — there is no rule about 12 weeks.",y:"Trimester one is the hardest part most people never see. Being kind to yourself is the task.",d:"Dads: she's running a marathon while looking normal. Cook, cover, don't score her tiredness."},
+{wk:-30,end:-20,e:"🫶",t:"Doing this on your own? You're not alone — and there's real help",w:"Single mums: SCWO's Single Mothers Programme, HCSA SPIN and asinglelove.sg exist exactly for you — practical help, community, and people who get it. Note: some government benefits work differently for unmarried mums, so check YOUR entitlements on LifeSG early rather than assuming.",y:"Research shows the hardest part of solo parenting in SG isn't money — it's carrying it alone. You don't have to.",d:"If you're supporting a single mum: the most useful sentence is 'I'll take Tuesday nights.' Specific beats general."},
+{wk:-24,end:-16,e:"🏘️",t:"Build your kampung BEFORE baby comes",w:"Isolation is the #1 thing that breaks new SG parents — not money. Do this now: name ONE person who can take a night shift, ONE who can cook or dabao, ONE you can say anything to at 3am. Ask them THIS WEEK — people say yes before the chaos, not during.",y:"It takes a kampung. Every parent who thrives has one; most built it before the storm.",d:"Dads: your kampung counts too. One friend you can be honest with beats ten who ask 'so how's fatherhood?'"},
+{wk:-20,end:-10,e:"💵",t:"The real monthly number (so it never shocks you)",w:"Diapers, formula/feeding, clinic visits: expect roughly S$900–1,800/month in the infant phase. Set up ONE 'baby' budget line now and park money monthly from today — then the Money tab benefits (S$5,000 First Step, CDA matching, MediSave) do the heavy lifting.",y:"Parents who plan the number sleep better than parents who discover it.",d:"Dads: this card is a 20-minute money date. Bring the Money tab, agree the monthly amount, done."},
+{wk:2,end:8,e:"💗",t:"Mum — how are YOU, really?",w:"About 1 in 12 mums in Singapore experiences postnatal depression — it's common, it's medical, and it's treatable. If you feel low, empty or not-yourself for more than 2 weeks, tell your doctor — KKH and NUH screen for this at your 2–8 week visits, so bring it up there. Feeling this way is NOT failing.",y:"The mums who speak up early recover fastest. This card exists because nobody talks about it enough in Singapore.",d:"Dads: you're the early-warning system. Not sleeping even when baby sleeps, crying, pulling away, saying 'you'd all be better off without me' — that last one means talk to a doctor TODAY, together."},
 {wk:-26,end:-20,e:"💼",t:"Work + leave: know your rights early",w:"You're entitled to 16 weeks paid maternity leave, dads get 4 weeks, and there's up to 10 more weeks of Shared Parental Leave to split (births from Apr 2026). Most employed parents of Singapore-citizen babies qualify — check MOM's eligibility checker. Tell HR when YOU are ready — but at least 1 month before taking leave, formally.",y:"Knowing your rights early removes the fear from every HR conversation.",d:"Dads: your 4 weeks are real and government-paid. Plan to actually take them — all of them."},
 {wk:-22,end:-14,e:"🏫",t:"Both returning to work? Join infant care waitlists NOW",w:"Popular infant care centres in Singapore have 6–12 month waitlists. Shortlist 2–3 near home or work and register while pregnant.",y:"This is the one deadline almost every dual-income couple discovers too late.",d:"Dads: you do the centre visits shortlist. Two Saturday mornings, done."},
 {wk:-22,end:-17,e:"🔍",t:"The big anomaly scan (week 20–22)",w:"The detailed scan checks every organ — and yes, you can usually find out boy or girl. Book it in the Appts tab now.",y:"It's the most important scan of the pregnancy, and clinics book out.",d:"Dads: take the morning off. This is the scan where baby becomes a person on screen."},
@@ -239,6 +262,8 @@ const CHECKS={
 "🏦 ADMIN & MONEY":["Baby Bonus applied on LifeSG","CDA bank chosen + account open","Birth registered (within 42 days)","Baby's Integrated Shield insurance from birth","Paternity leave dates told to HR","Maternity leave confirmed with HR"],
 "👶 FIRST MONTH":["Jaundice check day 3–5 booked","1-month check booked","Full month cakes ordered","Mum's 6-week check booked","Emergency numbers saved on both phones"]};
 const AFF=["One clear answer, every week. No forums. No ten opinions.","You're doing better than you think. 💛","Small steps. That's how everyone does it.","Rest counts as progress too.","Nobody has it all figured out — you're right on time.","Your baby doesn't need perfect. Just you."];
+const BLESS=["Today's little blessing: somewhere in there, a heartbeat is practising just for you.","Today's little blessing: your baby already knows your voice better than any song.","Today's little blessing: you were chosen for this exact baby. No one else.","Today's little blessing: every kick is a hello.","Today's little blessing: one day this tiny human will laugh at your jokes.","Today's little blessing: you are already someone's whole world.","Today's little blessing: babies don't remember perfect houses — they remember warm arms.","Today's little blessing: today counts, even the messy parts."];
+const MILES={0:["Baby is HERE 🎉","The biggest day of your life. Everything else can wait."],7:["One whole week 💛","You kept a human alive for 7 days. Legends."],30:["One month strong 🌙","满月! The hardest month is behind you."],50:["Halfway to 100 🎈","Look how far you three have come."],100:["DAY 100 🎊","You did the whole climb. This app was built for exactly this moment."]};
 // ---------- STATE ----------
 let cfg=JSON.parse(localStorage.getItem('f100_cfg')||'null');
 let done=JSON.parse(localStorage.getItem('f100_done')||'{}');
@@ -286,14 +311,33 @@ sm.textContent=pw<14?'Trimester one — be kind to yourself.':pw<28?'Trimester t
 requestAnimationFrame(()=>bar.style.width=Math.max(3,pw/40*100)+'%')}
 else{big.textContent=`Day ${Math.min(day,100)} of 100`;sm.textContent=day>100?'Past 100 days — V2 carries on from here!':'The first 100 days — the steep part. You\'re doing it.';requestAnimationFrame(()=>bar.style.width=Math.min(100,day)+'%')}
 document.getElementById('dadSw').classList.toggle('on',!!cfg.dad);
+// blessing of the day (stable per day)
+const dayIdx=Math.floor(Date.now()/864e5);
+document.getElementById('blessTxt').textContent=BLESS[dayIdx%BLESS.length];
+// milestone celebration
+const mEl=document.getElementById('milestone');const mk=Object.keys(MILES).map(Number).filter(x=>day>=0&&day>=x&&day<=x+2).pop();
+if(mk!==undefined&&MILES[mk]){mEl.innerHTML=`<div class="milestone"><div class="mt">${MILES[mk][0]}</div><div class="ms">${MILES[mk][1]}</div></div>`;
+if(!localStorage.getItem('f100_m'+mk)){localStorage.setItem('f100_m'+mk,'1');setTimeout(()=>{burst(innerWidth/2,220);burst(innerWidth/2-80,260);burst(innerWidth/2+80,260)},600)}}
+else mEl.innerHTML='';
+startFloaters();
 renderFeed();renderTimeline();renderChecklist();renderApts();checkReminders();notifUI();
 }
+let floatersOn=false;
+function startFloaters(){if(floatersOn||matchMedia('(prefers-reduced-motion: reduce)').matches)return;floatersOn=true;
+const SYM=['💛','🌱','✨','🤍','🫧'];
+setInterval(()=>{if(document.hidden)return;const f=document.createElement('div');f.className='floater';f.textContent=SYM[Math.floor(Math.random()*SYM.length)];
+f.style.left=(4+Math.random()*92)+'vw';f.style.fontSize=(13+Math.random()*12)+'px';f.style.animationDuration=(9+Math.random()*8)+'s';
+document.body.appendChild(f);setTimeout(()=>f.remove(),18000)},2400)}
 function toggleDad(){cfg.dad=!cfg.dad;localStorage.setItem('f100_cfg',JSON.stringify(cfg));document.getElementById('dadSw').classList.toggle('on',cfg.dad);renderFeed();renderTimeline();toast(cfg.dad?'Dad Mode on 👨':'Dad Mode off')}
 function card(it,idx,state,delay){const k='i'+idx;const isDone=!!done[k];
 return `<div class="card pressable" style="animation-delay:${Math.min(delay*0.06,0.5)}s"><span class="emo">${it.e||''}</span><span class="pill ${isDone?'done-p':state==='now'?'now':'soon'}">${isDone?'DONE ✓':state==='now'?'DUE NOW':'COMING UP'}</span>
 <div class="it-t">${it.t}</div><div class="it-w">${it.w}</div><div class="it-y">Why: ${it.y}</div>
 ${cfg.dad&&it.d?`<div class="dadbox"><b>DAD'S PART</b><br>${it.d}</div>`:''}
-<button class="donebtn ${isDone?'un':''}" onclick="mark('${k}',event)">${isDone?'Undo':'Mark done'}</button></div>`}
+<button class="donebtn ${isDone?'un':''}" onclick="mark('${k}',event)">${isDone?'Undo':'Mark done'}</button>
+<button class="sharebtn" onclick="shareTip(${idx})">Share this with someone who needs it 💛</button></div>`}
+async function shareTip(i){const it=ITEMS[i];const txt=it.t+'\n\n'+it.w+'\n\n— from our First 100 Days app 💛';
+if(navigator.share){try{await navigator.share({title:it.t,text:txt})}catch(e){}}
+else{try{await navigator.clipboard.writeText(txt);toast('Copied — paste it anywhere 💛')}catch(e){toast('Could not copy')}}}
 function mark(k,ev){const was=!!done[k];done[k]=!was;save();
 if(!was){burst(ev.clientX||innerWidth/2,ev.clientY||innerHeight/2);toast(PRAISE[Math.floor(Math.random()*PRAISE.length)])}
 renderFeed();renderTimeline()}
