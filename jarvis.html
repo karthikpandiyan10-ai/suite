@@ -1048,4 +1048,309 @@ async function handleCommand(text){
     if(!d){replyLocal("I can't read Mission Control yet. Open the dashboard once in this browser and I'll sync.");return;}
     let items=[];let msg="Status report. ";
     for(const id of ["safeframe","sprout","skai","coursiv"]){ if(d[id]){msg+=`${d[id].title.split("—")[0].trim()}: ${d[id].done} of ${d[id].total} done. `;
-      items.push(
+      items.push({h:d[id].title,s:`${d[id].done}/${d[id].total} · next: ${d[id].current.slice(0,70)}`});}}
+    msg+=`Follow-ups pending: ${Object.values(d).reduce((a,p)=>a+p.flags.length,0)}.`;
+    renderFeed("STATUS",items);renderLocalMetrics();
+    replyLocal(msg);return;}
+  // follow-ups: real flagged roadmap items + open to-dos
+  if(/\b(follow ?-?ups?|outstanding|pending items|what.*pending|chase|loose ends)\b/.test(low)){
+    const d=projSummary(); let items=[];
+    if(d) for(const k in d) d[k].flags.forEach(f=>items.push({h:f,s:d[k].title.split("—")[0].trim()+" · flagged"}));
+    try{
+      const td=await (await fetch(SB+"/todo?select=text,done&order=id&limit=20",{headers:SBH})).json();
+      td.filter(t=>!t.done).forEach(t=>items.push({h:t.text,s:"to-do"}));
+    }catch(e){}
+    renderFeed("FOLLOW-UPS",items);
+    replyLocal(items.length?`${items.length} follow-ups on the board, ${state.user}. Top three: ${items.slice(0,3).map(i=>i.h).join("; ")}. Full list on the feed. Next: clear the first one.`:`Nothing outstanding, ${state.user}. Clean slate.`);
+    return;}
+  let m=low.match(/next (?:for|on|in) (one ?safe|safeframe|sprout|little sprout|skai|coursiv)/)||(/what.?s next|next step/.test(low)?["","safeframe"]:null);
+  if(m){
+    const d=projSummary();
+    if(!d){replyLocal("Open Mission Control once in this browser first, then I can read your roadmap.");return;}
+    const k=m[1].includes("safe")?"safeframe":m[1].includes("sprout")?"sprout":m[1].includes("skai")?"skai":m[1].includes("coursiv")?"coursiv":"safeframe";
+    const p=d[k];
+    replyLocal(`${p.title.split("—")[0].trim()}. Phase: ${p.phase}. Next step, ${state.user}: ${p.current}`+(p.flags.length?` Also flagged: ${p.flags[0]}.`:""));
+    renderTasks(k);return;}
+  // ---- venture deep-dive: "tell me about one safe / skai / little sprout / studio" ----
+  if(/(tell me (more )?about|what is|explain|details (about|on|of)|brief me on)/.test(low)){
+    const vk=ventureKey(low);
+    if(vk&&NOTES[vk]){
+      const n=NOTES[vk];
+      const d=projSummary();
+      const prog=d&&d[vk==="onesafe"?"safeframe":vk]?` Progress: ${d[vk==="onesafe"?"safeframe":vk].done} of ${d[vk==="onesafe"?"safeframe":vk].total} roadmap steps done.`:"";
+      renderFeed(n.title.toUpperCase().slice(0,24), n.content.split(". ").filter(x=>x.length>15).slice(0,8).map(x=>({h:x.trim()+".",s:""})));
+      litPanelSafe();
+      const spoken=n.content.split(". ").slice(0,5).join(". ")+"."+prog;
+      replyLocal(spoken);
+      return;
+    }
+  }
+  // ---- daily brief + todos ----
+  if(/(my (plan|day)\b|plan (for )?(today|tomorrow|the day)|daily brief|brief me|morning brief|supposed to do|things to do|to ?do list|my to ?dos?\b|what.?s? today)/.test(low) && !/add|new|complete|done|finish/.test(low)){
+    setReadout("Compiling your day…");
+    try{
+      const b=(await (await fetch(SB+"/daily_brief?select=brief_date,lines&order=id.desc&limit=1",{headers:SBH})).json())[0];
+      const todos=await (await fetch(SB+"/todo?select=id,text,done&order=id&limit=20",{headers:SBH})).json();
+      const open=todos.filter(t=>!t.done);
+      const d=projSummary();
+      const items=[...(b?b.lines.map(l=>({h:l,s:"daily brief"})):[]),
+        ...open.map(t=>({h:t.text,s:"to-do"}))];
+      renderFeed("TODAY",items);
+      let msg=`Here is your day, ${state.user}. `;
+      if(b) msg+=b.lines.slice(0,3).join(" ")+" ";
+      msg+=open.length?`You have ${open.length} to-dos: ${open.slice(0,3).map(t=>t.text).join("; ")}.`:"No open to-dos.";
+      if(d){const fl=Object.values(d).reduce((a,p)=>a+p.flags.length,0); if(fl)msg+=` ${fl} roadmap items flagged for follow-up.`;}
+      replyLocal(msg);
+    }catch(e){replyLocal("I couldn't reach the daily memory. Check the connection.");}
+    return;}
+  m=low.match(/(?:remind me(?: tomorrow)?(?: to)?|tomorrow (?:i (?:need|want|have) to|we (?:need|have) to))\s+(.+)/);
+  if(m){
+    try{
+      await fetch(SB+"/todo",{method:"POST",headers:{...SBH,"Content-Type":"application/json",Prefer:"return=minimal"},body:JSON.stringify({text:m[1].trim()})});
+      replyLocal(`Noted for tomorrow, ${state.user}: ${m[1].trim()}. It will be on your morning plan.`);
+    }catch(e){replyLocal("Couldn't save that reminder.");}
+    return;}
+  m=low.match(/(?:add|new)\s+(?:a\s+)?(?:task|to ?do)[:,]?\s+(.+)/);
+  if(m){
+    try{
+      await fetch(SB+"/todo",{method:"POST",headers:{...SBH,"Content-Type":"application/json",Prefer:"return=minimal"},body:JSON.stringify({text:m[1].trim()})});
+      replyLocal(`Logged, ${state.user}: ${m[1].trim()}.`);
+    }catch(e){replyLocal("Couldn't save that task.");}
+    return;}
+  m=low.match(/(?:complete|done with|finish|tick)\s+(?:task\s+)?(.+)/);
+  if(m&&/task|to ?do|complete|done with|finish/.test(low)){
+    try{
+      const term=m[1].trim().replace(/[.?!]$/,"");
+      const rows=await (await fetch(SB+"/todo?select=id,text&done=eq.false&text=ilike.*"+encodeURIComponent(term.split(" ").slice(0,3).join("*"))+"*&limit=1",{headers:SBH})).json();
+      if(!rows.length){replyLocal("I couldn't find that task on the list.");return;}
+      await fetch(SB+"/todo?id=eq."+rows[0].id,{method:"PATCH",headers:{...SBH,"Content-Type":"application/json",Prefer:"return=minimal"},body:JSON.stringify({done:true})});
+      replyLocal(`Marked complete: ${rows[0].text}. Well done, ${state.user}.`);
+    }catch(e){replyLocal("Couldn't update the task.");}
+    return;}
+  // OneSafe hazard search — ONLY when he says hazard / msra / risk / onesafe
+  if(/\b(hazards?|msra|risks?|one ?safe)\b/.test(low) && /\b(search|find|look|check|show|hazards?|risks?|what)\b/.test(low)){
+    const term=low.replace(/\b(search|find|look ?up|check|show me|show|me|what|are|the|for|about|on|in|of|hazards?|msra|one ?safe|risks?|risk assessment)\b/g," ").replace(/\s+/g," ").trim();
+    if(term.length>2){
+      setReadout("Searching OneSafe: "+term);
+      try{
+        const r=await fetch(SB+`/msra_hazards?select=hazard,injury,msra_documents(activity)&search=wfts(english).${encodeURIComponent(term)}&limit=6`,{headers:SBH});
+        const rows=await r.json();
+        if(!rows.length){
+          renderFeed("NOT IN ONESAFE",[{h:"Search Google instead: "+term,s:"tap to open web results",u:SEARCHERS.google(term)}]);
+          replyLocal("Nothing in the OneSafe library for "+term+", "+state.user+". I put a Google search on the feed.");return;}
+        renderFeed(term.toUpperCase(),rows.map(x=>({h:x.hazard,s:(x.msra_documents?.activity||"")+(x.injury?" · "+x.injury:"")})));
+        replyLocal(`Found ${rows.length} entries on ${term}. Top result, from ${rows[0].msra_documents.activity}: ${rows[0].hazard}. Full list on the intel feed.`);
+      }catch(e){replyLocal("The OneSafe link is down. Check the internet connection.");}
+      return;}
+  }
+  // SITE CATCH: if he mentions a known site ANYWHERE in the sentence, act on it.
+  // "i'm gonna go google" -> open Google. "check on google about lifting plans" -> google-search "lifting plans".
+  let sc=low.match(/\b(youtube|google|whatsapp|gmail|drive|calendar|shopee|lazada|amazon|aliexpress|tiktok|facebook|instagram|insta|linkedin|canva|shopify|jasper|chatgpt|claude|coursiv|supabase|mom|wsh|onesafe|one ?safe|dashboard|little ?sprout|sprout)\b/);
+  const thinkq=/\b(analy[sz]e|review|advise|advice|opinion|feedback|why|how|should|recommend|suggest|compare|improve|plan for|strategy|think)\b/.test(low);
+  if(sc && !thinkq){
+    let key=sc[1].replace(/\s+/g,"");
+    // words after the site name = search term (minus glue words)
+    let after=low.slice(low.indexOf(sc[1])+sc[1].length)
+      .replace(/\b(for|about|on|regarding|related to|the|a|an|some|things?|stuff|info|information)\b/g," ")
+      .replace(/\s+/g," ").trim();
+    if(after.length>2 && SEARCHERS[key]){ safeOpen(SEARCHERS[key](after), key+" results for "+after); return; }
+    const openIntent=new RegExp("\\b(open(?: up)?|go(?: to| on)?|goto|visit|launch|start|take me to|bring up|pull up|show)\\s+(?:the\\s+|my\\s+)?"+sc[1].replace(/\s+/g,"\\s+")).test(low);
+    if(LAUNCH[key] && (openIntent || low.split(/\s+/).length<=3)){ safeOpen(LAUNCH[key], key); return; }
+    // otherwise fall through — a question ABOUT the site goes to the brain / Google below
+  }
+  // default web search: "search X" / "find out about X" / "look up X" / "find X"
+  let gs=low.match(/^(?:search|look ?up|find out(?: more)?(?: about)?|find|check)\s+(?:for\s+|about\s+|on\s+)?(.+)$/);
+  if(gs && gs[1].trim().length>1){
+    const term=gs[1].trim();
+    safeOpen(SEARCHERS.google(term), "Google results for "+term);
+    return;
+  }
+  if(state.brain==="none"||!state.key){
+    renderFeed("TAP TO SEARCH WEB",[{h:"Google: "+text.slice(0,60),s:"tap to open web results",u:SEARCHERS.google(text)}]);
+    replyLocal("For a spoken answer I need my brain module — CONFIG, add a free Gemini key. Meanwhile I put a Google search on the feed, "+state.user+".");return;}
+  setReadout("Processing…");radar.classList.add("thinking");
+  try{
+    const res=await askBrain(text);
+    if(res.action)runAction(res.action);
+    if(!res.action||res.action.type==="none"){
+      renderFeed("ANSWER",[{h:res.speak?String(res.speak).slice(0,120):"Done.",s:""},{h:"Search Google: "+text.slice(0,50),s:"tap for web results",u:SEARCHERS.google(text)}]);
+    }
+    const say=res.speak||"Done.";
+    setReadout(say);logLine("j",state.assistant+": "+say);speak(say);
+  }catch(err){
+    const msg=(err&&err.message==="RATE")
+      ?"The free brain quota needs a short breather, "+state.user+". Wait ten seconds and ask me again."
+      :"I couldn't reach the brain. Check the API key in CONFIG. I put a Google search on the feed instead.";
+    renderFeed("TAP TO SEARCH WEB",[{h:"Google: "+text.slice(0,60),s:"brain busy - tap for web results",u:SEARCHERS.google(text)}]);
+    setReadout(msg);logLine("sys","▸ "+(err.message||err));speak(msg);
+  }finally{radar.classList.remove("thinking");}
+}
+function litPanelSafe(){try{const el=document.getElementById("panel-feed");el.style.borderColor="var(--amber)";setTimeout(()=>el.style.borderColor="",3000);}catch(e){}}
+function replyLocal(msg){setReadout(msg);logLine("j",state.assistant+": "+msg);speak(msg);}
+function systemPrompt(live){
+  return `You are ${state.assistant}, Karthik's proactive chief-of-staff and admin, in the style of Iron Man's JARVIS: decisive, competent, calm. Address him as ${state.user} occasionally.
+NON-NEGOTIABLE RULES:
+1. NEVER say "I'll analyze it", "we're analyzing", "working on it" or promise future work. You cannot work later. Deliver the FULL analysis NOW, in this reply, from the data below.
+2. When asked to analyze, review or advise: give your verdict first, then 2-3 reasons, then concrete next steps.
+3. ALWAYS end "speak" with the single most important next action, phrased as "Next: ...".
+4. If data is missing, say exactly what is missing and the fastest way for Karthik to get it. Never pretend or stall.
+5. Put step lists, breakdowns and follow-ups in the "feed" action (label like NEXT STEPS, ANALYSIS, FOLLOW-UPS). Keep "speak" to 2-4 spoken sentences.
+KARTHIK'S WORLD (authoritative):
+He runs four income ventures, target: live in 1-2 months, budget near zero. OneSafe: safety-document platform for Singapore construction, live MSRA library (129 activities, 3,639 anonymized hazard rows in his Supabase), toolbox talks in 6 languages, PE-design guides; upcoming: inspections, registers, permit-to-work, company logins; revenue: subscriptions. Little Sprout: Singapore new-parents guide app; survey goal of 15 responses reached; next: analyze responses and build the app as a PWA. Skai: dropshipping, learning phase, Page Pilot ready. Studio: paid video editing and marketing for a friend. Also: Coursiv AI course. Day job: lead safety coordinator at CES_SDC.
+Live roadmap state: ${JSON.stringify(projSummary())||"unavailable"}.
+${live||""}
+Venture knowledge base: ${Object.values(NOTES).map(n=>n.title+": "+n.content).join(" || ")||"loading"}
+You have NO direct email/calendar/drive access; if asked, say you'll open it on screen and include an "open" action.
+Reply with ONLY one JSON object, no markdown fences:
+{"speak": string, "action": {"type":"none"|"open"|"feed", ...}}
+- "speak": 2-4 short spoken sentences, plain text, ending with "Next: ...".
+- "open": {"type":"open","target":"gmail"|"calendar"|"drive"|"coursiv"|"survey"|"onesafe"|"dashboard"|"pagepilot"}
+- "feed": {"type":"feed","label":string,"items":[{"h":string,"s":string}]} for list-like answers.
+- else "none".`;
+}
+function parseJSON(raw){const clean=String(raw).replace(/```json|```/g,"").trim();
+  const m=clean.match(/\{[\s\S]*\}/);
+  try{return JSON.parse(m?m[0]:clean);}catch(_){return {speak:clean,action:{type:"none"}};}}
+let HIST=[]; // rolling conversation memory for the brain (persists across reloads)
+try{HIST=JSON.parse(localStorage.getItem("sk_hist")||"[]");}catch(e){}
+function saveHist(){try{localStorage.setItem("sk_hist",JSON.stringify(HIST.slice(-8)));}catch(e){}}
+async function liveContext(){
+  let live="";
+  try{
+    const td=await (await fetch(SB+"/todo?select=text,done&order=id.desc&limit=15",{headers:SBH})).json();
+    const open=td.filter(t=>!t.done).map(t=>t.text);
+    live+="Open to-dos right now: "+(open.length?open.join("; "):"none")+". ";
+    const b=(await (await fetch(SB+"/daily_brief?select=lines&order=id.desc&limit=1",{headers:SBH})).json())[0];
+    if(b) live+="Today's brief: "+b.lines.join(" ");
+  }catch(e){}
+  return live;
+}
+async function askBrain(text){
+  const live=await liveContext();
+  if(state.brain==="gemini"){
+    const MODELS=["gemini-3.1-flash-lite","gemini-3-flash-preview","gemini-flash-lite-latest","gemini-flash-latest"];
+    const contents=[...HIST.slice(-8).flatMap(h=>[{role:"user",parts:[{text:h.u}]},{role:"model",parts:[{text:h.a}]}]),
+      {role:"user",parts:[{text:text}]}];
+    const call=(m)=>{const ctl=new AbortController();setTimeout(()=>ctl.abort(),20000);
+      return fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${state.key}`,
+      {method:"POST",headers:{"Content-Type":"application/json"},signal:ctl.signal,
+       body:JSON.stringify({systemInstruction:{parts:[{text:systemPrompt(live)}]},
+        contents,
+        generationConfig:{responseMimeType:"application/json"}})}).catch(()=>({status:429,ok:false}));};
+    let r=null;
+    for(const m of MODELS){ r=await call(m); if(r.status!==429 && r.status!==404) break; }
+    if(r.status===429)throw new Error("RATE");
+    if(!r.ok)throw new Error("gemini HTTP "+r.status);
+    const data=await r.json();
+    const res=parseJSON(data?.candidates?.[0]?.content?.parts?.[0]?.text||"");
+    HIST.push({u:text,a:res.speak||""}); HIST=HIST.slice(-8); saveHist();
+    return res;
+  }
+  const msgs=[...HIST.slice(-8).flatMap(h=>[{role:"user",content:h.u},{role:"assistant",content:h.a}]),{role:"user",content:text}];
+  const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",
+    headers:{"Content-Type":"application/json","x-api-key":state.key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+    body:JSON.stringify({model:"claude-sonnet-4-5",max_tokens:800,system:systemPrompt(live),messages:msgs})});
+  if(!r.ok)throw new Error("brain HTTP "+r.status);
+  const data=await r.json();
+  const res=parseJSON((data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("\n"));
+  HIST.push({u:text,a:res.speak||""}); HIST=HIST.slice(-8); saveHist();
+  return res;
+}
+function runAction(a){
+  if(!a||!a.type||a.type==="none")return;
+  if(a.type==="open"&&LAUNCH[a.target]){safeOpen(LAUNCH[a.target],a.target);return;}
+  if(a.type==="feed"&&Array.isArray(a.items)){renderFeed((a.label||"RESULTS").toUpperCase(),a.items);}
+}
+/* ---- render ---- */
+function renderFeed(label,items){$("#feedTag").textContent=label;const ul=$("#feed");ul.innerHTML="";
+  if(!items.length){ul.innerHTML='<div class="empty">Nothing to show.</div>';return;}
+  items.slice(0,8).forEach(it=>{const li=document.createElement("li");
+    li.innerHTML=`<div class="h">${escapeHtml(it.h||"")}${it.u?' <span style="color:var(--amber)">↗</span>':''}</div>${it.s?`<div class="s">${escapeHtml(it.s)}</div>`:""}`;
+    if(it.u){li.style.cursor="pointer";li.onclick=()=>window.open(it.u,"_blank");}
+    ul.appendChild(li);});}
+function openInline(url,name){
+  let ov=document.getElementById("inlineOv");
+  if(!ov){
+    ov=document.createElement("div"); ov.id="inlineOv";
+    ov.innerHTML='<div class="ov-bar"><span id="ovTitle"></span><button id="ovClose" type="button">CLOSE ✕</button></div><iframe id="ovFrame" title="on-deck view"></iframe>';
+    document.body.appendChild(ov);
+    document.getElementById("ovClose").onclick=()=>{ov.classList.remove("open");document.getElementById("ovFrame").src="about:blank";};
+  }
+  document.getElementById("ovTitle").textContent=String(name||"VIEW");
+  document.getElementById("ovFrame").src=url;
+  ov.classList.add("open");
+  replyLocal("On the deck: "+name+", "+state.user+". Say close view when done.");
+}
+function safeOpen(url,name){
+  // our own pages open INSIDE the deck (voice-safe, no popup blocking)
+  if(!/^https?:/i.test(url)){ openInline(url,name); return true; }
+  const w=window.open(url,"_blank");
+  if(w){replyLocal(`Opening ${name}, ${state.user}.`);return true;}
+  renderFeed("TAP TO OPEN",[{h:name,s:url.slice(0,60),u:url}]);
+  replyLocal(`Chrome blocked me from opening tabs by voice, ${state.user}. I put ${name} on the intel feed, tap it. To fix forever: click the blocked-popup icon in the address bar and choose Always allow.`);
+  return false;
+}
+var taskProj="safeframe";
+function renderTasks(pid){
+  if(pid)taskProj=pid;
+  const ul=$("#tasks");ul.innerHTML="";
+  const s=dash();
+  if(!s){ul.innerHTML='<div class="empty">Open Mission Control once in this browser. Your roadmap appears here, live-synced.</div>';return;}
+  const p=s.projects.find(x=>x.id===taskProj)||s.projects[0];
+  $("#taskTag").textContent=p.title.split("—")[0].trim().toUpperCase();
+  const steps=p.phases.flatMap((ph,pi)=>ph.steps.map((st,si)=>({st,pi,si})));
+  const open=steps.filter(x=>!x.st.d).slice(0,6), done=steps.filter(x=>x.st.d).slice(-2);
+  [...done,...open].forEach(({st,pi,si})=>{
+    const li=document.createElement("li");if(st.d)li.classList.add("done");
+    li.innerHTML=`<span class="box">${st.d?"✓":""}</span><span class="txt">${escapeHtml(st.t.length>75?st.t.slice(0,75)+"…":st.t)}</span>`;
+    li.querySelector(".box").onclick=()=>{
+      const cur=dash();const pp=cur.projects.find(x=>x.id===p.id);
+      pp.phases[pi].steps[si].d=!pp.phases[pi].steps[si].d;saveDash(cur);renderTasks();renderLocalMetrics();};
+    ul.appendChild(li);});
+}
+function escapeHtml(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+/* ---- command line ---- */
+$("#sendBtn").onclick=sendTyped;
+$("#cmdInput").addEventListener("keydown",e=>{if(e.key==="Enter")sendTyped();});
+function sendTyped(){const v=$("#cmdInput").value.trim();if(!v)return;$("#cmdInput").value="";convo=false;handleCommand(v);}
+/* ---- config ---- */
+const modal=$("#modal");
+$("#gearBtn").onclick=()=>{syncSettingsUI();modal.classList.add("open");};
+$("#closeBtn").onclick=()=>modal.classList.remove("open");
+modal.addEventListener("click",e=>{if(e.target===modal)modal.classList.remove("open");});
+$("#setBrain").onchange=updateBrainUI;
+function syncSettingsUI(){$("#setName").value=state.assistant;$("#setUser").value=state.user;
+  $("#setBrain").value=state.brain;$("#setKey").value=state.key;
+  $("#setGClient").value=state.gclient||"";gStatus();
+  $("#gconnBtn").onclick=()=>{state.gclient=$("#setGClient").value.trim();saveCfg();gConnect(true);};
+  const sel=$("#setVoice");sel.innerHTML='<option value="">Auto (British male if available)</option>';
+  speechSynthesis.getVoices().filter(v=>/^en/i.test(v.lang)||state.voiceName===v.name).forEach(v=>{
+    const o=document.createElement("option");o.value=v.name;o.textContent=v.name.replace(/Microsoft |Google /,"")+" ("+v.lang+")";
+    if(v.name===state.voiceName)o.selected=true;sel.appendChild(o);});
+  $("#setRate").value=state.rate||1.04;$("#setPitch").value=state.pitch||0.9;
+  $("#rateVal").textContent=(state.rate||1.04).toFixed(2);$("#pitchVal").textContent=(state.pitch||0.9).toFixed(2);
+  $("#setRate").oninput=e=>$("#rateVal").textContent=Number(e.target.value).toFixed(2);
+  $("#setPitch").oninput=e=>$("#pitchVal").textContent=Number(e.target.value).toFixed(2);
+  $("#testVoice").onclick=()=>{const vs=speechSynthesis.getVoices();
+    const v=vs.find(x=>x.name===$("#setVoice").value);
+    speechSynthesis.cancel();const u=new SpeechSynthesisUtterance("Good "+(new Date().getHours()<12?"morning":"day")+", "+($("#setUser").value||"Sir")+". This is how I sound.");
+    if(v)u.voice=v;u.rate=Number($("#setRate").value);u.pitch=Number($("#setPitch").value);speechSynthesis.speak(u);};
+  updateBrainUI();}
+function updateBrainUI(){const b=$("#setBrain").value;
+  $("#keyField").style.display=b==="none"?"none":"block";
+  const help={none:"Free. Works now: open apps, status reports, roadmap next-steps, OneSafe hazard search, wake word.",
+    gemini:"Free key, no card needed. Adds full conversation with your ventures as context.",
+    anthropic:"Your Claude API key, pay-as-you-go. The smartest option."};
+  $("#brainHelp").textContent=help[b];
+  if(b==="gemini")$("#keyHelp").innerHTML='Get one free at <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>. The key stays on this computer.';
+  if(b==="anthropic")$("#keyHelp").innerHTML='Get one at <a href="https://console.anthropic.com" target="_blank" rel="noopener">console.anthropic.com</a>. The key stays on this computer.';}
+$("#saveBtn").onclick=()=>{state.assistant=$("#setName").value.trim()||"SK";state.user=$("#setUser").value.trim()||"Sir";
+  state.brain=$("#setBrain").value;state.key=$("#setKey").value.trim();
+  state.gclient=$("#setGClient").value.trim();
+  state.voiceName=$("#setVoice").value;state.rate=Number($("#setRate").value);state.pitch=Number($("#setPitch").value);
+  pickVoice();saveCfg();
+  applyIdentity();modal.classList.remove("open");
+  replyLocal(state.assistant+" reconfigured and ready, "+state.user+".");};
+</script>
+</body>
+</html>
