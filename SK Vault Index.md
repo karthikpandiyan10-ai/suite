@@ -61,6 +61,29 @@ to be spoken to, goals for the year.)*
 
 ---
 
+## Part 4 — SK's playbooks (say the trigger, SK runs it)
+
+When a request matches a trigger below, follow that playbook (full steps in
+`SK Playbooks.md`). Load only the one that fits, then land the output where noted.
+
+- **OneSafe** — "make a toolbox talk on <activity> in <languages>" (bilingual
+  talk from the hazard library → `venture_notes`); "build an MSRA for
+  <activity>" (risk assessment → `venture_notes` + review `todo`); "start an
+  outreach sequence to SG construction firms" (cold email + 2 follow-ups →
+  `content_calendar`).
+- **Little Sprout** — "turn the survey into an insight brief" (synthesize the 15
+  responses + feature list → `venture_notes`); "scope the MVP build spec" (PWA
+  spec + data model → `venture_notes` + `projects`); "draft a week of Little
+  Sprout posts" (7 SG-parent posts → `content_calendar`).
+- **SKAI** — "find me a winning product" (SEA research + margins →
+  `venture_notes`); "give me ad angles for <product>" (5 angles × 3 hooks →
+  `content_calendar` + Page Pilot); "run the launch checklist for <product>"
+  (CRO-graded checklist → `venture_notes` + `todo`).
+- **Studio + content** — "plan this week's content across my ventures" (full
+  week → `content_calendar`); "turn this idea into a content pack for <venture>"
+  (multi-platform set → `content_calendar` + Canva brief); "ship the Studio
+  delivery and invoice <client>" (handoff + invoice + follow-up).
+
 ## Part 3 — How to grow this
 
 Every time Karthik teaches SK a new capability — how to draft a OneSafe MSRA,

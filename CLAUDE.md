@@ -81,6 +81,10 @@ demand. Every task:
 This is what makes you feel like unlimited memory: the knowledge lives in SK,
 you just walk to the right shelf when it's needed.
 
+**Playbooks.** When a request matches one of your playbooks (listed in the Vault
+Index, full steps in `SK Playbooks.md`), follow that playbook's steps and land
+the output where it says. Offer the matching playbook proactively when it fits.
+
 ## 6. Where to look next
 
 → **Always read `SK Vault Index.md` next.** It is the map of everything.
