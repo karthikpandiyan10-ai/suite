@@ -1160,8 +1160,10 @@ async function handleCommand(text){
       replyLocal(`Marked complete: ${rows[0].text}. Well done, ${state.user}.`);
     }catch(e){replyLocal("Couldn't update the task.");}
     return;}
-  // OneSafe hazard search — ONLY when he says hazard / msra / risk / onesafe
-  if(/\b(hazards?|msra|risks?|one ?safe)\b/.test(low) && /\b(search|find|look|check|show|hazards?|risks?|what)\b/.test(low)){
+  // A planning / advice / creation question must go to the BRAIN, not local search handlers.
+  const thinkq=/\b(analy[sz]e|review|advise|advice|opinion|feedback|why|how|should|recommend|suggest|compare|improve|plan|plan for|prioriti[sz]e|strateg(?:y|ise|ize)|think|idea|ideas|help me|draft|write|make|generate|create|prepare|brainstorm|come up|grow|focus|what should|how do i)\b/.test(low);
+  // OneSafe hazard search — ONLY for explicit hazard/MSRA lookups, never planning questions.
+  if(/\b(hazards?|msra|toolbox talks?|risk assessment)\b/.test(low) && !thinkq){
     const term=low.replace(/\b(search|find|look ?up|check|show me|show|me|what|are|the|for|about|on|in|of|hazards?|msra|one ?safe|risks?|risk assessment)\b/g," ").replace(/\s+/g," ").trim();
     if(term.length>2){
       setReadout("Searching OneSafe: "+term);
@@ -1179,7 +1181,6 @@ async function handleCommand(text){
   // SITE CATCH: if he mentions a known site ANYWHERE in the sentence, act on it.
   // "i'm gonna go google" -> open Google. "check on google about lifting plans" -> google-search "lifting plans".
   let sc=low.match(/\b(youtube|google|whatsapp|gmail|drive|calendar|shopee|lazada|amazon|aliexpress|tiktok|facebook|instagram|insta|linkedin|canva|shopify|jasper|chatgpt|claude|coursiv|supabase|mom|wsh|onesafe|one ?safe|dashboard|little ?sprout|sprout)\b/);
-  const thinkq=/\b(analy[sz]e|review|advise|advice|opinion|feedback|why|how|should|recommend|suggest|compare|improve|plan for|strategy|think)\b/.test(low);
   if(sc && !thinkq){
     let key=sc[1].replace(/\s+/g,"");
     // words after the site name = search term (minus glue words)
