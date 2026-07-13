@@ -45,6 +45,15 @@ tailwind.config = {
   .bg-oj-cream-deep { background-color:#F4EDDD; }
   .oj-fade-in { opacity:0; transform:translateY(12px); transition:opacity .9s ease, transform .9s ease; }
   .oj-fade-in.is-visible { opacity:1; transform:translateY(0); }
+  /* hero animation */
+  .oj-sun-anim { transform-box:fill-box; transform-origin:center; animation:ojsun 6s ease-in-out infinite; }
+  @keyframes ojsun { 0%,100%{transform:scale(1)} 50%{transform:scale(1.045)} }
+  .oj-heart-svg { transform-box:fill-box; transform-origin:center; animation:ojbeat 2.6s ease-in-out infinite; }
+  @keyframes ojbeat { 0%,100%{transform:scale(1)} 12%{transform:scale(1.22)} 26%{transform:scale(1)} }
+  .oj-hearts { position:absolute; inset:0; pointer-events:none; overflow:hidden; }
+  .oj-heart { position:absolute; bottom:-26px; font-size:20px; color:#E07856; opacity:0; animation:ojfloat 8s ease-in-out infinite; }
+  @keyframes ojfloat { 0%{opacity:0;transform:translateY(0) scale(.75)} 14%{opacity:.9} 78%{opacity:.5} 100%{opacity:0;transform:translateY(-300px) scale(1.05)} }
+  @media (prefers-reduced-motion:reduce){ .oj-sun-anim,.oj-heart-svg,.oj-heart{animation:none} }
 </style>
 </head>
 <body class="min-h-screen bg-background text-foreground">
@@ -83,9 +92,43 @@ tailwind.config = {
     </div>
     <div class="oj-fade-in relative">
       <div class="absolute -inset-6 rounded-[2rem] bg-primary/10 blur-3xl" aria-hidden></div>
-      <div class="relative overflow-hidden rounded-[2rem] shadow-2xl ring-1 ring-black/5 aspect-[8/7] flex items-end" style="background:linear-gradient(160deg,#F3E7D4 0%,#EAC69A 45%,#C98F6A 78%,#8F6A57 100%)">
-        <div class="p-8 text-white/95">
-          <p class="text-sm font-semibold" style="font-family:Fraunces,serif;font-size:22px;text-shadow:0 1px 8px rgba(0,0,0,.25)">Two pink lines.<br>A whole journey ahead.</p>
+      <div class="relative overflow-hidden rounded-[2rem] shadow-2xl ring-1 ring-black/5 aspect-[8/7]">
+        <svg viewBox="0 0 800 700" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A gentle sunrise over calm hills">
+          <defs>
+            <linearGradient id="oj-sky" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#FBF3E6"/>
+              <stop offset="0.5" stop-color="#F6E3C7"/>
+              <stop offset="1" stop-color="#EAC79A"/>
+            </linearGradient>
+            <radialGradient id="oj-sun" cx="0.5" cy="0.5" r="0.5">
+              <stop offset="0" stop-color="#FCE8BD"/>
+              <stop offset="0.65" stop-color="#EDBB63"/>
+              <stop offset="1" stop-color="#DCA94B"/>
+            </radialGradient>
+            <linearGradient id="oj-h1" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#77AC80"/><stop offset="1" stop-color="#4C8A5E"/>
+            </linearGradient>
+            <linearGradient id="oj-h2" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#3E7A54"/><stop offset="1" stop-color="#2F5E42"/>
+            </linearGradient>
+          </defs>
+          <rect width="800" height="700" fill="url(#oj-sky)"/>
+          <circle class="oj-sun-anim" cx="410" cy="360" r="235" fill="#F4CE86" opacity="0.28"/>
+          <circle class="oj-sun-anim" cx="410" cy="360" r="150" fill="url(#oj-sun)"/>
+          <g fill="none" stroke="#C99F6C" stroke-width="3" stroke-linecap="round" opacity="0.6">
+            <path d="M150 150 q 22 -18 44 0"/><path d="M180 150 q 22 -18 44 0"/>
+            <path d="M600 200 q 20 -16 40 0"/><path d="M626 200 q 20 -16 40 0"/>
+          </g>
+          <path d="M0 470 Q 200 400 400 452 T 800 442 V700 H0 Z" fill="url(#oj-h1)"/>
+          <path d="M0 545 Q 260 480 520 528 T 800 520 V700 H0 Z" fill="url(#oj-h2)"/>
+          <g class="oj-heart-svg" fill="#DCA94B" opacity="0.9">
+            <path d="M405 610c-4-8-16-10-16-2 0 6 9 11 16 16 7-5 16-10 16-16 0-8-12-6-16 2z"/>
+          </g>
+        </svg>
+        <div class="oj-hearts" aria-hidden="true">
+          <span class="oj-heart" style="left:24%;animation-delay:0s">&#10084;</span>
+          <span class="oj-heart" style="left:48%;animation-delay:2.6s;font-size:26px">&#10084;</span>
+          <span class="oj-heart" style="left:70%;animation-delay:5s">&#10084;</span>
         </div>
       </div>
       <div class="absolute -bottom-5 -left-5 hidden rounded-2xl border border-border/70 bg-card px-4 py-3 shadow-lg sm:block">
@@ -190,11 +233,8 @@ tailwind.config = {
   <div class="mx-auto max-w-4xl px-6 py-20">
     <div class="oj-fade-in rounded-3xl border border-border/70 bg-card p-6 shadow-sm sm:p-8">
       <div class="grid gap-6 sm:grid-cols-[140px_1fr] sm:items-center sm:gap-8">
-        <div class="relative mx-auto w-[140px] shrink-0 sm:mx-0">
-          <div class="w-full rounded-md shadow-md ring-1 ring-black/5 aspect-[7/9] flex flex-col justify-end p-4 text-center" style="background:linear-gradient(180deg,#F3E7D4,#E7B984 70%,#C9A079)">
-            <div style="font-family:Fraunces,serif;font-weight:600;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:#6E4F32">One Journey</div>
-            <div style="font-family:Fraunces,serif;font-weight:600;font-size:20px;line-height:1.1;color:#241A12;margin-top:8px">You Are<br>Not Alone</div>
-          </div>
+        <div class="relative mx-auto w-[150px] shrink-0 sm:mx-0">
+          <img src="ebook-cover.jpg" alt="You Are Not Alone — ebook cover" width="520" height="673" loading="lazy" class="w-full rounded-md shadow-md ring-1 ring-black/5" />
         </div>
         <div>
           <p class="oj-eyebrow mb-2 flex items-center gap-2"><i data-lucide="book-heart" class="h-3.5 w-3.5 oj-gold"></i> Optional add-on</p>
