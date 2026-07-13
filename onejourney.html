@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>One Journey · From two pink lines to day 100</title>
+<meta name="description" content="One Journey — a calm week-by-week companion for Singapore parents, from pregnancy test to day 100. For mums and dads.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        background: "#FBF7F0",
+        foreground: "#33403A",
+        card: "#FFFFFF",
+        "card-foreground": "#33403A",
+        primary: "#2F5E42",
+        "primary-foreground": "#FBFAF5",
+        secondary: "#4C8A5E",
+        muted: "#EDE7DB",
+        "muted-foreground": "#8A8F87",
+        accent: "#E07856",
+        gold: "#DCA94B",
+        border: "#ECE5D8",
+      },
+      fontFamily: {
+        serif: ["Fraunces", "Georgia", "serif"],
+        sans: ["'Nunito Sans'", "ui-sans-serif", "system-ui", "sans-serif"],
+      },
+    },
+  },
+};
+</script>
+<style>
+  html { scroll-behavior: smooth; }
+  body { font-family: "Nunito Sans", ui-sans-serif, system-ui, sans-serif; line-height: 1.6; -webkit-font-smoothing: antialiased; background:#FBF7F0; color:#33403A; }
+  h1,h2,h3,h4 { font-family: "Fraunces", Georgia, serif; font-optical-sizing:auto; letter-spacing:-0.015em; line-height:1.15; font-weight:500; }
+  .oj-eyebrow { font-size:12px; letter-spacing:.08em; text-transform:uppercase; font-weight:600; color:#8A8F87; }
+  .oj-gold { color:#DCA94B; }
+  .bg-oj-cream-deep { background-color:#F4EDDD; }
+  .oj-fade-in { opacity:0; transform:translateY(12px); transition:opacity .9s ease, transform .9s ease; }
+  .oj-fade-in.is-visible { opacity:1; transform:translateY(0); }
+</style>
+</head>
+<body class="min-h-screen bg-background text-foreground">
+
+<!-- HEADER -->
+<header id="top" class="sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur-md">
+  <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+    <a href="#top" class="inline-flex items-center gap-2 tracking-tight text-primary">
+      <span aria-hidden class="inline-block h-2.5 w-2.5 rounded-full bg-primary"></span>
+      <span class="text-lg font-semibold" style="font-family:Fraunces,serif">One Journey</span>
+    </a>
+    <nav class="hidden items-center gap-8 md:flex">
+      <a href="#how" class="text-sm text-muted-foreground transition-colors hover:text-primary">How it works</a>
+      <a href="#features" class="text-sm text-muted-foreground transition-colors hover:text-primary">Features</a>
+      <a href="#wellbeing" class="text-sm text-muted-foreground transition-colors hover:text-primary">Well-being</a>
+      <a href="#reviews" class="text-sm text-muted-foreground transition-colors hover:text-primary">Reviews</a>
+    </nav>
+    <a href="#start" class="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md">Start your journey</a>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="relative overflow-hidden">
+  <div class="mx-auto grid max-w-6xl gap-12 px-6 pb-20 pt-16 md:grid-cols-[1.05fr_1fr] md:items-center md:gap-16 md:pt-24 md:pb-28">
+    <div class="oj-fade-in">
+      <p class="oj-eyebrow mb-6 flex items-center gap-2">
+        <i data-lucide="sparkles" class="h-3.5 w-3.5 oj-gold"></i> For Singapore parents
+      </p>
+      <h1 class="text-[44px] leading-[1.03] tracking-tight text-primary sm:text-[56px] md:text-[64px]">From two pink lines<br>to day 100.</h1>
+      <p class="mt-6 max-w-lg text-base leading-relaxed text-muted-foreground sm:text-lg">One clear answer, every week — for the tired nights, the big scans, and everything nobody tells you. For mums <em class="not-italic text-foreground">and</em> dads.</p>
+      <div class="mt-8 flex flex-wrap items-center gap-4">
+        <a href="#start" class="inline-flex items-center gap-2 rounded-full bg-primary px-7 py-3.5 text-sm font-semibold text-primary-foreground shadow-md transition-all hover:-translate-y-0.5 hover:shadow-lg">Start your journey <i data-lucide="arrow-right" class="h-4 w-4"></i></a>
+        <a href="#how" class="text-sm font-medium text-foreground/80 underline-offset-4 hover:text-primary hover:underline">See how it works →</a>
+      </div>
+      <p class="mt-6 text-xs text-muted-foreground">No forums. No ten opinions. One calm plan.</p>
+    </div>
+    <div class="oj-fade-in relative">
+      <div class="absolute -inset-6 rounded-[2rem] bg-primary/10 blur-3xl" aria-hidden></div>
+      <div class="relative overflow-hidden rounded-[2rem] shadow-2xl ring-1 ring-black/5 aspect-[8/7] flex items-end" style="background:linear-gradient(160deg,#F3E7D4 0%,#EAC69A 45%,#C98F6A 78%,#8F6A57 100%)">
+        <div class="p-8 text-white/95">
+          <p class="text-sm font-semibold" style="font-family:Fraunces,serif;font-size:22px;text-shadow:0 1px 8px rgba(0,0,0,.25)">Two pink lines.<br>A whole journey ahead.</p>
+        </div>
+      </div>
+      <div class="absolute -bottom-5 -left-5 hidden rounded-2xl border border-border/70 bg-card px-4 py-3 shadow-lg sm:block">
+        <p class="oj-eyebrow mb-1">This week</p>
+        <p class="text-sm font-semibold text-foreground">Week 20 · Anomaly scan</p>
+        <p class="text-xs text-muted-foreground">Book at your polyclinic or KKH.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how" class="border-t border-border/60">
+  <div class="mx-auto max-w-6xl px-6 py-24">
+    <div class="oj-fade-in max-w-2xl">
+      <p class="oj-eyebrow mb-4">How it works</p>
+      <h2 class="text-3xl tracking-tight text-primary sm:text-4xl">A calm plan for a season that isn't calm.</h2>
+    </div>
+    <div class="mt-14 grid gap-6 md:grid-cols-3">
+      <div class="oj-fade-in rounded-2xl border border-border/70 bg-card p-7 shadow-sm">
+        <p class="text-2xl" style="font-family:Fraunces,serif;color:#E07856">01</p>
+        <h3 class="mt-4 text-xl text-foreground">Tell us where you are</h3>
+        <p class="mt-3 text-sm leading-relaxed text-muted-foreground">Pregnant, know your due date, or baby is already here — a few gentle questions, that's it.</p>
+      </div>
+      <div class="oj-fade-in rounded-2xl border border-border/70 bg-card p-7 shadow-sm">
+        <p class="text-2xl" style="font-family:Fraunces,serif;color:#E07856">02</p>
+        <h3 class="mt-4 text-xl text-foreground">Get your week-by-week plan</h3>
+        <p class="mt-3 text-sm leading-relaxed text-muted-foreground">What to do this week and why it matters — for mum, for dad, for the two of you together.</p>
+      </div>
+      <div class="oj-fade-in rounded-2xl border border-border/70 bg-card p-7 shadow-sm">
+        <p class="text-2xl" style="font-family:Fraunces,serif;color:#E07856">03</p>
+        <h3 class="mt-4 text-xl text-foreground">Do one small thing at a time</h3>
+        <p class="mt-3 text-sm leading-relaxed text-muted-foreground">Tick it off and breathe. Tomorrow we'll gently show you the next one.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features" class="border-t border-border/60 bg-oj-cream-deep">
+  <div class="mx-auto max-w-6xl px-6 py-24">
+    <div class="oj-fade-in max-w-2xl">
+      <p class="oj-eyebrow mb-4">What's inside</p>
+      <h2 class="text-3xl tracking-tight text-primary sm:text-4xl">Everything the WhatsApp groups can't give you.</h2>
+      <p class="mt-4 text-base leading-relaxed text-muted-foreground">One quiet companion, made for the way Singapore parents actually live — checklists, reminders, benefits, and a hand for dad too.</p>
+    </div>
+    <div class="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <div class="oj-fade-in rounded-2xl border border-border/70 bg-card p-6 shadow-sm transition-shadow hover:shadow-md">
+        <div class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary"><i data-lucide="calendar-check" class="h-5 w-5"></i></div>
+        <h3 class="mt-5 text-lg text-foreground">Week-by-week guidance</h3>
+        <p class="mt-2 text-sm leading-relaxed text-muted-foreground">Exactly what to do now, why it matters — no scrolling, no second-guessing.</p>
+      </div>
+      <div class="oj-fade-in rounded-2xl border border-border/70 bg-card p-6 shadow-sm transition-shadow hover:shadow-md">
+        <div class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary"><i data-lucide="heart-handshake" class="h-5 w-5"></i></div>
+        <h3 class="mt-5 text-lg text-foreground">Dad Mode</h3>
+        <p class="mt-2 text-sm leading-relaxed text-muted-foreground">Every step shows what dads can actually do — quiet, useful, real.</p>
+      </div>
+      <div class="oj-fade-in rounded-2xl border border-border/70 bg-card p-6 shadow-sm transition-shadow hover:shadow-md">
+        <div class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary"><i data-lucide="bell" class="h-5 w-5"></i></div>
+        <h3 class="mt-5 text-lg text-foreground">Appointment reminders</h3>
+        <p class="mt-2 text-sm leading-relaxed text-muted-foreground">Scans and checks, added to your phone calendar in one tap.</p>
+      </div>
+      <div class="oj-fade-in rounded-2xl border border-border/70 bg-card p-6 shadow-sm transition-shadow hover:shadow-md">
+        <div class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary"><i data-lucide="clipboard-list" class="h-5 w-5"></i></div>
+        <h3 class="mt-5 text-lg text-foreground">Smart checklists</h3>
+        <p class="mt-2 text-sm leading-relaxed text-muted-foreground">Hospital bag, before-baby, admin & money — small lists, done together.</p>
+      </div>
+      <div class="oj-fade-in rounded-2xl border border-border/70 bg-card p-6 shadow-sm transition-shadow hover:shadow-md">
+        <div class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary"><i data-lucide="coins" class="h-5 w-5"></i></div>
+        <h3 class="mt-5 text-lg text-foreground">Singapore money guide</h3>
+        <p class="mt-2 text-sm leading-relaxed text-muted-foreground">Baby Bonus, CDA, MediSave, leave — with the one action to claim each.</p>
+      </div>
+      <div class="oj-fade-in rounded-2xl border border-border/70 bg-card p-6 shadow-sm transition-shadow hover:shadow-md">
+        <div class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary"><i data-lucide="sparkles" class="h-5 w-5"></i></div>
+        <h3 class="mt-5 text-lg text-foreground">Little blessings & milestones</h3>
+        <p class="mt-2 text-sm leading-relaxed text-muted-foreground">Gentle daily encouragement — full-month, day 100, and the tiny wins in between.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BENEFITS BAND -->
+<section class="border-t border-border/60">
+  <div class="mx-auto max-w-6xl px-6 py-16">
+    <div class="oj-fade-in relative overflow-hidden rounded-3xl p-10 text-primary-foreground shadow-xl sm:p-14" style="background:linear-gradient(135deg,#2F5E42 0%,#4C8A5E 60%,#5FA06E 100%)">
+      <div class="absolute -right-16 -top-16 h-64 w-64 rounded-full bg-white/10 blur-3xl" aria-hidden></div>
+      <p class="oj-eyebrow mb-4" style="color:rgba(255,255,255,0.75)">Singapore benefits, made simple</p>
+      <h2 class="max-w-2xl text-3xl leading-tight tracking-tight sm:text-4xl" style="color:#fff">The support you're already entitled to — claimed, not missed.</h2>
+      <div class="mt-8 flex flex-wrap gap-3">
+        <span class="inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-2 text-sm font-semibold backdrop-blur"><i data-lucide="check" class="h-4 w-4 oj-gold"></i> S$11,000 Baby Bonus</span>
+        <span class="inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-2 text-sm font-semibold backdrop-blur"><i data-lucide="check" class="h-4 w-4 oj-gold"></i> Up to S$7,000 CDA match</span>
+        <span class="inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-2 text-sm font-semibold backdrop-blur"><i data-lucide="check" class="h-4 w-4 oj-gold"></i> S$5,000 MediSave grant</span>
+        <span class="inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-2 text-sm font-semibold backdrop-blur"><i data-lucide="check" class="h-4 w-4 oj-gold"></i> 16 + 4 + 10 weeks leave</span>
+      </div>
+      <p class="mt-8 max-w-2xl text-sm" style="color:rgba(255,255,255,0.85)">We tell you the one action to claim each — nothing missed, nothing scary.</p>
+    </div>
+  </div>
+</section>
+
+<!-- WELLBEING (EBOOK ADD-ON, S$6) -->
+<section id="wellbeing" class="border-t border-border/60">
+  <div class="mx-auto max-w-4xl px-6 py-20">
+    <div class="oj-fade-in rounded-3xl border border-border/70 bg-card p-6 shadow-sm sm:p-8">
+      <div class="grid gap-6 sm:grid-cols-[140px_1fr] sm:items-center sm:gap-8">
+        <div class="relative mx-auto w-[140px] shrink-0 sm:mx-0">
+          <div class="w-full rounded-md shadow-md ring-1 ring-black/5 aspect-[7/9] flex flex-col justify-end p-4 text-center" style="background:linear-gradient(180deg,#F3E7D4,#E7B984 70%,#C9A079)">
+            <div style="font-family:Fraunces,serif;font-weight:600;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:#6E4F32">One Journey</div>
+            <div style="font-family:Fraunces,serif;font-weight:600;font-size:20px;line-height:1.1;color:#241A12;margin-top:8px">You Are<br>Not Alone</div>
+          </div>
+        </div>
+        <div>
+          <p class="oj-eyebrow mb-2 flex items-center gap-2"><i data-lucide="book-heart" class="h-3.5 w-3.5 oj-gold"></i> Optional add-on</p>
+          <h3 class="text-2xl tracking-tight text-primary">The Well-being ebook</h3>
+          <p class="mt-2 text-sm leading-relaxed text-muted-foreground"><span class="font-semibold text-foreground">You Are Not Alone</span> — real solutions for the hard days of parenting.</p>
+          <div class="mt-5 flex flex-wrap items-center gap-4">
+            <a href="https://buy.stripe.com/test_8x2cMY0suavEfkb7DLgIo01" target="_blank" rel="noopener noreferrer" class="inline-flex items-center rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md">Buy the ebook</a>
+            <p class="text-sm font-semibold text-foreground">S$6</p>
+            <p class="text-xs text-muted-foreground">Instant PDF · sent to your inbox</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- REVIEWS -->
+<section id="reviews" class="border-t border-border/60 bg-oj-cream-deep">
+  <div class="mx-auto max-w-6xl px-6 py-24">
+    <div class="oj-fade-in max-w-2xl">
+      <p class="oj-eyebrow mb-4">Kind words</p>
+      <h2 class="text-3xl tracking-tight text-primary sm:text-4xl">From parents like you</h2>
+    </div>
+    <div class="mt-14 grid gap-6 md:grid-cols-3">
+      <figure class="oj-fade-in rounded-2xl border border-border/70 bg-card p-7 shadow-sm transition-shadow hover:shadow-md">
+        <svg width="24" height="18" viewBox="0 0 24 18" class="oj-gold" fill="currentColor" aria-hidden><path d="M0 18V9C0 4 3 0 8 0v3C5 3 3 5 3 9h5v9H0Zm13 0V9c0-5 3-9 8-9v3c-3 0-5 2-5 6h5v9h-8Z"/></svg>
+        <blockquote class="mt-5 text-[15px] leading-relaxed text-foreground/85">I stopped opening five apps and three group chats. One Journey just tells me what I actually need to do this week.</blockquote>
+        <figcaption class="mt-6 text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Nadia · first-time mum, 28 weeks</figcaption>
+      </figure>
+      <figure class="oj-fade-in rounded-2xl border border-border/70 bg-card p-7 shadow-sm transition-shadow hover:shadow-md">
+        <svg width="24" height="18" viewBox="0 0 24 18" class="oj-gold" fill="currentColor" aria-hidden><path d="M0 18V9C0 4 3 0 8 0v3C5 3 3 5 3 9h5v9H0Zm13 0V9c0-5 3-9 8-9v3c-3 0-5 2-5 6h5v9h-8Z"/></svg>
+        <blockquote class="mt-5 text-[15px] leading-relaxed text-foreground/85">Dad Mode is the first thing that made me feel useful. I finally know what to book, pack and ask.</blockquote>
+        <figcaption class="mt-6 text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Wei Ming · new dad</figcaption>
+      </figure>
+      <figure class="oj-fade-in rounded-2xl border border-border/70 bg-card p-7 shadow-sm transition-shadow hover:shadow-md">
+        <svg width="24" height="18" viewBox="0 0 24 18" class="oj-gold" fill="currentColor" aria-hidden><path d="M0 18V9C0 4 3 0 8 0v3C5 3 3 5 3 9h5v9H0Zm13 0V9c0-5 3-9 8-9v3c-3 0-5 2-5 6h5v9h-8Z"/></svg>
+        <blockquote class="mt-5 text-[15px] leading-relaxed text-foreground/85">My husband's offshore for months. Having one calm plan on my phone feels like a hand on my back.</blockquote>
+        <figcaption class="mt-6 text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Priya · mum of two</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- START JOURNEY (SUBSCRIBE S$10/MONTH) -->
+<section id="start" class="border-t border-border/60">
+  <div class="mx-auto max-w-2xl px-6 py-24 text-center oj-fade-in">
+    <p class="oj-eyebrow mb-4">Start your journey</p>
+    <h2 class="text-3xl tracking-tight text-primary sm:text-4xl">Full access to One Journey.</h2>
+    <p class="mt-4 text-base text-muted-foreground">Your complete week-by-week companion — guidance, reminders, checklists, Dad Mode and the Singapore money guide. One calm plan for the whole journey.</p>
+    <div class="mt-8 flex flex-col items-center gap-3">
+      <a href="https://buy.stripe.com/test_aFa8wI8Z08nw6NFgahgIo02" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 rounded-full bg-primary px-8 py-4 text-sm font-semibold text-primary-foreground shadow-md transition-all hover:-translate-y-0.5 hover:shadow-lg">Subscribe · S$10/month <i data-lucide="arrow-right" class="h-4 w-4"></i></a>
+      <p class="text-xs text-muted-foreground">Full access · S$10/month · cancel anytime</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="border-t border-border/60 bg-card/40">
+  <div class="mx-auto max-w-6xl px-6 py-14">
+    <div class="flex flex-col items-start justify-between gap-8 md:flex-row md:items-center">
+      <a href="#top" class="inline-flex items-center gap-2 tracking-tight text-primary">
+        <span aria-hidden class="inline-block h-2.5 w-2.5 rounded-full bg-primary"></span>
+        <span class="text-lg font-semibold" style="font-family:Fraunces,serif">One Journey</span>
+      </a>
+      <nav class="flex flex-wrap gap-x-8 gap-y-3 text-sm text-muted-foreground">
+        <a href="#how" class="hover:text-primary">How it works</a>
+        <a href="#features" class="hover:text-primary">Features</a>
+        <a href="#wellbeing" class="hover:text-primary">Well-being</a>
+        <a href="#reviews" class="hover:text-primary">Reviews</a>
+        <a href="#start" class="hover:text-primary">Start</a>
+      </nav>
+    </div>
+    <div class="mt-10 rounded-2xl bg-primary/5 p-6 text-center text-sm leading-relaxed text-foreground/80">A companion, not a doctor — your clinic confirms exact timing. Verify government amounts on LifeSG.</div>
+    <p class="mt-8 text-center text-xs text-muted-foreground">© 2026 One Journey. Made with care for Singapore parents.</p>
+  </div>
+</footer>
+
+<script>
+  // reveal on scroll
+  const els = document.querySelectorAll(".oj-fade-in");
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("is-visible"); io.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  els.forEach((el) => io.observe(el));
+  // icons
+  if (window.lucide) lucide.createIcons();
+</script>
+</body>
+</html>
