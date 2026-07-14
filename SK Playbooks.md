@@ -10,7 +10,7 @@ follow it. Don't dump every playbook into a reply — run the one that fits.
 
 ---
 
-## OneSafe / SafeFrame
+## OneSafe  _(on hold until end of month — run only if Karthik explicitly asks)_
 
 ### Generate a Toolbox Talk
 **Trigger (say):** "SK, make me a toolbox talk on working at height in English and Tamil."
@@ -50,40 +50,40 @@ follow it. Don't dump every playbook into a reply — run the one that fits.
 
 ---
 
-## Little Sprout
+## One Journey
 
 ### Survey Insight Brief
-**Trigger (say):** "SK, turn the Little Sprout survey into an insight brief."
+**Trigger (say):** "SK, turn the One Journey survey into an insight brief."
 **SK does:** Pulls the 15 survey responses and produces a synthesized insight brief plus a prioritized feature list, so Karthik knows what to build first.
 **Steps:**
-1. "Open Little Sprout survey" to load the responses (or the linked Drive sheet); read all 15.
+1. "Open One Journey survey" to load the responses (or the linked Drive sheet); read all 15.
 2. Cluster into themes: top pain points, most-wanted features, stage coverage (expecting / newborn / toddler), pricing signals.
 3. Rank features by frequency × pain into a Must / Should / Later list.
-4. Write the brief to `venture_notes(venture='Little Sprout', title='Survey Insight Brief')`; log 3–5 open questions.
+4. Write the brief to `venture_notes(venture='One Journey', title='Survey Insight Brief')`; log 3–5 open questions.
 5. Drop the top 3 next actions into `todo`.
 **Output:** Insight brief + prioritized features in `venture_notes`, actions in `todo`, read back by voice.
 **Draws on skills:** synthesize-research, customer-research, product-management
 
 ### PWA MVP Build Spec
-**Trigger (say):** "SK, scope the Little Sprout MVP build spec."
+**Trigger (say):** "SK, scope the One Journey MVP build spec."
 **SK does:** Turns the prioritized features into a tight, buildable PWA spec scoped for a near-zero-budget solo build on Supabase.
 **Steps:**
 1. Read the Survey Insight Brief and feature list from `venture_notes`.
 2. Define the MVP cut: core screens (checklists, reminders, stage guidance), Must-haves only, and an explicit "not in v1" list.
 3. Draft the Supabase data model (stages, checklist_items, reminders, user_progress); note auth + PWA install/offline needs.
-4. Write the spec to `venture_notes(title='MVP Build Spec v1')`; create/update the `projects` row (Little Sprout, status='building').
+4. Write the spec to `venture_notes(title='MVP Build Spec v1')`; create/update the `projects` row (One Journey, status='building').
 5. Break the build into phased `todo` items (schema, checklist UI, reminders, stage content, deploy).
 **Output:** Build-ready spec in `venture_notes`, updated `projects` entry, phased `todo`, voice summary.
 **Draws on skills:** write-spec, roadmap-update, product-management, small-business
 
 ### Launch-Week Social Content
-**Trigger (say):** "SK, draft a week of Little Sprout social posts for SG parents."
+**Trigger (say):** "SK, draft a week of One Journey social posts for SG parents."
 **SK does:** Generates 7 days of on-brand posts (hooks + captions) for Singapore new/expecting parents and schedules them.
 **Steps:**
 1. Pull audience pain points and language from the Survey Insight Brief in `venture_notes`.
 2. Draft 7 posts across a mix (relatable pain, quick tip, checklist teaser, behind-the-build, waitlist CTA) with SG angles (baby bonus, hospital bag, confinement).
 3. Write each as a scroll-stopping hook + caption with a soft waitlist/lead-magnet CTA.
-4. Insert 7 rows into `content_calendar(venture='Little Sprout', ..., status='draft')` across the next week.
+4. Insert 7 rows into `content_calendar(venture='One Journey', ..., status='draft')` across the next week.
 5. Add a `todo` to review and approve before they go live.
 **Output:** 7 draft posts in `content_calendar`, approval task in `todo`, read back by voice.
 **Draws on skills:** content-strategy, social, launch, lead-magnets
@@ -134,7 +134,7 @@ follow it. Don't dump every playbook into a reply — run the one that fits.
 
 ### Weekly Cross-Venture Content Calendar
 **Trigger (say):** "SK, plan this week's content across all my ventures."
-**SK does:** Drafts a full week of platform-ready posts for OneSafe, Little Sprout, and SKAI and writes them into `content_calendar` as a ready-to-review schedule.
+**SK does:** Drafts a full week of platform-ready posts for OneSafe, One Journey, and SKAI and writes them into `content_calendar` as a ready-to-review schedule.
 **Steps:**
 1. Pull recent context from `venture_notes` (per venture) and check `content_calendar` for what already ran, so hooks don't repeat.
 2. Plan a balanced week: assign each post a `venture`, `platform`, `post_date`, `post_time` (best-time slots).

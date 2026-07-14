@@ -336,7 +336,7 @@ button.plain.on{background:var(--amber);color:#04121C;border-color:var(--amber)}
         <button onclick="handleCommand('my plan today')">TODAY</button>
         <button onclick="handleCommand('status report')">STATUS</button>
         <button onclick="handleCommand('what is next for one safe')">ONESAFE</button>
-        <button onclick="handleCommand('what is next for little sprout')">SPROUT</button>
+        <button onclick="handleCommand('what is next for one journey')">ONE JOURNEY</button>
         <button onclick="handleCommand('what is next for skai')">SKAI</button>
         <button onclick="handleCommand('open dashboard')">MISSION CTRL</button>
       </div>
@@ -624,7 +624,7 @@ async function loadBrainFiles(){
 }
 function ventureKey(low){
   if(/one ?safe|safeframe/.test(low))return "onesafe";
-  if(/sprout|little spro|little spot/.test(low))return "sprout";
+  if(/one ?journey|journey|sprout|little spro|little spot/.test(low))return "sprout";
   if(/skai|sky|dropship/.test(low))return "skai";
   if(/studio|video edit|editing|marketing service|freelance|my friend/.test(low))return "studio";
   return null;
@@ -645,7 +645,7 @@ function renderVentures(){
   const box=$("#ventures"); if(!box) return;
   const d=projSummary();
   if(!d){box.innerHTML='<div class="empty">Open Mission Control once in this browser and your business to-dos appear here.</div>';return;}
-  const order=[["skai","SKAI"],["sprout","LITTLE SPROUT"],["safeframe","ONESAFE"],["studio","STUDIO"]];
+  const order=[["sprout","ONE JOURNEY"],["skai","SKAI"],["studio","STUDIO"],["safeframe","ONESAFE"]];
   box.innerHTML=order.filter(([k])=>d[k]).map(([k,label])=>{
     const p=d[k];
     return '<div class="vrow"><div class="vh"><b>'+label+'</b><span>'+p.done+'/'+p.total+' done</span></div>'+
@@ -654,13 +654,17 @@ function renderVentures(){
 }
 renderTasks(); startClock(); applyIdentity(); loadCounts(); renderLocalMetrics(); loadNotes(); loadBrainFiles(); gStatus(); renderVentures(); setInterval(renderVentures,120000); bootSequence();
 /* ---- self-updater: pull new builds automatically when idle ---- */
-const SK_VER="v24";
-setInterval(async()=>{try{
+const SK_VER="v26-2026-07-13c";  // bump this on every deploy so devices auto-refresh
+async function skCheckUpdate(){try{
   if(speaking||capture)return;
-  const txt=await (await fetch(location.pathname,{cache:"reload"})).text();
+  const txt=await (await fetch(location.pathname+"?u="+Date.now(),{cache:"no-store"})).text();
   const m=txt.match(/const SK_VER="([^"]+)"/);
-  if(m&&m[1]!==SK_VER) location.reload();
-}catch(e){}},10*60*1000);
+  if(m&&m[1]!==SK_VER){ location.reload(); }
+}catch(e){}}
+setInterval(skCheckUpdate,5*60*1000);
+// check the instant the app is reopened / regains focus — so phones update on open
+document.addEventListener("visibilitychange",()=>{ if(!document.hidden) skCheckUpdate(); });
+window.addEventListener("focus",skCheckUpdate);
 /* ---- cinematic layer: particle field + voice visualizer ---- */
 (function(){
   if(window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -669,15 +673,18 @@ setInterval(async()=>{try{
   const R=()=>{W=c.width=innerWidth;H=c.height=innerHeight;};
   addEventListener("resize",R); R();
   const P=Array.from({length:70},()=>({x:Math.random()*W,y:Math.random()*H,z:Math.random()+0.2,s:Math.random()*1.5+0.5}));
+  let starColor=(getComputedStyle(document.documentElement).getPropertyValue("--amber").trim())||"#35e6ff", fc=0;
   (function loop(){
+    requestAnimationFrame(loop);
+    if(document.hidden) return;               // skip painting when backgrounded (battery)
+    if((fc++%120)===0){ const c=getComputedStyle(document.documentElement).getPropertyValue("--amber").trim(); if(c) starColor=c; } // read colour ~2s, not per-particle
     x.clearRect(0,0,W,H);
+    x.fillStyle=starColor;
     for(const p of P){
       p.y-=p.z*0.4; if(p.y<-6){p.y=H+6;p.x=Math.random()*W;}
       x.globalAlpha=0.10+p.z*0.22;
-      x.fillStyle=getComputedStyle(document.documentElement).getPropertyValue("--amber").trim()||"#35e6ff";
       x.fillRect(p.x,p.y,p.s,p.s*3);
     }
-    requestAnimationFrame(loop);
   })();
 })();
 (function(){
@@ -847,6 +854,7 @@ function onSpeech(text){
         if(g){ speak(`${g}, ${state.user}. Standing by. Ask for your plan whenever you're ready.`); }
         else speak("Yes, "+state.user+"?");
         beginCapture("Listening…"); }
+      return; // wake command handled — don't also fire the hot-command fallback below
     }
     // HOT COMMANDS: site names work WITHOUT the wake word — "go youtube", "google crane safety"
     const hot=low.match(/\b(youtube|google|whatsapp|gmail|drive|calendar|onesafe|one safe|dashboard|little sprout|sprout|shopee|lazada|amazon|aliexpress|tiktok|facebook|instagram|insta|linkedin|canva|shopify|jasper|chatgpt|claude|coursiv|supabase|mom|wsh)\b/);
@@ -998,7 +1006,7 @@ async function handleCommand(text){
   if(/^(help|what can you do|commands?|show commands|checklist|menu)$/.test(low)||/\b(help me use|how do i use) (you|sk)\b/.test(low)){
     renderFeed("COMMAND CHECKLIST",[
       {h:"open youtube / google / whatsapp / instagram…",s:"opens any site"},
-      {h:"dashboard · open onesafe · open little sprout",s:"opens ON the deck · say: close view"},
+      {h:"dashboard · open onesafe · open one journey",s:"opens ON the deck · say: close view"},
       {h:"any new emails · what's on my calendar",s:"needs: connect google"},
       {h:"search drive for (file)",s:"finds your Google Drive files"},
       {h:"news · my projects · status report · follow-ups",s:"live boards"},
@@ -1096,12 +1104,13 @@ async function handleCommand(text){
     renderFeed("FOLLOW-UPS",items);
     replyLocal(items.length?`${items.length} follow-ups on the board, ${state.user}. Top three: ${items.slice(0,3).map(i=>i.h).join("; ")}. Full list on the feed. Next: clear the first one.`:`Nothing outstanding, ${state.user}. Clean slate.`);
     return;}
-  let m=low.match(/next (?:for|on|in) (one ?safe|safeframe|sprout|little sprout|skai|coursiv)/)||(/what.?s next|next step/.test(low)?["","safeframe"]:null);
+  let m=low.match(/next (?:for|on|in) (one ?journey|journey|one ?safe|safeframe|sprout|little sprout|skai|coursiv)/)||(/what.?s next|next step/.test(low)?["","sprout"]:null);
   if(m){
     const d=projSummary();
     if(!d){replyLocal("Open Mission Control once in this browser first, then I can read your roadmap.");return;}
-    const k=m[1].includes("safe")?"safeframe":m[1].includes("sprout")?"sprout":m[1].includes("skai")?"skai":m[1].includes("coursiv")?"coursiv":"safeframe";
+    const k=/journey/.test(m[1])?"sprout":m[1].includes("safe")?"safeframe":m[1].includes("sprout")?"sprout":m[1].includes("skai")?"skai":m[1].includes("coursiv")?"coursiv":"sprout";
     const p=d[k];
+    if(!p){replyLocal(`No roadmap loaded for that venture yet, ${state.user}. Open Mission Control once and it'll sync.`);return;}
     replyLocal(`${p.title.split("—")[0].trim()}. Phase: ${p.phase}. Next step, ${state.user}: ${p.current}`+(p.flags.length?` Also flagged: ${p.flags[0]}.`:""));
     renderTasks(k);return;}
   // ---- venture deep-dive: "tell me about one safe / skai / little sprout / studio" ----
@@ -1174,7 +1183,7 @@ async function handleCommand(text){
           renderFeed("NOT IN ONESAFE",[{h:"Search Google instead: "+term,s:"tap to open web results",u:SEARCHERS.google(term)}]);
           replyLocal("Nothing in the OneSafe library for "+term+", "+state.user+". I put a Google search on the feed.");return;}
         renderFeed(term.toUpperCase(),rows.map(x=>({h:x.hazard,s:(x.msra_documents?.activity||"")+(x.injury?" · "+x.injury:"")})));
-        replyLocal(`Found ${rows.length} entries on ${term}. Top result, from ${rows[0].msra_documents.activity}: ${rows[0].hazard}. Full list on the intel feed.`);
+        replyLocal(`Found ${rows.length} entries on ${term}. Top result, from ${rows[0].msra_documents?.activity||"the library"}: ${rows[0].hazard}. Full list on the intel feed.`);
       }catch(e){replyLocal("The OneSafe link is down. Check the internet connection.");}
       return;}
   }
@@ -1226,7 +1235,7 @@ function systemPrompt(live){
   // otherwise fall back to the built-in text so the deck always works.
   const identity = SK_IDENTITY || `You are ${state.assistant}, Karthik's proactive chief-of-staff and admin, in the style of Iron Man's JARVIS: decisive, competent, calm. Address him as ${state.user} occasionally.`;
   const world = SK_MAP || `KARTHIK'S WORLD (authoritative):
-He runs four income ventures, target: live in 1-2 months, budget near zero. OneSafe: safety-document platform for Singapore construction, live MSRA library (129 activities, 3,639 anonymized hazard rows in his Supabase), toolbox talks in 6 languages, PE-design guides; upcoming: inspections, registers, permit-to-work, company logins; revenue: subscriptions. Little Sprout: Singapore new-parents guide app; survey goal of 15 responses reached; next: analyze responses and build the app as a PWA. Skai: dropshipping, learning phase, Page Pilot ready. Studio: paid video editing and marketing for a friend. Also: Coursiv AI course. Day job: lead safety coordinator at CES_SDC.`;
+He runs income ventures, budget near zero, aiming to go full-time in 1-2 months. CURRENT FOCUS: One Journey (formerly "Little Sprout"), a Singapore new-parents guide app built with his wife — launching this month; survey of 15 responses done; next: analyze responses, build the PWA, launch. SKAI: dropshipping / AI money-making platform, starting this week. Studio: paid video editing and marketing for a friend, later this week. OneSafe: safety-document platform for SG construction (MSRA library 129 activities / 3,639 hazards, 6-language toolbox talks, PE-design guides, subscriptions) — ON HOLD until end of month; do not push MSRA unless asked. Also: Coursiv AI course. Day job: lead safety coordinator at CES_SDC.`;
   return `${identity}
 
 OUTPUT & BEHAVIOUR RULES (always apply — these govern how you reply and override anything above if in conflict):

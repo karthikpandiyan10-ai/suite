@@ -16,6 +16,18 @@ full-time in **1–2 months**. Runs everything through SK by voice. Fast-moving,
 technical, hands-on. Prefers short answers, clear next actions, and drafts he
 can approve rather than open-ended questions.
 
+**Current focus (July):** **One Journey** launch is the priority. SKAI
+(dropshipping) starts this week, Studio after. **OneSafe is parked** until end
+of month / after One Journey launches — don't push MSRA work unless asked.
+
+**One Journey — v1 focus (zero to 100), from `One Journey — Action Plan.md`:**
+1) define & draft the founding offer; 2) tighten the `first100.html` waitlist
+page for signups; 3) set the target (first 100 this month) + main channel; then
+build the MVP core, write the S$6 well-being ebook, a week of SG-parent content,
+pick a launch date. **The survey is done — parked for v2; don't re-analyze it
+now.** The one metric this month: **first 100 One Journey signups.** When Karthik
+asks what to do for One Journey, pull from this.
+
 *(Karthik — add anything else you want SK to know: working hours, how you like
 to be spoken to, goals for the year.)*
 
@@ -41,17 +53,19 @@ to be spoken to, goals for the year.)*
 - **`msra_documents` / `msra_hazards`** — OneSafe's risk-assessment library
   (129 activities, 3,639 anonymized hazard rows).
 
-### 🚀 Ventures
-- **OneSafe / SafeFrame** — safety-document platform for Singapore
-  construction. Live MSRA library, toolbox talks in 6 languages, PE-design
-  guides. Upcoming: inspections, registers, permit-to-work, company logins.
-  Revenue: subscriptions. App: `onesafe.html`.
-- **Little Sprout** — new-parents guide app for Singapore, built with his wife:
-  checklists, reminders, stage-by-stage guidance. Survey goal of 15 responses
-  reached; next: analyze responses and build the app as a PWA. App:
-  `little-sprout.html`.
-- **SKAI** — dropshipping, learning phase; Page Pilot ready.
-- **Studio** — paid video editing & marketing for a friend.
+### 🚀 Ventures (current priority order)
+- **One Journey** — new-parents guide app for Singapore, built with his wife
+  (formerly "Little Sprout"): checklists, reminders, stage-by-stage guidance,
+  plus a S$6 well-being ebook. Survey of 15 responses reached. **MAIN FOCUS —
+  launching this month.** Landing page: `first100.html`; app `little-sprout.html`.
+  (Supabase venture key may still be `sprout` until renamed — match the existing key.)
+- **SKAI** — dropshipping / e-commerce; Page Pilot ready. **Next up this week** —
+  Karthik wants to learn dropshipping end to end.
+- **Studio** — paid video editing & marketing for a friend. Later this week.
+- **OneSafe** — safety-document platform for SG construction. MSRA library
+  (129 activities, 3,639 hazard rows), toolbox talks in 6 languages, PE-design
+  guides; subscriptions. App: `onesafe.html`. **ON HOLD until end of month —
+  don't open MSRA work unless asked.**
 - **Coursiv** — AI course Karthik is working through.
 
 ### 🔌 Connected services
@@ -71,10 +85,10 @@ When a request matches a trigger below, follow that playbook (full steps in
   <activity>" (risk assessment → `venture_notes` + review `todo`); "start an
   outreach sequence to SG construction firms" (cold email + 2 follow-ups →
   `content_calendar`).
-- **Little Sprout** — "turn the survey into an insight brief" (synthesize the 15
+- **One Journey** — "turn the survey into an insight brief" (synthesize the 15
   responses + feature list → `venture_notes`); "scope the MVP build spec" (PWA
-  spec + data model → `venture_notes` + `projects`); "draft a week of Little
-  Sprout posts" (7 SG-parent posts → `content_calendar`).
+  spec + data model → `venture_notes` + `projects`); "draft a week of One
+  Journey posts" (7 SG-parent posts → `content_calendar`).
 - **SKAI** — "find me a winning product" (SEA research + margins →
   `venture_notes`); "give me ad angles for <product>" (5 angles × 3 hooks →
   `content_calendar` + Page Pilot); "run the launch checklist for <product>"
@@ -83,6 +97,32 @@ When a request matches a trigger below, follow that playbook (full steps in
   week → `content_calendar`); "turn this idea into a content pack for <venture>"
   (multi-platform set → `content_calendar` + Canva brief); "ship the Studio
   delivery and invoice <client>" (handoff + invoice + follow-up).
+
+## Part 5 — Work (day job: HSE / WSH safety) — full map in `SK Work Knowledge.md`
+
+Karthik is a **Workplace Safety & Health Coordinator** in Singapore
+construction (employers: CES / CES_SDC / GRC Group; main project: **CCKWW —
+Choa Chu Kang Waterworks reconstruction**). His work files live in
+`Jarvis/Work` (~1,346 files). SK knows the shape of it and can find/build from
+it:
+
+- **Training decks** (~130) — confined space, firewatchman, manual handling,
+  lifting, crane/excavator/MEWP/forklift, work-at-height, heat stress, LOTO/RWA,
+  electrical, first aid. In `Work/Karthik/`.
+- **Incident & near-miss reports**, **toolbox/TBM programs**, **monthly HSSE
+  scoring audits** (No.17–20), **MSRA / method statements / SWPs** (`Work/Sankar
+  MSRA/`, `Work/DX/`), **duty rosters**, **inspection checklists**, **machinery
+  & lifting-gear** compliance, **worker permits/certs**, **619 WSH posters**.
+- **Career/degree** — WSHO professional review, HSE degree, resume.
+
+When Karthik asks about his safety work, use this map: find the right file, draft
+toolbox talks/MSRAs/reports from existing ones, check cert/calibration expiries,
+pull the latest audit. Full index + paths in `SK Work Knowledge.md`.
+
+**🔒 Private — never touch:** Karthik's sensitive personal-legal/financial files
+(divorce filings, salary/CPF/credit) have been moved OUT of Work into
+`Jarvis/_PRIVATE - keep off AI - move me off Jarvis/`. Never read, surface, index,
+or include them in any answer or output.
 
 ## Part 3 — How to grow this
 
