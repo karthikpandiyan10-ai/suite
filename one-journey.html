@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>One Journey</title>
+<meta name="theme-color" content="#FBF7F0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#FBF7F0;--card:#FFFFFF;--ink:#33403A;--mut:#8A8F87;--green:#4C8A5E;--green-deep:#2F5E42;--blush:#F4E3DA;--coral:#E07856;--gold:#DCA94B;--line:#ECE5D8;--dad:#4A72B0;--lav:#EFEAF7;--sh:0 4px 20px rgba(80,90,60,.08),0 1px 3px rgba(80,90,60,.06);
+/* hub palette (from journey hub) */
+--milk:#FBF7F0;--cream:#F3EBE1;--ink-soft:#6C7360;--sage:#6E8368;--sage-soft:#A9BBA1;--rose:#C97B84;--rose-soft:#EBC9CC;--honey:#E4B363;--sky:#8FA9B6;--shadow:0 2px 4px rgba(56,64,51,.05),0 12px 32px rgba(56,64,51,.08);--r:22px}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:'Nunito Sans',-apple-system,sans-serif;min-height:100vh;padding-bottom:40px;overflow-x:hidden}
+/* floating ambience */
+.blob{position:fixed;border-radius:50%;filter:blur(60px);opacity:.5;z-index:0;pointer-events:none;animation:drift 16s ease-in-out infinite alternate}
+.b1{width:340px;height:340px;background:#EAF2E6;top:-80px;right:-100px}
+.b2{width:280px;height:280px;background:#F7EBE2;top:40%;left:-120px;animation-delay:-6s}
+.b3{width:240px;height:240px;background:#EFEAF7;bottom:-60px;right:-60px;animation-delay:-11s}
+@keyframes drift{from{transform:translate(0,0) scale(1)}to{transform:translate(24px,18px) scale(1.08)}}
+/* ---------- TOP NAV ---------- */
+.topbar{position:sticky;top:0;z-index:100;background:rgba(251,247,240,.86);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.topwrap{max-width:640px;margin:0 auto;padding:10px 16px 0}
+.brandrow{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.brand{font-size:11px;letter-spacing:2.6px;color:var(--green-deep);font-weight:800}
+.beta{font-size:9.5px;background:var(--gold);color:#fff;border-radius:20px;padding:2px 8px;font-weight:800;letter-spacing:.5px}
+.urgent-btn{border:none;background:#F7E3E5;color:#8E4650;font-weight:800;font-family:inherit;font-size:12px;padding:8px 13px;border-radius:999px;cursor:pointer;transition:transform .15s,box-shadow .15s;box-shadow:0 1px 0 #E5C3C7;white-space:nowrap}
+.urgent-btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(142,70,80,.25)}
+nav{display:flex;gap:4px;margin-top:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:8px}
+nav::-webkit-scrollbar{display:none}
+.nv{display:flex;align-items:center;gap:6px;border:none;background:transparent;color:var(--mut);font-family:inherit;font-size:12.5px;font-weight:800;letter-spacing:.3px;padding:9px 14px;border-radius:30px;cursor:pointer;white-space:nowrap;transition:background .22s,color .22s,transform .15s;min-height:40px}
+.nv svg{width:16px;height:16px;stroke-width:2.2}
+.nv:active{transform:scale(.96)}
+.nv.on{background:var(--green-deep);color:#fff;box-shadow:0 4px 14px rgba(47,94,66,.28)}
+.nv:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+/* ---------- LAYOUT ---------- */
+.wrap{max-width:640px;margin:0 auto;padding:14px 16px;position:relative;z-index:1}
+.hero{padding:14px 2px 2px}
+h1{font-family:'Fraunces',serif;font-size:27px;font-weight:800;letter-spacing:-.5px;color:var(--green-deep)}
+.aff{color:#6E7A6E;font-size:14px;margin-top:3px;min-height:20px;transition:opacity .5s}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:18px;margin-top:14px;box-shadow:var(--sh);opacity:0;transform:translateY(14px);animation:rise .45s cubic-bezier(.2,.7,.3,1) forwards}
+@keyframes rise{to{opacity:1;transform:none}}
+.pressable{transition:transform .15s cubic-bezier(.2,.7,.3,1)}
+.pressable:active{transform:scale(.98)}
+.pill{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:1.2px;border-radius:20px;padding:4px 12px;margin-bottom:8px}
+.pill.now{background:#FDE9E0;color:var(--coral)}
+.pill.soon{background:#EAF2E6;color:var(--green)}
+.pill.done-p{background:#ECECEC;color:#9A9A9A}
+.emo{float:right;font-size:26px;margin-left:8px}
+.it-t{font-family:'Fraunces',serif;font-size:18px;font-weight:800;line-height:1.28;color:#2E3B33}
+.it-w{font-size:14px;margin-top:7px;line-height:1.55}
+.it-y{font-size:12.5px;color:var(--mut);margin-top:7px;line-height:1.5}
+.dadbox{margin-top:10px;background:#EFF4FB;border-left:4px solid var(--dad);border-radius:0 12px 12px 0;padding:9px 12px;font-size:13px;color:#2D4A75;line-height:1.5}
+.dadbox b{font-size:10.5px;letter-spacing:1.5px}
+.donebtn{margin-top:12px;width:100%;padding:12px;border:none;border-radius:13px;background:var(--green);color:#fff;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;transition:transform .15s,background .2s;position:relative;overflow:hidden}
+.donebtn:active{transform:scale(.97)}
+.donebtn.un{background:#E2E2E2;color:#909090}
+.week-badge{background:linear-gradient(135deg,var(--green-deep),#3E7A54);color:#fff;border-radius:20px;padding:16px 18px;margin-top:12px;box-shadow:0 8px 22px rgba(47,94,66,.26);opacity:0;transform:translateY(14px);animation:rise .45s .05s cubic-bezier(.2,.7,.3,1) forwards}
+.week-badge .big{font-family:'Fraunces',serif;font-size:23px;font-weight:800}
+.week-badge .sm{font-size:12.5px;opacity:.88;margin-top:3px}
+.prog{height:9px;background:rgba(255,255,255,.25);border-radius:6px;margin-top:12px;overflow:hidden}
+.prog i{display:block;height:100%;background:var(--gold);border-radius:6px;width:0;transition:width 1.1s cubic-bezier(.2,.7,.3,1)}
+input,select{width:100%;padding:13px;border:1.5px solid var(--line);border-radius:13px;font-size:16px;background:#fff;color:var(--ink);margin-top:6px;font-family:inherit;transition:border-color .2s,box-shadow .2s}
+input:focus,select:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(76,138,94,.15)}
+label{font-size:11.5px;font-weight:800;letter-spacing:1.2px;color:var(--mut);display:block;margin-top:14px}
+.cta{margin-top:20px;width:100%;padding:15px;border:none;border-radius:15px;background:var(--green-deep);color:#fff;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit;transition:transform .15s,box-shadow .2s;box-shadow:0 6px 18px rgba(47,94,66,.25)}
+.cta:active{transform:scale(.97)}
+.chk{display:flex;align-items:flex-start;gap:10px;padding:11px 2px;border-bottom:1px solid var(--line);cursor:pointer;transition:opacity .25s}
+.chk:last-child{border-bottom:none}
+.box{width:23px;height:23px;border:2px solid var(--green);border-radius:8px;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;transition:background .2s,transform .2s}
+.chk.c .box{background:var(--green);transform:scale(1.06)}
+.chk.c span{text-decoration:line-through;color:var(--mut)}
+.chk span{font-size:14.5px;line-height:1.45}
+.cat{font-family:'Fraunces',serif;font-size:16px;font-weight:800;color:var(--green-deep);margin:20px 2px 2px}
+.money-amt{font-family:'Fraunces',serif;font-size:27px;font-weight:800;color:var(--green-deep)}
+.money-t{font-size:15px;font-weight:800;margin-top:2px}
+.money-w{font-size:13px;color:#6E7468;margin-top:6px;line-height:1.55}
+.disc{font-size:11.5px;color:var(--mut);line-height:1.55;margin-top:18px;padding:13px;background:#F4EFE4;border-radius:14px}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;margin-top:12px;background:#EFF4FB;border-radius:16px;padding:12px 16px;opacity:0;transform:translateY(14px);animation:rise .45s .1s cubic-bezier(.2,.7,.3,1) forwards}
+.toggle-row b{color:#2D4A75;font-size:14px}
+.sw{width:52px;height:30px;background:#CCD6E6;border-radius:20px;position:relative;cursor:pointer;transition:.2s;flex-shrink:0}
+.sw.on{background:var(--dad)}
+.sw i{position:absolute;top:3px;left:3px;width:24px;height:24px;background:#fff;border-radius:50%;transition:.22s cubic-bezier(.2,.7,.3,1)}
+.sw.on i{left:25px}
+.hidden{display:none!important}
+.view{animation:viewin .3s cubic-bezier(.2,.7,.3,1)}
+@keyframes viewin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.empty{color:var(--mut);font-size:14px;text-align:center;padding:28px 10px;line-height:1.65}
+.reset{margin-top:14px;background:none;border:none;color:var(--mut);font-size:12px;text-decoration:underline;cursor:pointer;width:100%;font-family:inherit}
+.apt{display:flex;align-items:center;gap:12px;padding:13px 2px;border-bottom:1px solid var(--line)}
+.apt:last-child{border-bottom:none}
+.apt-d{background:var(--blush);border-radius:13px;padding:7px 11px;text-align:center;flex-shrink:0;min-width:58px}
+.apt-d .dd{font-family:'Fraunces',serif;font-size:19px;font-weight:800;color:var(--coral);line-height:1}
+.apt-d .mm{font-size:10px;font-weight:800;letter-spacing:1px;color:#B07A62;margin-top:2px}
+.apt-i{flex:1}
+.apt-t{font-size:15px;font-weight:800}
+.apt-s{font-size:12px;color:var(--mut);margin-top:1px}
+.apt-x{background:none;border:none;color:#C9C2B4;font-size:18px;cursor:pointer;padding:8px;min-width:36px}
+.apt-cal{background:none;border:1.5px solid var(--line);border-radius:10px;font-size:11px;font-weight:800;color:var(--green-deep);padding:7px 10px;cursor:pointer;font-family:inherit;transition:border-color .2s}
+.banner{background:#FDE9E0;border:1.5px solid #F2C4AE;border-radius:18px;padding:13px 16px;margin-top:12px;font-size:14px;line-height:1.5;animation:pulse2 2.6s ease-in-out infinite,rise .45s cubic-bezier(.2,.7,.3,1) forwards;opacity:0;transform:translateY(14px)}
+@keyframes pulse2{0%,100%{box-shadow:0 0 0 0 rgba(224,120,86,.25)}50%{box-shadow:0 0 0 7px rgba(224,120,86,0)}}
+.banner b{color:var(--coral)}
+.notif-ask{background:var(--lav);border-radius:18px;padding:13px 16px;margin-top:12px;font-size:13px;line-height:1.5;color:#5B4E7A}
+.notif-ask button{margin-top:8px;border:none;background:#7A63B8;color:#fff;border-radius:11px;padding:9px 15px;font-weight:800;font-size:12.5px;cursor:pointer;font-family:inherit}
+/* toast */
+#toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(80px);background:var(--green-deep);color:#fff;border-radius:30px;padding:11px 20px;font-size:13.5px;font-weight:800;box-shadow:0 10px 26px rgba(0,0,0,.22);z-index:300;transition:transform .35s cubic-bezier(.2,.7,.3,1);pointer-events:none;max-width:88vw;text-align:center}
+#toast.show{transform:translateX(-50%) translateY(0)}
+/* confetti petals */
+.petal{position:fixed;width:9px;height:13px;border-radius:60% 60% 60% 60%/70% 70% 50% 50%;z-index:250;pointer-events:none}
+/* joy layer */
+.floater{position:fixed;bottom:-30px;z-index:0;pointer-events:none;font-size:18px;opacity:0;animation:floatup linear forwards}
+@keyframes floatup{0%{opacity:0;transform:translateY(0) rotate(0)}12%{opacity:.5}80%{opacity:.35}100%{opacity:0;transform:translateY(-105vh) rotate(38deg)}}
+.bless{display:flex;align-items:center;gap:10px;background:linear-gradient(120deg,#F7EBE2,#EAF2E6,#EFEAF7,#F7EBE2);background-size:300% 300%;animation:blessbg 14s ease infinite;border-radius:18px;padding:13px 16px;margin-top:12px;font-size:14px;line-height:1.5;color:#5C6B5C;border:1px solid var(--line)}
+@keyframes blessbg{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.bless .spark{font-size:20px;animation:twink 2.4s ease-in-out infinite}
+@keyframes twink{0%,100%{transform:scale(1) rotate(0)}50%{transform:scale(1.25) rotate(12deg)}}
+.milestone{background:linear-gradient(135deg,#E07856,#DCA94B);color:#fff;border-radius:20px;padding:18px;margin-top:12px;text-align:center;box-shadow:0 8px 24px rgba(224,120,86,.32);animation:rise .5s cubic-bezier(.2,.7,.3,1) both,heartbeat 2.8s ease-in-out 1s infinite}
+@keyframes heartbeat{0%,100%{transform:scale(1)}6%{transform:scale(1.02)}12%{transform:scale(1)}}
+.milestone .mt{font-family:'Fraunces',serif;font-size:20px;font-weight:800}
+.milestone .ms{font-size:13px;opacity:.92;margin-top:4px}
+.sharebtn{margin-top:8px;width:100%;padding:10px;border:1.5px solid var(--line);border-radius:12px;background:#fff;color:var(--green-deep);font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;transition:transform .15s,border-color .2s}
+.sharebtn:active{transform:scale(.97)}
+.card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(80,90,60,.11);transition:transform .25s,box-shadow .25s}
+.prog i{position:relative;overflow:hidden}
+.prog i::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);animation:shimmer 2.6s ease-in-out infinite}
+@keyframes shimmer{0%{transform:translateX(-100%)}60%,100%{transform:translateX(220%)}}
+/* ---------- HUB TILES ---------- */
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));margin-top:14px}
+.grid.wide{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+.grid.tiles{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.tile{display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:1px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;font-family:inherit;color:inherit;cursor:pointer;box-shadow:var(--sh);transition:transform .15s,box-shadow .2s;font-size:22px}
+.tile:active{transform:scale(.97)}
+.tile:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(80,90,60,.12)}
+.tile b{font-size:14px;color:var(--green-deep);margin-top:6px}
+.tile span{font-size:12px;color:var(--mut);font-weight:600}
+h2.sec{font-family:Fraunces,serif;font-weight:600;font-size:clamp(20px,4.4vw,26px);margin:26px 0 4px;color:var(--green-deep)}
+p.sec-sub{color:var(--ink-soft);font-size:14px;margin-bottom:8px}
+.overall{max-width:100%;margin:12px 0 0;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:8px 16px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow)}
+.overall .bar{flex:1;height:8px;background:var(--cream);border-radius:99px;overflow:hidden}
+.overall .bar i{display:block;height:100%;width:0%;background:linear-gradient(90deg,var(--sage-soft),var(--sage));border-radius:99px;transition:width .8s cubic-bezier(.22,1,.36,1)}
+.overall b{font-size:13px;color:var(--sage);white-space:nowrap}
+/* ---------- HUB CARDS ---------- */
+.jcard{position:relative;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:20px;cursor:pointer;box-shadow:var(--shadow);transition:transform .22s cubic-bezier(.22,1,.36,1),box-shadow .22s;opacity:0;transform:translateY(18px);animation:rise .6s cubic-bezier(.22,1,.36,1) forwards;text-align:left;width:100%;font-family:inherit;color:inherit}
+.jcard:hover{transform:translateY(-5px);box-shadow:0 6px 10px rgba(56,64,51,.06),0 22px 48px rgba(56,64,51,.14)}
+.jcard:active{transform:translateY(-1px) scale(.99)}
+.jblob{width:64px;height:64px;border-radius:46% 54% 55% 45%/48% 44% 56% 52%;display:flex;align-items:center;justify-content:center;font-size:30px;margin-bottom:14px;animation:squish 7s ease-in-out infinite}
+@keyframes squish{0%,100%{border-radius:46% 54% 55% 45%/48% 44% 56% 52%}50%{border-radius:54% 46% 45% 55%/44% 56% 44% 56%}}
+.chip{font-size:11.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft)}
+.jcard h3{font-family:Fraunces,serif;font-weight:600;font-size:20px;margin:3px 0 2px}
+.jcard .when{font-size:13px;color:var(--ink-soft)}
+.jcard .foot{display:flex;align-items:center;justify-content:space-between;margin-top:14px}
+.ring{width:40px;height:40px}
+.ring circle{fill:none;stroke-width:4}
+.ring .bg{stroke:var(--cream)}
+.ring .fg{stroke:var(--sage);stroke-linecap:round;transition:stroke-dashoffset .7s cubic-bezier(.22,1,.36,1)}
+.ring text{font-size:10.5px;font-weight:800;fill:var(--ink-soft);font-family:'Nunito Sans'}
+.count{font-size:12.5px;color:var(--ink-soft);font-weight:700}
+.here{position:absolute;top:-11px;right:14px;background:var(--sage);color:#fff;font-size:11px;font-weight:800;letter-spacing:.04em;padding:4px 12px;border-radius:999px;box-shadow:0 4px 10px rgba(110,131,104,.4);animation:bob 2.4s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+.done-badge{position:absolute;top:-11px;right:14px;background:var(--honey);color:#5C400F;font-size:11px;font-weight:800;padding:4px 12px;border-radius:999px}
+/* ---------- BOTTOM SHEET ---------- */
+.overlay{position:fixed;inset:0;z-index:200;display:none;align-items:flex-end;justify-content:center}
+.overlay.open{display:flex}
+.overlay .back{position:absolute;inset:0;background:rgba(56,64,51,.4);backdrop-filter:blur(3px);opacity:0;transition:opacity .3s}
+.overlay.show .back{opacity:1}
+.sheet{position:relative;background:var(--milk);width:min(720px,100%);max-height:92vh;border-radius:26px 26px 0 0;overflow-y:auto;transform:translateY(60px);opacity:0;transition:transform .38s cubic-bezier(.22,1,.36,1),opacity .3s;overscroll-behavior:contain}
+.overlay.show .sheet{transform:translateY(0);opacity:1}
+@media(min-width:760px){.overlay{align-items:center;padding:30px}.sheet{border-radius:26px}}
+.sheet-head{padding:26px 26px 18px;display:flex;gap:16px;align-items:flex-start;position:relative}
+.sheet-head .jblob{margin:0;flex-shrink:0}
+.sheet-head h3{font-family:Fraunces,serif;font-weight:600;font-size:24px;line-height:1.2}
+.sheet-head .when{color:var(--ink-soft);font-size:13.5px;margin-top:2px}
+.close{position:absolute;top:18px;right:18px;border:none;background:var(--cream);width:36px;height:36px;border-radius:50%;font-size:16px;cursor:pointer;color:var(--ink-soft);transition:transform .15s}
+.close:hover{transform:rotate(90deg)}
+.sheet .intro{padding:0 26px;color:var(--ink-soft);font-size:15px;line-height:1.6}
+.sheet .prog{margin:16px 26px 4px;height:8px;background:var(--cream);border-radius:99px;overflow:hidden}
+.sheet .prog i{display:block;height:100%;width:0%;background:linear-gradient(90deg,var(--sage-soft),var(--sage));transition:width .5s cubic-bezier(.22,1,.36,1)}
+.sheet .prog-label{margin:6px 26px 0;font-size:12.5px;font-weight:700;color:var(--sage)}
+.celebrate{margin:10px 26px 0;background:#F6EEDD;border:1px solid #EAD9B8;color:#7A5A1C;border-radius:14px;padding:10px 16px;font-weight:700;font-size:14px;display:none}
+ul.items{list-style:none;padding:14px 16px 8px}
+ul.items li{display:flex;gap:12px;align-items:flex-start;padding:11px 12px;border-radius:16px;transition:background .2s}
+ul.items li:hover{background:#F3EDE4}
+.cb{flex-shrink:0;width:26px;height:26px;border-radius:9px;border:2px solid var(--sage-soft);background:#fff;cursor:pointer;position:relative;transition:background .18s,border-color .18s;margin-top:2px}
+.cb.on{background:var(--sage);border-color:var(--sage);animation:pop .3s cubic-bezier(.22,1.6,.36,1)}
+@keyframes pop{0%{transform:scale(.8)}60%{transform:scale(1.12)}100%{transform:scale(1)}}
+.cb.on::after{content:"";position:absolute;left:8px;top:3px;width:6px;height:12px;border:solid #fff;border-width:0 3px 3px 0;transform:rotate(42deg)}
+li .txt{flex:1;font-size:15px;cursor:pointer;transition:color .2s;line-height:1.5}
+li.done .txt{color:#A6AC9C;text-decoration:line-through;text-decoration-color:#C6CBBD}
+.tag{font-size:10px;font-weight:800;letter-spacing:.05em;padding:3px 9px;border-radius:99px;margin-top:4px;white-space:nowrap}
+.tag.sg{background:#E7EEF3;color:#3E6073}
+.tag.health{background:#F7E3E5;color:#8E4650}
+.tag.care{background:#F6EEDD;color:#7A5A1C}
+.linkrow{display:flex;flex-wrap:wrap;gap:8px;padding:10px 26px 6px}
+.linkrow a{font-size:13px;font-weight:700;color:var(--sage);background:#EDF1EA;border:1px solid #D9E2D5;text-decoration:none;padding:8px 14px;border-radius:999px;transition:transform .15s,background .15s}
+.linkrow a:hover{background:#E2EADF;transform:translateY(-1px)}
+.jumprow{display:flex;flex-wrap:wrap;gap:8px;padding:6px 26px 30px}
+.jumprow.top{padding:6px 26px 2px}
+.jump-label{margin:14px 26px 0;font-size:11.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft)}
+.jumprow button{font-family:inherit;font-size:13px;font-weight:700;color:#8E4650;background:#F7E3E5;border:1px solid #EBC9CC;padding:8px 14px;border-radius:999px;cursor:pointer;transition:transform .15s}
+.jumprow button:hover{transform:translateY(-1px)}
+/* ---------- FEEDBACK FAB ---------- */
+.fab{position:fixed;bottom:20px;right:20px;z-index:190;border:none;background:var(--sage);color:#fff;font-family:inherit;font-weight:800;font-size:14px;padding:14px 20px;border-radius:999px;cursor:pointer;box-shadow:0 6px 20px rgba(110,131,104,.45);transition:transform .18s;display:flex;align-items:center;gap:8px}
+.fab:hover{transform:translateY(-2px) scale(1.03)}
+.fb-panel{position:fixed;bottom:84px;right:20px;z-index:195;width:min(330px,calc(100vw - 40px));background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:0 12px 44px rgba(56,64,51,.25);padding:18px;display:none;transform:translateY(12px);opacity:0;transition:transform .28s cubic-bezier(.22,1,.36,1),opacity .25s}
+.fb-panel.open{display:block}
+.fb-panel.show{transform:translateY(0);opacity:1}
+.fb-panel h4{font-family:Fraunces,serif;font-size:17px;margin-bottom:4px}
+.fb-panel p{font-size:12.5px;color:var(--ink-soft);margin-bottom:10px}
+.fb-panel textarea{width:100%;min-height:90px;border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;font-family:inherit;font-size:14px;resize:vertical;background:var(--milk);color:var(--ink)}
+.fb-panel textarea:focus{outline:none;border-color:var(--sage-soft)}
+.fb-send{margin-top:10px;width:100%;border:none;background:var(--sage);color:#fff;font-family:inherit;font-weight:800;font-size:14px;padding:11px;border-radius:12px;cursor:pointer;transition:filter .15s}
+.fb-send:hover{filter:brightness(1.07)}
+.fb-thanks{display:none;text-align:center;font-weight:700;color:var(--sage);padding:18px 0 8px}
+footer{margin:50px 0 30px;text-align:center;color:var(--ink-soft);font-size:13px}
+footer b{font-family:Fraunces,serif}
+@media (prefers-reduced-motion:reduce){*,.card,.week-badge,.toggle-row,.banner,.jcard{animation:none!important;transition:none!important;opacity:1!important;transform:none!important}}
+@media(min-width:768px){h1{font-size:32px}.wrap{padding:18px 20px}}
+</style>
+</head>
+<body>
+<div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+
+<div class="topbar">
+<div class="topwrap">
+<div class="brandrow"><span class="brand">🌱 ONE JOURNEY</span><span class="beta" style="margin-left:auto">V1 BETA</span><button class="urgent-btn" onclick="openSheet('urgent')">🚨 Get help fast</button></div>
+<nav id="nav" style="display:none">
+<button class="nv on" data-v="home" onclick="go('home',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>Home</button>
+<button class="nv" data-v="journey" onclick="go('journey',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 21c0-6 0-9 0-12M12 9c0-3 2-5 5-5 0 3-2 5-5 5Zm0 4c0-3-2-5-5-5 0 3 2 5 5 5Z"/></svg>Journey</button>
+<button class="nv" data-v="appts" onclick="go('appts',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 11h18"/></svg>Appts</button>
+<button class="nv" data-v="checklist" onclick="go('checklist',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m4 12 4 4L20 6"/><path d="M4 19h16" opacity=".4"/></svg>Lists</button>
+<button class="nv" data-v="money" onclick="go('money',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9.5 9.5c0-1 1-1.7 2.5-1.7s2.5.7 2.5 1.7-1 1.4-2.5 1.7-2.5.7-2.5 1.7 1 1.7 2.5 1.7 2.5-.7 2.5-1.7"/></svg>Money</button>
+<button class="nv" data-v="toolkits" onclick="go('toolkits',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 7h16v13H4z"/><path d="M9 7V5a3 3 0 0 1 6 0v2"/></svg>Toolkits</button>
+<button class="nv" data-v="foryou" onclick="go('foryou',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 21s-7-4.5-9-9a5 5 0 0 1 9-3 5 5 0 0 1 9 3c-2 4.5-9 9-9 9Z"/></svg>For you</button>
+</nav>
+</div>
+</div>
+
+<div class="wrap">
+<div class="hero" id="hero" style="display:none">
+<h1 id="hTitle">Hello.</h1>
+<div class="aff" id="hAff">One clear answer, every week.</div>
+</div>
+
+<!-- SETUP -->
+<div id="setup" class="view">
+<div class="card" style="animation-delay:.05s">
+<div class="it-t">Welcome to One Journey — let's set up in 20 seconds. 🌱</div>
+<label>BABY'S NAME OR NICKNAME (OPTIONAL)</label>
+<input id="sName" placeholder="e.g. Bubba">
+<label>WHERE ARE YOU ON THE JOURNEY?</label>
+<select id="sMode" onchange="modeUI()">
+<option value="lmp">Just found out I'm pregnant 🤍</option>
+<option value="due">I know my due date</option>
+<option value="born">Baby is here</option>
+</select>
+<label id="sDateL">FIRST DAY OF YOUR LAST PERIOD</label>
+<input id="sDate" type="date">
+<div id="lmpHint" style="font-size:12px;color:var(--mut);margin-top:6px">We'll estimate your due date from this — your doctor will confirm it at the dating scan.</div>
+<label>WHO'S READING?</label>
+<select id="sWho"><option value="both">Both of us</option><option value="mum">Mum</option><option value="dad">Dad</option></select>
+<button class="cta" onclick="saveSetup()">Show me what's next</button>
+</div>
+<div class="disc">Everything stays on your phone — nothing uploaded, no account. Medical items are checkpoints, not prescriptions: your clinic confirms exact timing. Verify government amounts on LifeSG.</div>
+</div>
+
+<!-- HOME -->
+<div id="home" class="view hidden">
+<div class="week-badge">
+<div class="big" id="wkBig"></div>
+<div class="sm" id="wkSm"></div>
+<div class="prog"><i id="wkBar"></i></div>
+</div>
+<div class="overall"><div class="bar"><i id="overallBar"></i></div><b id="overallPct">0% of your journey ticked</b></div>
+<div id="milestone"></div>
+<div class="bless"><span class="spark">✨</span><span id="blessTxt"></span></div>
+<div id="aptBanner"></div>
+<div id="notifAsk"></div>
+<div class="toggle-row"><b>👨 Dad Mode — show my part</b><div class="sw" id="dadSw" onclick="toggleDad()" role="switch" tabindex="0"><i></i></div></div>
+<div class="cat" style="margin-top:22px">Where you are now</div>
+<div id="feedNow"></div>
+<div id="feedSoon"></div>
+<div class="cat" style="margin-top:24px">Jump to a section</div>
+<div class="grid tiles" id="hubTiles">
+<button class="tile" onclick="go('journey')">🗺️<b>Journey</b><span>Stage by stage</span></button>
+<button class="tile" onclick="go('checklist')">📋<b>Checklist</b><span>Your to-dos</span></button>
+<button class="tile" onclick="go('appts')">🗓️<b>Appointments</b><span>Scans & check-ups</span></button>
+<button class="tile" onclick="go('money')">💰<b>Money</b><span>Grants & benefits</span></button>
+<button class="tile" onclick="openSheet('feedsleep')">🌙<b>Feeding &amp; sleep</b><span>Kept simple</span></button>
+<button class="tile" onclick="openSheet('milestones')">⭐<b>Milestones</b><span>Firsts to watch</span></button>
+<button class="tile" onclick="go('toolkits')">🧰<b>Toolkits</b><span>Handy checklists</span></button>
+<button class="tile" onclick="go('foryou')">💛<b>For both of you</b><span>Minds & moods</span></button>
+<button class="tile" onclick="openSheet('urgent')">🚨<b>Get help fast</b><span>Trust your gut</span></button>
+</div>
+<button class="reset" onclick="resetAll()">change dates / start over</button>
+</div>
+
+<!-- JOURNEY -->
+<div id="journey" class="view hidden">
+<h2 class="sec" style="margin-top:8px">Your journey, stage by stage</h2>
+<p class="sec-sub">Tap the stage you're in — its checklist opens right up. Progress saves on this device.</p>
+<div class="grid" id="journeyGrid"></div>
+<h2 class="sec">Every step, in order</h2>
+<p class="sec-sub">The whole timeline — what's done, due now, and coming up.</p>
+<div id="timeline"></div>
+</div>
+
+<!-- APPOINTMENTS -->
+<div id="appts" class="view hidden">
+<div class="card">
+<div class="it-t">Add an appointment 🗓️</div>
+<label>WHAT IS IT?</label>
+<input id="aTitle" placeholder="e.g. Dating scan at KKH">
+<label>DATE</label>
+<input id="aDate" type="date">
+<label>TIME</label>
+<input id="aTime" type="time" value="09:00">
+<button class="cta" onclick="addApt()">Save appointment</button>
+</div>
+<div class="card" id="aptList" style="animation-delay:.08s"></div>
+<div class="disc"><b>How reminders work in this beta:</b> the app notifies you 2 days before and on the day — whenever the app is open or was recently opened. For a guaranteed phone alarm, tap 📅 on any appointment to add it to your phone's calendar too. Full push notifications come with the app-store version.</div>
+</div>
+
+<!-- CHECKLIST -->
+<div id="checklist" class="view hidden"></div>
+
+<!-- MONEY -->
+<div id="money" class="view hidden">
+<div class="card"><div class="money-amt">S$11,000</div><div class="money-t">Baby Bonus Cash Gift</div><div class="money-w">For your 1st or 2nd child (S$13,000 from the 3rd). Paid in stages over 6.5 years. 3rd child or more? First Step doubles to S$10,000 and the Large Families Scheme adds more — check LifeSG. <b>One action:</b> apply once on LifeSG — can be done before birth.</div></div>
+<div class="card" style="animation-delay:.06s"><div class="money-amt">up to S$7,000 matched</div><div class="money-t">CDA — Child Development Account</div><div class="money-w">Open a free CDA at POSB, OCBC or UOB. S$5,000 First Step lands without saving anything, then the government matches your deposits dollar-for-dollar (cap S$4,000 for your 1st child, S$7,000 for your 2nd, more from the 3rd). Pays vaccines, check-ups, childcare. <b>One action:</b> pick the bank you already use.</div></div>
+<div class="card" style="animation-delay:.12s"><div class="money-amt">S$5,000</div><div class="money-t">MediSave Grant for Newborns</div><div class="money-w">Automatic after birth registration. Covers MediShield Life premiums and approved vaccinations. <b>One action:</b> nothing — it's automatic.</div></div>
+<div class="card" style="animation-delay:.18s"><div class="money-amt">MediSave up to ~S$900</div><div class="money-t">Pre-delivery expenses claim</div><div class="money-w">Antenatal check-ups, scans and tests can be claimed from MediSave under the Maternity Package when you deliver. <b>One action:</b> keep every receipt in one envelope from today.</div></div>
+<div class="card" style="animation-delay:.24s"><div class="money-amt">16 + 4 + 10 wks</div><div class="money-t">Maternity, Paternity & Shared Leave</div><div class="money-w">16 weeks government-paid maternity leave, 4 weeks paternity leave — PLUS up to 10 weeks Shared Parental Leave (births from 1 Apr 2026) that you split between you. Most employed parents of Singapore-citizen babies qualify — check MOM's eligibility checker. <b>One action (dad):</b> tell HR your dates at least 1 month ahead.</div></div>
+<div class="disc">Amounts current as of mid-2026 — confirm on <b>LifeSG</b> / madeforfamilies.gov.sg before money decisions.</div>
+</div>
+
+<!-- TOOLKITS -->
+<div id="toolkits" class="view hidden">
+<h2 class="sec" style="margin-top:8px">Your toolkits</h2>
+<p class="sec-sub">Quick, practical checklists you'll reach for again and again.</p>
+<div class="grid" id="toolkitGrid"></div>
+</div>
+
+<!-- FOR BOTH OF YOU -->
+<div id="foryou" class="view hidden">
+<h2 class="sec" style="margin-top:8px">For both of you</h2>
+<p class="sec-sub">The parts that aren't appointments — minds, moods, and showing up for each other.</p>
+<div class="grid wide" id="companionGrid"></div>
+<div class="disc" style="margin-top:18px">Tip: turn on <b>Dad Mode</b> on the Home tab to add a dad's-part note to every journey step.</div>
+</div>
+
+<footer><b>🌱 One Journey</b> · Made with love for Singapore parents<br>General guidance only — always follow your doctor's advice.</footer>
+</div>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<div class="overlay" id="overlay">
+<div class="back" onclick="closeSheet()"></div>
+<div class="sheet" id="sheet"></div>
+</div>
+
+<script>
+/* ============================================================
+   ONE JOURNEY — merged app
+   Part A: journey feed, checklist, appointments, money, setup
+   Part B: journey hub (phases / companions / toolkits + sheets)
+   Part C: feedback & init
+   ============================================================ */
+
+/* ---------------- PART A DATA ---------------- */
+const ITEMS=[
+{wk:-36,end:-32,e:"🤍",t:"Two pink lines — breathe. Here's the whole next step.",w:"Three things, that's all: (1) start a prenatal vitamin with folic acid today, (2) book your first doctor visit for week 8–10 — either a polyclinic (they'll refer you to KKH/NUH, the subsidised route) or a private gynae, (3) stop alcohol and smoking now.",y:"Nothing else on the internet matters this week. These three cover baby's most important growth window.",d:"Dads: your job today is one sentence — 'we've got this.' Then quietly handle dinner and the vitamin run."},
+{wk:-36,end:-30,e:"🏥",t:"Choose your care route (this decides your costs)",w:"One clear answer: Polyclinic → KKH/NUH subsidised = roughly S$1.5–3k total delivery. Private gynae = one doctor throughout, roughly S$8–15k+. You can start polyclinic and switch later; switching private→subsidised late is harder.",y:"This single choice matters more to your wallet than every baby-fair discount combined.",d:"Dads: this is a money decision — sit in on it. Bring the Money tab numbers."},
+{wk:-32,end:-28,e:"🩺",t:"The dating scan (week 8–10)",w:"Your first ultrasound confirms the heartbeat and your REAL due date. Book it, put it in the Appts tab, and let the app count down with you.",y:"Everything in this app re-anchors to the due date your doctor confirms here.",d:"Dads: be at this one. It's 10 seconds of sound you'll never forget."},
+{wk:-29,end:-26,e:"🧬",t:"First-trimester screening window (week 11–13)",w:"One decision: OSCAR scan (~S$300+) or NIPT blood test (~S$700–1,100) — both screen for chromosomal conditions. Ask your doctor which fits you. OSCAR must happen weeks 11–13 — that window is strict. NIPT can be done from week 10 onwards.",y:"Booking early keeps every choice open.",d:"Dads: whatever the results path, you're calm in the room. Questions written down beforehand."},
+{wk:-28,end:-24,e:"📣",t:"Nausea, exhaustion, secrets — surviving trimester one",w:"Eat small and often (dry crackers by the bed), rest without guilt, and tell whoever YOU want, whenever you want — there is no rule about 12 weeks.",y:"Trimester one is the hardest part most people never see. Being kind to yourself is the task.",d:"Dads: she's running a marathon while looking normal. Cook, cover, don't score her tiredness."},
+{wk:-30,end:-20,e:"🫶",t:"Doing this on your own? You're not alone — and there's real help",w:"Single mums: SCWO's Single Mothers Programme, HCSA SPIN and asinglelove.sg exist exactly for you — practical help, community, and people who get it. Note: some government benefits work differently for unmarried mums, so check YOUR entitlements on LifeSG early rather than assuming.",y:"Research shows the hardest part of solo parenting in SG isn't money — it's carrying it alone. You don't have to.",d:"If you're supporting a single mum: the most useful sentence is 'I'll take Tuesday nights.' Specific beats general."},
+{wk:-24,end:-16,e:"🏘️",t:"Build your kampung BEFORE baby comes",w:"Isolation is the #1 thing that breaks new SG parents — not money. Do this now: name ONE person who can take a night shift, ONE who can cook or dabao, ONE you can say anything to at 3am. Ask them THIS WEEK — people say yes before the chaos, not during.",y:"It takes a kampung. Every parent who thrives has one; most built it before the storm.",d:"Dads: your kampung counts too. One friend you can be honest with beats ten who ask 'so how's fatherhood?'"},
+{wk:-20,end:-10,e:"💵",t:"The real monthly number (so it never shocks you)",w:"Diapers, formula/feeding, clinic visits: expect roughly S$900–1,800/month in the infant phase. Set up ONE 'baby' budget line now and park money monthly from today — then the Money tab benefits (S$5,000 First Step, CDA matching, MediSave) do the heavy lifting.",y:"Parents who plan the number sleep better than parents who discover it.",d:"Dads: this card is a 20-minute money date. Bring the Money tab, agree the monthly amount, done."},
+{wk:2,end:8,e:"💗",t:"Mum — how are YOU, really?",w:"About 1 in 12 mums in Singapore experiences postnatal depression — it's common, it's medical, and it's treatable. If you feel low, empty or not-yourself for more than 2 weeks, tell your doctor — KKH and NUH screen for this at your 2–8 week visits, so bring it up there. Feeling this way is NOT failing.",y:"The mums who speak up early recover fastest. This card exists because nobody talks about it enough in Singapore.",d:"Dads: you're the early-warning system. Not sleeping even when baby sleeps, crying, pulling away, saying 'you'd all be better off without me' — that last one means talk to a doctor TODAY, together."},
+{wk:-26,end:-20,e:"💼",t:"Work + leave: know your rights early",w:"You're entitled to 16 weeks paid maternity leave, dads get 4 weeks, and there's up to 10 more weeks of Shared Parental Leave to split (births from Apr 2026). Most employed parents of Singapore-citizen babies qualify — check MOM's eligibility checker. Tell HR when YOU are ready — but at least 1 month before taking leave, formally.",y:"Knowing your rights early removes the fear from every HR conversation.",d:"Dads: your 4 weeks are real and government-paid. Plan to actually take them — all of them."},
+{wk:-22,end:-14,e:"🏫",t:"Both returning to work? Join infant care waitlists NOW",w:"Popular infant care centres in Singapore have 6–12 month waitlists. Shortlist 2–3 near home or work and register while pregnant.",y:"This is the one deadline almost every dual-income couple discovers too late.",d:"Dads: you do the centre visits shortlist. Two Saturday mornings, done."},
+{wk:-22,end:-17,e:"🔍",t:"The big anomaly scan (week 20–22)",w:"The detailed scan checks every organ — and yes, you can usually find out boy or girl. Book it in the Appts tab now.",y:"It's the most important scan of the pregnancy, and clinics book out.",d:"Dads: take the morning off. This is the scan where baby becomes a person on screen."},
+{wk:-17,end:-12,e:"🍚",t:"The sugar test (OGTT, week 24–28)",w:"Standard in Singapore: fasting glucose test for gestational diabetes. Fast from midnight, bring something to read, expect 2–3 hours.",y:"1 in 5 SG mums gets gestational diabetes — caught early it's very manageable.",d:"Dads: drive her — fasting + waiting = not a solo morning. Breakfast ready for after."},
+{wk:-14,end:-9,e:"🎓",t:"Book antenatal classes",w:"KKH, NUH and Thomson all run weekend couple classes. Book ONE — that's enough.",y:"Couples who attend together report far less panic in the delivery room.",d:"Dads: this class is for you more than her — it's where you learn your labour job."},
+{wk:-14,end:-8,e:"🏦",t:"Apply Baby Bonus + choose your CDA bank",w:"Both on LifeSG in one 15-minute sitting. Pick POSB, OCBC or UOB — whichever you already use.",y:"Apply before birth and the S$5,000 First Step lands days after registration.",d:"This is a dad job. Laptop, coffee, 15 minutes, done."},
+{wk:-12,end:-8,e:"🍲",t:"Plan the confinement month",w:"Decide ONE: confinement nanny (book now — good ones go 3+ months ahead), confinement food delivery, or family help.",y:"Deciding late means paying more for whoever is left.",d:"Dads: if it's a nanny, you interview and book. Budget S$3,800–5,500 for 28 days, plus levy and insurance."},
+{wk:-12,end:-6,e:"🛡️",t:"Sort baby's insurance plan",w:"One clear answer: hospitalisation cover (Integrated Shield) from birth. Life plans can wait.",y:"Newborn hospital stays are the #1 unexpected cost in year one.",d:"Dads: 2 quotes max, decide in one evening. Don't over-research."},
+{wk:-10,end:-6,e:"🛒",t:"The Big Buy — once, correctly",w:"Lists tab → 'Before baby comes'. Buy that list, skip the rest. Cot, car seat, stroller are the only big-ticket must-haves.",y:"SG parents waste hundreds on gadgets that end up in the storeroom.",d:"Dads: you own the car seat — buy AND install before week 36. Practice clipping it twice."},
+{wk:-8,end:-5,e:"🎒",t:"Pack the hospital bag",w:"Lists tab → 'Hospital bag'. Packed by week 36, parked by the door.",y:"Plenty of first babies arrive before week 38 — pack early.",d:"Dads: pack YOUR bag too — charger, snacks, change of clothes. You're there 2–3 days."},
+{wk:-8,end:-4,e:"📋",t:"Pre-register at your hospital",w:"Pre-admission registration online (KKH/NUH/private). Antenatal card photo on BOTH phones.",y:"Labour-day admin with no pre-registration is the worst version of paperwork.",d:"Dads: know the drive, the drop-off point, and where to park at 3am."},
+{wk:-5,end:0,e:"⏰",t:"Know the 3 signs it's time",w:"Waters breaking, contractions 5 min apart lasting 1 min, or reduced movement → go in. Unsure? Call the delivery suite — they'd rather you ask.",y:"One clear answer beats 40 panicked Google tabs at midnight.",d:"Dads: time contractions, drive calmly. A clock is all you need."},
+{wk:0,end:1,e:"👶",t:"Baby is here — 3 things happen in hospital",w:"BCG + first Hepatitis B jab before discharge, and you can usually register the birth at the hospital counter itself.",y:"Registering at hospital saves a trip. You have 42 days, but same-week is painless.",d:"Dads: birth registration is yours. Both ICs + marriage cert. 20 minutes."},
+{wk:0,end:2,e:"💛",t:"Jaundice check — the day 3–5 visit",w:"Nearly every SG newborn gets checked at the polyclinic or paed around day 3–5. Book before leaving hospital.",y:"Jaundice is common and treatable — only risky when ignored.",d:"Dads: you drive, carry, and ask the questions. Mum shouldn't be walking around day 4."},
+{wk:0,end:4,e:"🌙",t:"Confinement: mum's ONE job is recovery",w:"Sleep when baby sleeps, eat properly, watch the red flags: fever, heavy bleeding, or feeling hopeless for days — call the doctor, not Google.",y:"SG mums are hospitalised for exhaustion and infection more than anyone admits.",d:"Dads: nights, nappies, dishes, visitor-bouncing. Guard her sleep like it's your job — it is."},
+{wk:1,end:4,e:"💰",t:"Money admin lands this month",w:"Check: Baby Bonus approved, CDA open, S$5,000 First Step in. MediSave S$5,000 arrives automatically.",y:"Money tab has every amount. 10 minutes of checking = thousands secured.",d:"Dads: this whole card is yours."},
+{wk:3,end:5,e:"🩺",t:"The 1-month checkpoint",w:"Baby's 1-month check-up (some clinics add a jab — yours confirms). The next vaccine round is usually at 2 months. Book the slot a week ahead — Appts tab.",y:"This visit also catches feeding and weight issues early.",d:"Dads: you book, you drive."},
+{wk:3,end:5,e:"🎂",t:"Full Month — celebrate small",w:"满月! Cake boxes for family, one photo, done. You don't owe anyone a party.",y:"You'll be running on 4 hours of sleep — protect your energy.",d:"Dads: order the cakes. One website, 20 minutes."},
+{wk:5,end:7,e:"🌸",t:"Mum's 6-week postnatal check",w:"For MUM, not baby. Recovery, mood and body all get checked. Book it and go.",y:"Half of SG mums skip this one. Don't.",d:"Dads: you take baby duty that morning. Non-negotiable."},
+{wk:7,end:10,e:"💉",t:"The 2-month jabs",w:"First big vaccination round (6-in-1 combo + others per the national schedule — clinic confirms). Ask the nurse the paracetamol dose for after, write it down.",y:"Mild fussiness for 24–48h is normal. Any fever of 38°C or more in a baby this young — see a doctor promptly, don't wait.",d:"Dads: one parent holds, one comforts after. Be the second one."},
+{wk:10,end:14,e:"🎉",t:"Look ahead: 4-month jabs + your 100th day",w:"Book the 4-month vaccination slot now (Appts tab). Day 100 is coming — that's YOUR milestone as much as baby's.",y:"You survived the steepest part of parenting. It gets lighter from here.",d:"Dads: plan something small for day 100 — you both earned it."}
+];
+const CHECKS={
+"🤍 FIRST TRIMESTER":["Prenatal vitamin with folic acid — started","First doctor visit booked (week 8–10)","Care route decided: subsidised or private","Foods to skip noted: raw fish/meat, unpasteurised cheese, high-mercury fish","OSCAR / NIPT decision made before week 13","Receipts envelope started (MediSave claim later)"],
+"🌸 FOR MUM":["Water bottle always within reach","Gentle movement most days (walks count)","Sleep on your side from week 28","Count baby kicks daily from week 28","One honest feelings check-in per week — with partner or a friend","Ask for help once a week (practice now, need it later)"],
+"🎒 HOSPITAL BAG":["IC + marriage cert + antenatal card","Baby: 2 outfits, mittens, swaddle, going-home set","Mum: nursing bras, maternity pads, toiletries, comfy clothes","Dad: charger, snacks, change of clothes","Car seat installed and checked"],
+"🛒 BEFORE BABY COMES":["Cot / co-sleeper + firm mattress","Car seat (installed, practiced)","Stroller","6–8 bottles + brush (even if breastfeeding)","Newborn diapers — ONE pack only (sizes change fast)","Zip sleepsuits x6 (zips, never buttons)","Muslin cloths x8","Baby carrier","Thermometer","Confinement plan booked"],
+"🏦 ADMIN & MONEY":["Baby Bonus applied on LifeSG","CDA bank chosen + account open","Birth registered (within 42 days)","Baby's Integrated Shield insurance from birth","Paternity leave dates told to HR","Maternity leave confirmed with HR"],
+"👶 FIRST MONTH":["Jaundice check day 3–5 booked","1-month check booked","Full month cakes ordered","Mum's 6-week check booked","Emergency numbers saved on both phones"]};
+const AFF=["One clear answer, every week. No forums. No ten opinions.","You're doing better than you think. 💛","Small steps. That's how everyone does it.","Rest counts as progress too.","Nobody has it all figured out — you're right on time.","Your baby doesn't need perfect. Just you."];
+const BLESS=["Today's little blessing: somewhere in there, a heartbeat is practising just for you.","Today's little blessing: your baby already knows your voice better than any song.","Today's little blessing: you were chosen for this exact baby. No one else.","Today's little blessing: every kick is a hello.","Today's little blessing: one day this tiny human will laugh at your jokes.","Today's little blessing: you are already someone's whole world.","Today's little blessing: babies don't remember perfect houses — they remember warm arms.","Today's little blessing: today counts, even the messy parts."];
+const MILES={0:["Baby is HERE 🎉","The biggest day of your life. Everything else can wait."],7:["One whole week 💛","You kept a human alive for 7 days. Legends."],30:["One month strong 🌙","满月! The hardest month is behind you."],50:["Halfway to 100 🎈","Look how far you three have come."],100:["DAY 100 🎊","You did the whole climb. This app was built for exactly this moment."]};
+/* ---------------- PART A STATE ---------------- */
+let cfg=JSON.parse(localStorage.getItem('f100_cfg')||'null');
+let done=JSON.parse(localStorage.getItem('f100_done')||'{}');
+let chk=JSON.parse(localStorage.getItem('f100_chk')||'{}');
+let apts=JSON.parse(localStorage.getItem('f100_apts')||'[]');
+function save(){localStorage.setItem('f100_done',JSON.stringify(done));localStorage.setItem('f100_chk',JSON.stringify(chk));localStorage.setItem('f100_apts',JSON.stringify(apts))}
+function modeUI(){const m=document.getElementById('sMode').value;const L=document.getElementById('sDateL'),h=document.getElementById('lmpHint');
+if(m==='lmp'){L.textContent='FIRST DAY OF YOUR LAST PERIOD';h.style.display='block'}
+else if(m==='due'){L.textContent='DUE DATE';h.style.display='none'}
+else{L.textContent="BABY'S BIRTH DATE";h.style.display='none'}}
+function saveSetup(){const d=document.getElementById('sDate').value;if(!d){toast('Pick the date first 🙂');return}
+const m=document.getElementById('sMode').value;let due=d;
+if(m==='lmp'){const t=new Date(d+'T00:00:00');t.setDate(t.getDate()+280);due=t.toISOString().slice(0,10)}
+cfg={name:document.getElementById('sName').value.trim(),mode:m,date:due,who:document.getElementById('sWho').value,dad:document.getElementById('sWho').value!=='mum'};
+localStorage.setItem('f100_cfg',JSON.stringify(cfg));boot()}
+function resetAll(){if(confirm('Start over? Your ticks and appointments are kept.')){localStorage.removeItem('f100_cfg');location.reload()}}
+function weeksNow(){const ref=new Date(cfg.date+'T00:00:00');return (Date.now()-ref.getTime())/(7*24*3600*1000)}
+function dayNum(){return Math.floor(weeksNow()*7)}
+/* ---------------- DELIGHT ---------------- */
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),2600)}
+const PRAISE=["One less thing on your mind 💛","Done. You two are a good team.","Tick. Baby's lucky to have you.","Handled. Go rest a bit.","That's the kancheong handled for today."];
+function burst(x,y){if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+const cols=['#4C8A5E','#E07856','#DCA94B','#F4E3DA','#4A72B0'];
+for(let i=0;i<14;i++){const p=document.createElement('div');p.className='petal';p.style.background=cols[i%cols.length];
+p.style.left=x+'px';p.style.top=y+'px';document.body.appendChild(p);
+const a=(Math.random()*2-1)*Math.PI,v=60+Math.random()*90;
+p.animate([{transform:'translate(0,0) rotate(0deg)',opacity:1},{transform:`translate(${Math.cos(a)*v}px,${Math.sin(a)*v-70}px) rotate(${(Math.random()*2-1)*260}deg)`,opacity:0}],{duration:650+Math.random()*350,easing:'cubic-bezier(.2,.7,.3,1)'}).onfinish=()=>p.remove()}}
+let affTimer=null;
+function rotateAff(){const el=document.getElementById('hAff');let i=0;
+if(affTimer)clearInterval(affTimer);
+affTimer=setInterval(()=>{el.style.opacity=0;setTimeout(()=>{i=(i+1)%AFF.length;el.textContent=AFF[i];el.style.opacity=1},500)},7000)}
+/* ---------------- RENDER (Part A) ---------------- */
+function boot(){if(!cfg)return;
+document.getElementById('setup').classList.add('hidden');
+document.getElementById('nav').style.display='flex';
+document.getElementById('hero').style.display='block';
+document.getElementById('home').classList.remove('hidden');
+const n=cfg.name||'little one';const w=weeksNow();const day=dayNum();
+const hr=new Date().getHours();const greet=hr<5?'Still up?':hr<12?'Good morning':hr<18?'Good afternoon':'Good evening';
+document.getElementById('hTitle').textContent=day<0?`${greet} — counting down to ${n} 💛`:`${greet} — day ${Math.min(day,100)} with ${n}`;
+rotateAff();
+const big=document.getElementById('wkBig'),sm=document.getElementById('wkSm'),bar=document.getElementById('wkBar');
+if(day<0){const pw=Math.max(1,Math.min(41,Math.round(40+w)));big.textContent=`Week ${pw} of pregnancy`;
+sm.textContent=pw<14?'Trimester one — be kind to yourself.':pw<28?'Trimester two — the golden stretch.':'Trimester three — build the nest, calmly.';
+requestAnimationFrame(()=>bar.style.width=Math.max(3,pw/40*100)+'%')}
+else{big.textContent=`Day ${Math.min(day,100)} of 100`;sm.textContent=day>100?'Past 100 days — the journey carries on from here!':'The first 100 days — the steep part. You\'re doing it.';requestAnimationFrame(()=>bar.style.width=Math.min(100,day)+'%')}
+document.getElementById('dadSw').classList.toggle('on',!!cfg.dad);
+// blessing of the day (stable per day)
+const dayIdx=Math.floor(Date.now()/864e5);
+document.getElementById('blessTxt').textContent=BLESS[dayIdx%BLESS.length];
+// milestone celebration
+const mEl=document.getElementById('milestone');const mk=Object.keys(MILES).map(Number).filter(x=>day>=0&&day>=x&&day<=x+2).pop();
+if(mk!==undefined&&MILES[mk]){mEl.innerHTML=`<div class="milestone"><div class="mt">${MILES[mk][0]}</div><div class="ms">${MILES[mk][1]}</div></div>`;
+if(!localStorage.getItem('f100_m'+mk)){localStorage.setItem('f100_m'+mk,'1');setTimeout(()=>{burst(innerWidth/2,220);burst(innerWidth/2-80,260);burst(innerWidth/2+80,260)},600)}}
+else mEl.innerHTML='';
+startFloaters();
+renderFeed();renderTimeline();renderChecklist();renderApts();checkReminders();notifUI();renderHub();
+}
+let floatersOn=false;
+function startFloaters(){if(floatersOn||matchMedia('(prefers-reduced-motion: reduce)').matches)return;floatersOn=true;
+const SYM=['💛','🌱','✨','🤍','🫧'];
+setInterval(()=>{if(document.hidden)return;const f=document.createElement('div');f.className='floater';f.textContent=SYM[Math.floor(Math.random()*SYM.length)];
+f.style.left=(4+Math.random()*92)+'vw';f.style.fontSize=(13+Math.random()*12)+'px';f.style.animationDuration=(9+Math.random()*8)+'s';
+document.body.appendChild(f);setTimeout(()=>f.remove(),18000)},2400)}
+function toggleDad(){cfg.dad=!cfg.dad;localStorage.setItem('f100_cfg',JSON.stringify(cfg));document.getElementById('dadSw').classList.toggle('on',cfg.dad);renderFeed();renderTimeline();toast(cfg.dad?'Dad Mode on 👨':'Dad Mode off')}
+function card(it,idx,state,delay){const k='i'+idx;const isDone=!!done[k];
+return `<div class="card pressable" style="animation-delay:${Math.min(delay*0.06,0.5)}s"><span class="emo">${it.e||''}</span><span class="pill ${isDone?'done-p':state==='now'?'now':'soon'}">${isDone?'DONE ✓':state==='now'?'DUE NOW':'COMING UP'}</span>
+<div class="it-t">${it.t}</div><div class="it-w">${it.w}</div><div class="it-y">Why: ${it.y}</div>
+${cfg.dad&&it.d?`<div class="dadbox"><b>DAD'S PART</b><br>${it.d}</div>`:''}
+<button class="donebtn ${isDone?'un':''}" onclick="mark('${k}',event)">${isDone?'Undo':'Mark done'}</button>
+<button class="sharebtn" onclick="shareTip(${idx})">Share this with someone who needs it 💛</button></div>`}
+async function shareTip(i){const it=ITEMS[i];const txt=it.t+'\n\n'+it.w+'\n\n— from One Journey 💛';
+if(navigator.share){try{await navigator.share({title:it.t,text:txt})}catch(e){}}
+else{try{await navigator.clipboard.writeText(txt);toast('Copied — paste it anywhere 💛')}catch(e){toast('Could not copy')}}}
+function mark(k,ev){const was=!!done[k];done[k]=!was;save();
+if(!was){burst(ev.clientX||innerWidth/2,ev.clientY||innerHeight/2);toast(PRAISE[Math.floor(Math.random()*PRAISE.length)])}
+renderFeed();renderTimeline()}
+function renderFeed(){const w=weeksNow();let now='',soon='';let d=0;
+ITEMS.forEach((it,i)=>{if(w>=it.wk&&w<=it.end){now+=card(it,i,'now',d++)}else if(it.wk>w&&it.wk-w<=4){soon+=card(it,i,'soon',d++)}});
+document.getElementById('feedNow').innerHTML=now||'<div class="empty">Nothing urgent right now.<br>That IS the task — rest. 💛</div>';
+document.getElementById('feedSoon').innerHTML=soon?'<div class="cat" style="margin-top:22px">Coming up</div>'+soon:''}
+function renderTimeline(){const w=weeksNow();let h='';let d=0;
+ITEMS.forEach((it,i)=>{h+=card(it,i,(w>=it.wk&&w<=it.end)?'now':'soon',d++)});
+document.getElementById('timeline').innerHTML=h}
+function renderChecklist(){let h='';let d=0;Object.keys(CHECKS).forEach(cat=>{h+=`<div class="cat">${cat}</div><div class="card" style="padding:8px 16px;animation-delay:${Math.min(d*0.06,0.4)}s">`;d++;
+CHECKS[cat].forEach((c,i)=>{const k=cat+'|'+i;const on=!!chk[k];h+=`<div class="chk ${on?'c':''}" onclick="tick('${k.replace(/'/g,"\\'")}',event)"><div class="box">${on?'✓':''}</div><span>${c}</span></div>`});h+='</div>'});
+document.getElementById('checklist').innerHTML=h}
+function tick(k,ev){const was=!!chk[k];chk[k]=!was;save();if(!was){burst(ev.clientX,ev.clientY)}renderChecklist()}
+/* ---------------- APPOINTMENTS ---------------- */
+function addApt(){const t=document.getElementById('aTitle').value.trim(),d=document.getElementById('aDate').value,tm=document.getElementById('aTime').value||'09:00';
+if(!t||!d){toast('Give it a name and a date 🙂');return}
+apts.push({t:t,dt:d+'T'+tm,n2:false,n0:false});apts.sort((a,b)=>a.dt<b.dt?-1:1);save();
+document.getElementById('aTitle').value='';document.getElementById('aDate').value='';
+if('Notification' in window&&Notification.permission==='default')Notification.requestPermission().then(notifUI);
+renderApts();checkReminders();toast('Saved — I\'ll remind you 🗓️')}
+function delApt(i){apts.splice(i,1);save();renderApts()}
+function icsApt(i){const a=apts[i];const s=new Date(a.dt);const e=new Date(s.getTime()+36e5);
+const f=x=>x.toISOString().replace(/[-:]/g,'').slice(0,15)+'Z';
+const ics='BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nDTSTART:'+f(s)+'\nDTEND:'+f(e)+'\nSUMMARY:'+a.t+'\nBEGIN:VALARM\nTRIGGER:-P2D\nACTION:DISPLAY\nDESCRIPTION:'+a.t+'\nEND:VALARM\nEND:VEVENT\nEND:VCALENDAR';
+const b=new Blob([ics],{type:'text/calendar'});const u=URL.createObjectURL(b);const l=document.createElement('a');l.href=u;l.download=a.t.replace(/\W+/g,'_')+'.ics';l.click()}
+function renderApts(){const el=document.getElementById('aptList');
+if(!apts.length){el.innerHTML='<div class="empty">No appointments yet.<br>Add your next scan or check-up above. 🗓️</div>';return}
+const MM=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+el.innerHTML=apts.map((a,i)=>{const d=new Date(a.dt);const days=Math.ceil((d-Date.now())/864e5);
+const when=days<0?'passed':days===0?'TODAY':days===1?'tomorrow':'in '+days+' days';
+return `<div class="apt"><div class="apt-d"><div class="dd">${d.getDate()}</div><div class="mm">${MM[d.getMonth()]}</div></div>
+<div class="apt-i"><div class="apt-t">${a.t}</div><div class="apt-s">${d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})} · ${when}</div></div>
+<button class="apt-cal" onclick="icsApt(${i})">📅 +cal</button><button class="apt-x" onclick="delApt(${i})" aria-label="delete">✕</button></div>`}).join('')}
+function checkReminders(){const ban=document.getElementById('aptBanner');let msgs=[];
+apts.forEach(a=>{const d=new Date(a.dt);const days=Math.ceil((d-Date.now())/864e5);
+if(days===0)msgs.push(`<b>Today:</b> ${a.t} at ${d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`);
+else if(days>0&&days<=2)msgs.push(`<b>In ${days} day${days>1?'s':''}:</b> ${a.t}`);
+if('Notification' in window&&Notification.permission==='granted'){
+if(days===2&&!a.n2){new Notification('Appointment in 2 days 🗓️',{body:a.t});a.n2=true;save()}
+if(days===0&&!a.n0){new Notification('Appointment TODAY 🗓️',{body:a.t});a.n0=true;save()}}});
+ban.innerHTML=msgs.length?`<div class="banner">🔔 ${msgs.join('<br>')}</div>`:''}
+function notifUI(){const el=document.getElementById('notifAsk');
+if(!('Notification' in window)||Notification.permission==='granted'||!apts.length){el.innerHTML='';return}
+if(Notification.permission==='default')el.innerHTML='<div class="notif-ask">Want a pop-up reminder 2 days before each appointment?<br><button onclick="Notification.requestPermission().then(notifUI)">Turn on reminders 🔔</button></div>';
+else el.innerHTML=''}
+setInterval(checkReminders,18e5);
+function go(v,el){document.querySelectorAll('.nv').forEach(t=>t.classList.remove('on'));
+el=el||document.querySelector('.nv[data-v="'+v+'"]');if(el)el.classList.add('on');
+['home','journey','appts','checklist','money','toolkits','foryou'].forEach(x=>{const n=document.getElementById(x);n.classList.add('hidden');n.classList.remove('view')});
+const tgt=document.getElementById(v);tgt.classList.remove('hidden');void tgt.offsetWidth;tgt.classList.add('view');
+window.scrollTo({top:0,behavior:'instant'})}
+
+/* ============================================================
+   PART B — JOURNEY HUB (phases / companions / toolkits + sheets)
+   ============================================================ */
+const DATA = {"PHASES": [{"id": "found", "stage": "Stage 1", "name": "Just found out", "when": "The first few weeks", "intro": "Take a breath. Right now it’s about confirming things and starting a couple of gentle habits.", "items": [{"t": "Confirm the pregnancy with a GP or O&G", "tag": "health"}, {"t": "Book your first O&G or polyclinic appointment", "tag": "sg"}, {"t": "Start a daily folic acid supplement", "tag": "health"}, {"t": "Note the date of your last period (for dating)"}, {"t": "Ease off alcohol, smoking, and raw/undercooked foods"}, {"t": "Tell one person you trust — you don’t have to carry it alone"}], "links": [{"label": "HealthHub — pregnancy & baby", "url": "https://www.healthhub.sg"}, {"label": "Find a polyclinic / O&G", "url": "https://www.google.com/search?q=O%26G+clinic+or+polyclinic+near+me+singapore"}], "jumps": [{"to": "wellbeing", "label": "Feeling a lot already? Minding your minds"}]}, {"id": "tri1", "stage": "Stage 2", "name": "First trimester", "when": "Weeks 1–12", "intro": "Lots of change, sometimes lots of nausea. Small, steady steps are more than enough.", "items": [{"t": "Attend your dating/viability scan", "tag": "health"}, {"t": "Do the first-trimester screening (OSCAR, ~11–14 weeks)", "tag": "sg"}, {"t": "Choose your hospital & care option (KKH, NUH, private)", "tag": "sg"}, {"t": "Keep taking folic acid; add prenatal vitamins if advised"}, {"t": "Rest when you can — the tiredness is real and normal"}, {"t": "Plan when and how to tell work, if you’d like"}], "links": [{"label": "Antenatal classes (KKH / NUH)", "url": "https://www.google.com/search?q=antenatal+classes+singapore+KKH+NUH"}, {"label": "HealthHub — pregnancy", "url": "https://www.healthhub.sg"}], "jumps": [{"to": "dad", "label": "For the new dad — how to support her"}]}, {"id": "tri2", "stage": "Stage 3", "name": "Second trimester", "when": "Weeks 13–27", "intro": "Often the sweeter stretch — more energy, and the first real kicks.", "items": [{"t": "Attend the detailed anomaly scan (~20 weeks)", "tag": "health"}, {"t": "Do the glucose screening for gestational diabetes", "tag": "health"}, {"t": "Start planning maternity leave & handover"}, {"t": "Look into Baby Bonus & the Child Development Account (CDA)", "tag": "sg"}, {"t": "Begin a light list for the nursery / baby essentials"}, {"t": "Consider antenatal classes at your hospital", "tag": "care"}], "links": [{"label": "Baby Bonus & CDA (official)", "url": "https://www.babybonus.msf.gov.sg"}, {"label": "Antenatal classes (KKH / NUH)", "url": "https://www.google.com/search?q=antenatal+classes+singapore+KKH+NUH"}], "jumps": [{"to": "money", "label": "Baby Bonus & money admin"}, {"to": "shopping", "label": "Baby essentials & where to save"}]}, {"id": "tri3", "stage": "Stage 4", "name": "Third trimester", "when": "Weeks 28–40", "intro": "The home stretch. Getting ready — and getting rest — both count now.", "items": [{"t": "Attend growth scans & more frequent check-ups", "tag": "health"}, {"t": "Do the Group B Strep (GBS) swab (~35–37 weeks)", "tag": "health"}, {"t": "Decide on cord blood banking (public or private)", "tag": "sg"}, {"t": "Pack your hospital bag for you and baby"}, {"t": "Write a simple birth plan — flexible is fine"}, {"t": "Arrange confinement help (nanny, family, or centre)", "tag": "care"}, {"t": "Book confinement food catering ahead of your due date", "tag": "care"}, {"t": "Book a postnatal (confinement) massage package", "tag": "care"}, {"t": "Install the infant car seat"}], "links": [{"label": "Cord blood banking (public — SCBB)", "url": "https://www.scbb.com.sg"}, {"label": "Find a confinement nanny", "url": "https://www.google.com/search?q=confinement+nanny+agency+singapore"}, {"label": "Find confinement food catering", "url": "https://www.google.com/search?q=confinement+food+catering+singapore"}, {"label": "Find a postnatal massage (jamu)", "url": "https://www.google.com/search?q=postnatal+confinement+massage+jamu+singapore"}], "jumps": [{"to": "hospitalbag", "label": "Full hospital bag checklist"}, {"to": "shopping", "label": "What to buy & where to save"}]}, {"id": "birth", "stage": "Stage 5", "name": "Birth & first days", "when": "Delivery + first week", "intro": "Whatever the birth looked like, you did it. Now it’s recovery and paperwork — go slow.", "items": [{"t": "Register the birth (often done at the hospital)", "tag": "sg"}, {"t": "Apply for Baby Bonus & open the CDA", "tag": "sg"}, {"t": "Baby’s first jabs: BCG & Hepatitis B at birth", "tag": "health"}, {"t": "Get feeding started — breast, bottle, or both are okay"}, {"t": "Watch for jaundice; go for the check-ups advised", "tag": "health"}, {"t": "Add baby to your HealthHub / family records", "tag": "sg"}, {"t": "Rest and eat during confinement — recovery is a task too"}, {"t": "Start postnatal massage once your doctor says it’s okay — it can ease swelling and water retention and aid recovery (often a few days after a vaginal birth, later after a C-section)", "tag": "care"}], "links": [{"label": "Apply for Baby Bonus & CDA", "url": "https://www.babybonus.msf.gov.sg"}, {"label": "Register birth (LifeSG)", "url": "https://www.life.gov.sg"}, {"label": "Find confinement food catering", "url": "https://www.google.com/search?q=confinement+food+catering+singapore"}, {"label": "Find a postnatal massage (jamu)", "url": "https://www.google.com/search?q=postnatal+confinement+massage+jamu+singapore"}], "jumps": [{"to": "money", "label": "Baby Bonus, CDA & all the admin"}]}, {"id": "newborn", "stage": "Stage 6", "name": "Newborn", "when": "0–3 months", "intro": "Days blur together. Feeding, sleeping, and a few key appointments — that’s the whole job.", "items": [{"t": "Hep B 2nd dose (~1 month)", "tag": "health"}, {"t": "6-in-1 (DTaP-IPV-Hib) & PCV — 1st dose (~2 months)", "tag": "health"}, {"t": "Attend paediatric / polyclinic well-baby visits", "tag": "sg"}, {"t": "Settle a feeding rhythm; get lactation help if needed", "tag": "care"}, {"t": "Learn safe sleep (on the back, clear cot)"}, {"t": "Check in on your own mood — ask for help early", "tag": "care"}], "links": [{"label": "Immunisation schedule (HealthHub)", "url": "https://www.healthhub.sg"}, {"label": "Breastfeeding / lactation support", "url": "https://www.google.com/search?q=lactation+consultant+breastfeeding+support+singapore"}, {"label": "Find confinement food catering", "url": "https://www.google.com/search?q=confinement+food+catering+singapore"}, {"label": "Find a postnatal massage (jamu)", "url": "https://www.google.com/search?q=postnatal+confinement+massage+jamu+singapore"}], "jumps": [{"to": "feedsleep", "label": "Feeding & sleep, kept simple"}, {"to": "wellbeing", "label": "Checking in on your mood"}]}, {"id": "baby", "stage": "Stage 7", "name": "Baby", "when": "3–12 months", "intro": "So much growing. New jabs, first tastes, and first little milestones.", "items": [{"t": "6-in-1 & PCV — 2nd dose (~4 months)", "tag": "health"}, {"t": "6-in-1 3rd dose & Hep B 3rd dose (~6 months)", "tag": "health"}, {"t": "Start solids around 6 months (baby-led or purées)"}, {"t": "Watch milestones: rolling, sitting, babbling, crawling"}, {"t": "MMR & Varicella, PCV booster (~12 months)", "tag": "health"}, {"t": "Book the 6-month & 12-month developmental checks", "tag": "sg"}], "links": [{"label": "Immunisation schedule (HealthHub)", "url": "https://www.healthhub.sg"}, {"label": "Starting solids / weaning guide", "url": "https://www.google.com/search?q=starting+solids+weaning+baby+singapore+healthhub"}], "jumps": [{"to": "feedsleep", "label": "Starting solids, simply"}, {"to": "milestones", "label": "Milestones to watch"}]}, {"id": "toddler", "stage": "Stage 8", "name": "Toddler", "when": "1–3 years", "intro": "Big feelings in a small body. Boosters, first words, and lots of exploring.", "items": [{"t": "MMR 2nd dose & DTaP booster (~15–18 months)", "tag": "health"}, {"t": "Wean off breast/bottle when you both feel ready"}, {"t": "Encourage speech, walking, and self-feeding"}, {"t": "Start looking at infant care / playgroup options", "tag": "sg"}, {"t": "Begin a simple tooth-brushing routine", "tag": "care"}, {"t": "Keep well-child check-ups on track", "tag": "sg"}], "links": [{"label": "Infant care & preschool (ECDA)", "url": "https://www.ecda.gov.sg"}, {"label": "Immunisation schedule (HealthHub)", "url": "https://www.healthhub.sg"}], "jumps": [{"to": "milestones", "label": "Milestones & when to check in"}]}, {"id": "preschool", "stage": "Stage 9", "name": "Preschool", "when": "3–6 years", "intro": "Getting ready for the wider world — friendships, learning, and the school gate.", "items": [{"t": "Register for kindergarten (K1 & K2)", "tag": "sg"}, {"t": "DTaP-IPV & MMR booster around age 6–7", "tag": "health"}, {"t": "Build early reading, numbers & routines through play"}, {"t": "Go for pre-school health & dental screening", "tag": "sg"}, {"t": "Support school readiness: toileting, sharing, listening"}, {"t": "Celebrate how far you’ve both come 🎈"}], "links": [{"label": "Kindergarten registration (MOE)", "url": "https://www.moe.gov.sg/primary/kindergartens"}, {"label": "Find a preschool (ECDA)", "url": "https://www.ecda.gov.sg"}]}], "COMPANIONS": [{"id": "wellbeing", "stage": "Wellbeing", "name": "Minding your minds — for both parents", "when": "Every stage, and long after", "intro": "Your mental health matters as much as every scan and jab. Mood swings, tearfulness, worry, and feeling overwhelmed are common in pregnancy and after birth — for mums and for dads. Most of it eases with rest and support. But if low, anxious, or empty feelings last more than about two weeks, feel very heavy, or stop either of you coping day to day, that can be antenatal or postnatal depression — it is common, it is not your fault, and it is treatable. Please talk to your doctor or O&G, who can help. If either of you ever feels unable to go on, reach out right now — Samaritans of Singapore (SOS) is free and 24 hours on 1767.", "items": [{"t": "Talk honestly about how you each really feel — no one has to “stay strong” alone", "tag": "care"}, {"t": "Share the night load — take shifts so each of you gets one solid block of sleep", "tag": "care"}, {"t": "Protect a little “us” time each week, even 20 quiet minutes together"}, {"t": "Ask for the specific help you need, out loud — don’t wait to be noticed"}, {"t": "Watch for warning signs in each other: lasting sadness, anxiety, anger, or pulling away", "tag": "health"}, {"t": "Keep one thread to the outside world — a friend, a walk, a hobby"}, {"t": "Lower the bar — “good enough” really is good parenting"}, {"t": "Accept help when it’s offered; that’s strength, not weakness"}, {"t": "If heavy feelings last over two weeks, speak to a doctor or a helpline — don’t wait", "tag": "health"}], "links": [{"label": "mindline.sg — free mental wellbeing", "url": "https://www.mindline.sg"}, {"label": "Samaritans of Singapore (24h · 1767)", "url": "https://www.sos.org.sg"}, {"label": "KKH — women’s mental wellness", "url": "https://www.google.com/search?q=KKH+postnatal+depression+women+mental+wellness+service"}, {"label": "HealthHub — mental wellbeing", "url": "https://www.healthhub.sg"}]}, {"id": "dad", "stage": "For partners", "name": "For the new dad (or partner)", "when": "Pregnancy through the first year", "intro": "You can’t carry the baby, but you can carry a lot of everything else — and it matters more than you know. Here’s what to expect and how to show up, before and after birth.", "items": [{"t": "Go to the scans and key appointments you can — being there means a lot"}, {"t": "Learn what changes each trimester, so her tiredness, nausea, and moods make sense"}, {"t": "Take on more of the chores quietly, before being asked"}, {"t": "Be patient with mood swings — it’s hormones, not about you"}, {"t": "Help plan the practical stuff: hospital bag, birth plan, budget, baby gear"}, {"t": "At the hospital, be her voice — know her birth preferences", "tag": "care"}, {"t": "Own the admin: birth registration, Baby Bonus, managing visitors", "tag": "sg"}, {"t": "Take night and nappy shifts so she can recover"}, {"t": "Protect her rest during confinement; manage the flow of guests"}, {"t": "Get hands-on early — soothing, changing, bathing, burping"}, {"t": "Check on her mood, and your own — dads get postnatal depression too", "tag": "health"}, {"t": "Keep saying “you’re doing great” — and mean it. Presence beats gifts"}], "links": [{"label": "Dads for Life (SG)", "url": "https://www.google.com/search?q=Dads+for+Life+Singapore"}, {"label": "HealthHub — for partners", "url": "https://www.healthhub.sg"}, {"label": "Antenatal classes (couples welcome)", "url": "https://www.google.com/search?q=antenatal+classes+singapore+for+couples"}]}], "TOOLKITS": [{"id": "hospitalbag", "stage": "Pack", "name": "Hospital bag checklist", "when": "Have it ready by ~36 weeks", "intro": "Keep it packed by the door from around 36 weeks — babies don’t always wait. Here’s what actually gets used: for you, for baby, for your partner, plus the documents you’ll need.", "items": [{"t": "Your IC, marriage cert, and hospital/insurance documents", "tag": "care"}, {"t": "Birth plan and any maternity or pregnancy records"}, {"t": "Comfy going-home outfit, nursing bras, maternity pads"}, {"t": "Toiletries, lip balm, hair ties, and a long phone charger"}, {"t": "Snacks and a refillable water bottle for you"}, {"t": "Baby: 2–3 bodysuits, a swaddle, mittens, socks and a hat"}, {"t": "Baby: newborn diapers and wipes (hospital may provide some)"}, {"t": "Baby: a going-home outfit and a warm layer"}, {"t": "Infant car seat installed in the car, ready to go", "tag": "care"}, {"t": "Partner: change of clothes, charger, snacks, cash/card"}, {"t": "A short list of who to update once baby arrives"}], "links": [{"label": "Hospital bag guide (HealthHub)", "url": "https://www.healthhub.sg"}, {"label": "Hospital bag checklist (SG)", "url": "https://www.google.com/search?q=hospital+bag+checklist+singapore"}]}, {"id": "feedsleep", "stage": "Feeding & sleep", "name": "Feeding and sleep, kept simple", "when": "Newborn to weaning", "intro": "However you feed — breast, bottle, or both — is okay. The two things that overwhelm new parents most are feeding and sleep, so here are the basics. A lactation consultant, your doctor, or the polyclinic can help with the rest.", "items": [{"t": "Feed on demand early on — newborns feed often, day and night"}, {"t": "Learn a good latch; see a lactation consultant if breastfeeding hurts", "tag": "care"}, {"t": "If formula feeding, follow the tin’s measurements and sterilise properly"}, {"t": "Enough wet and dirty nappies is a good sign baby is getting enough"}, {"t": "Burp after feeds; a little spit-up is normal"}, {"t": "Safe sleep: always on the back, on a firm flat surface", "tag": "health"}, {"t": "Keep the cot clear — no pillows, bumpers or soft toys", "tag": "health"}, {"t": "Room-share, not bed-share, for the first months"}, {"t": "Start solids around 6 months, one new food at a time"}, {"t": "Expect broken sleep — take turns so each of you rests"}], "links": [{"label": "Breastfeeding support (HealthHub)", "url": "https://www.healthhub.sg"}, {"label": "Lactation consultant (SG)", "url": "https://www.google.com/search?q=lactation+consultant+singapore"}, {"label": "Safe infant sleep", "url": "https://www.google.com/search?q=safe+infant+sleep+guidelines"}]}, {"id": "money", "stage": "Money & admin", "name": "Money and admin, sorted (Singapore)", "when": "Pregnancy to the first year", "intro": "A baby brings paperwork and payouts. Here’s the money-and-admin roadmap for Singapore parents — tick what applies to you, and always confirm the current amounts and rules on the official sites, as they change from time to time. This is general guidance, not financial advice.", "items": [{"t": "Register for the Baby Bonus Cash Gift", "tag": "sg"}, {"t": "Open the Child Development Account (CDA) — the government matches your savings", "tag": "sg"}, {"t": "Use MediSave for delivery and pregnancy (MediSave Maternity Package)", "tag": "sg"}, {"t": "Check your newborn’s MediShield Life cover is active from birth", "tag": "sg"}, {"t": "Plan your paid leave: maternity, paternity, and shared parental leave", "tag": "sg"}, {"t": "Add baby to your health insurance; review your Integrated Shield Plan", "tag": "care"}, {"t": "Consider infant/education insurance and a savings plan"}, {"t": "Budget baby’s first year — diapers, milk, childcare, medical"}, {"t": "Update your CPF nomination and will now that you’re a parent"}], "links": [{"label": "Baby Bonus & CDA (official)", "url": "https://www.babybonus.msf.gov.sg"}, {"label": "CPF Board", "url": "https://www.cpf.gov.sg"}, {"label": "Parental leave (MOM)", "url": "https://www.google.com/search?q=maternity+paternity+shared+parental+leave+MOM+singapore"}, {"label": "LifeSG — newborn services", "url": "https://www.life.gov.sg"}]}, {"id": "milestones", "stage": "Milestones", "name": "Firsts, milestones and when to check in", "when": "0–6 years", "intro": "Every child grows at their own pace, so treat these as gentle guides, not a race. Enjoy noting the firsts — and if something feels off, or your child seems to be missing several milestones, trust your instinct and raise it early with your doctor or at a polyclinic developmental check. Early support makes a real difference.", "items": [{"t": "~2 months: smiles at you, follows faces and sounds"}, {"t": "~6 months: sits with support, babbles, reaches for things"}, {"t": "~12 months: pulls to stand, first words, waves bye-bye"}, {"t": "~18 months: walks well, points, uses several words"}, {"t": "~2 years: runs, links two words, follows simple instructions"}, {"t": "~3–4 years: talks in sentences, plays alongside other children"}, {"t": "Attend the developmental screening checks at your polyclinic", "tag": "sg"}, {"t": "Check with a doctor if baby doesn’t respond to sounds or their name, makes little eye contact, or loses skills they had", "tag": "health"}], "links": [{"label": "Child development (HealthHub)", "url": "https://www.healthhub.sg"}, {"label": "Developmental milestones (SG)", "url": "https://www.google.com/search?q=child+development+milestones+singapore+healthhub"}]}, {"id": "urgent", "stage": "Urgent", "name": "When to get help fast", "when": "Any time — trust your gut", "intro": "You know your baby best. Most of the time it’s nothing — but some signs mean don’t wait. If you’re worried, contact your doctor or a 24-hour clinic, or call 995 for an ambulance. It is always okay to get checked; you are never wasting anyone’s time.", "items": [{"t": "A fever in a baby under 3 months — get seen the same day", "tag": "health"}, {"t": "Trouble breathing, blue lips, or fast, laboured breathing — call 995", "tag": "health"}, {"t": "Very hard to wake, floppy, or unusually unresponsive — call 995", "tag": "health"}, {"t": "Dehydration signs: not feeding, far fewer wet nappies, a sunken soft spot", "tag": "health"}, {"t": "A rash that doesn’t fade when you press a glass against it — seen urgently", "tag": "health"}, {"t": "A seizure, repeated vomiting, or an injury you’re worried about", "tag": "health"}, {"t": "When in doubt, trust your gut and get help — always okay"}], "links": [{"label": "KKH Children’s Emergency", "url": "https://www.google.com/search?q=KKH+children+emergency+24+hour"}, {"label": "HealthHub — baby health", "url": "https://www.healthhub.sg"}]}, {"id": "shopping", "stage": "Shopping", "name": "Baby essentials — where to buy & save", "when": "Before birth onwards", "intro": "You need far less than the shops suggest, and much of it can be second-hand. A newborn’s needs are the same for a boy or a girl — the same stores carry both, so buy for practicality first. In Singapore, parents shop at Mothercare, Kiddy Palace, Baby Kingdom, Pupsik and Motherswork, plus the baby aisles at FairPrice Xtra, Metro and BHG; online at Shopee, Lazada and Amazon.sg; and preloved on Carousell and Facebook Marketplace. For the best prices, the big baby fairs (at Expo or Suntec, held a few times a year) are cheapest for bulk diapers, wipes and milk — and online, the mega-sale dates 9.9, 10.10, 11.11 (the biggest), 12.12, plus the mid-year Great Singapore Sale, are when to stock up on non-perishables.", "items": [{"t": "Newborn diapers + wipes (start with one pack — babies grow fast)"}, {"t": "5–7 bodysuits or rompers, plus swaddles, socks and mittens"}, {"t": "Cot or bassinet + firm mattress + fitted sheets"}, {"t": "Infant car seat (needed to bring baby home)", "tag": "care"}, {"t": "Feeding kit: bottles + steriliser, or nursing basics if breastfeeding"}, {"t": "Bath tub, towels, a gentle wash, and nappy cream"}, {"t": "Pram/stroller and a baby carrier"}, {"t": "Thermometer, baby nail clippers, and a simple first-aid kit"}, {"t": "Borrow or buy preloved for clothes and big items — they’re barely used"}, {"t": "Stock up on diapers, wipes and formula at a baby fair or 11.11 sale", "tag": "sg"}], "links": [{"label": "Find a baby fair (SG)", "url": "https://www.google.com/search?q=baby+fair+singapore+2026"}, {"label": "Shopee", "url": "https://shopee.sg"}, {"label": "Lazada", "url": "https://www.lazada.sg"}, {"label": "Amazon.sg", "url": "https://www.amazon.sg"}, {"label": "Carousell (preloved)", "url": "https://www.carousell.sg"}]}]};
+const EMOJI = {found:"🌱",tri1:"🍋",tri2:"🥭",tri3:"🍉",birth:"👶",newborn:"🍼",baby:"🧸",toddler:"🚂",preschool:"🎒",wellbeing:"💛",dad:"🤝",hospitalbag:"🧳",feedsleep:"🌙",money:"💰",milestones:"⭐",urgent:"🚨",shopping:"🛒"};
+const HUES = ["#EDF1EA","#F7E3E5","#F6EEDD","#E7EEF3"];
+const ALL = [...DATA.PHASES, ...DATA.COMPANIONS, ...DATA.TOOLKITS];
+const byId = Object.fromEntries(ALL.map(s=>[s.id,s]));
+const EXTRA_JUMPS={
+  found:[{to:"urgent",label:"When to get help fast"}],
+  tri1:[{to:"wellbeing",label:"Minding your minds"}],
+  tri2:[],
+  tri3:[{to:"money",label:"Money & admin toolkit"}],
+  birth:[{to:"feedsleep",label:"Feeding & sleep basics"},{to:"urgent",label:"When to get help fast"}],
+  newborn:[{to:"urgent",label:"When to get help fast"},{to:"milestones",label:"Milestones to watch"}],
+  baby:[{to:"urgent",label:"When to get help fast"},{to:"shopping",label:"Essentials & where to save"}],
+  toddler:[{to:"urgent",label:"When to get help fast"}],
+  preschool:[{to:"milestones",label:"Milestones & check-ins"},{to:"money",label:"Money & admin toolkit"}]
+};
+ALL.forEach(sec=>{ (EXTRA_JUMPS[sec.id]||[]).forEach(j=>{ sec.jumps=sec.jumps||[]; if(!sec.jumps.some(x=>x.to===j.to)) sec.jumps.push(j); }); });
+const HUBKEY="littlesprout_checks_v2";
+let mem={}; try{mem=JSON.parse(localStorage.getItem(HUBKEY))||{}}catch(e){}
+const ojSave=()=>localStorage.setItem(HUBKEY,JSON.stringify(mem));
+const doneIn=s=>s.items.reduce((a,_,i)=>a+(mem[s.id+"|"+i]?1:0),0);
+function ringSVG(pct){
+  const r=16, c=2*Math.PI*r, off=c*(1-pct);
+  return `<svg class="ring" viewBox="0 0 40 40"><circle class="bg" cx="20" cy="20" r="${r}"/><circle class="fg" cx="20" cy="20" r="${r}" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}" transform="rotate(-90 20 20)"/><text x="20" y="24" text-anchor="middle">${Math.round(pct*100)}%</text></svg>`;
+}
+function jcard(s, idx, hereId){
+  const d=doneIn(s), n=s.items.length, pct=n?d/n:0;
+  const badge = s.id===hereId ? `<span class="here">You are here</span>` : (d===n&&n?`<span class="done-badge">🎉 Done</span>`:"");
+  return `<button class="jcard" style="animation-delay:${idx*70}ms" onclick="openSheet('${s.id}')">
+    ${badge}
+    <div class="jblob" style="background:${HUES[idx%HUES.length]}">${EMOJI[s.id]||"🌿"}</div>
+    <div class="chip">${esc(s.stage)} · ${esc(s.when)}</div>
+    <h3>${esc(s.name)}</h3>
+    <div class="foot"><span class="count">${d}/${n} ticked</span>${ringSVG(pct)}</div>
+  </button>`;
+}
+function esc(x){return String(x??"").replace(/&/g,"&amp;").replace(/</g,"&lt;")}
+function renderHub(){
+  const hereId = (DATA.PHASES.find(p=>doneIn(p)<p.items.length)||{}).id;
+  document.getElementById("journeyGrid").innerHTML = DATA.PHASES.map((s,i)=>jcard(s,i,hereId)).join("");
+  document.getElementById("companionGrid").innerHTML = DATA.COMPANIONS.map((s,i)=>jcard(s,i,null)).join("");
+  document.getElementById("toolkitGrid").innerHTML = DATA.TOOLKITS.map((s,i)=>jcard(s,i,null)).join("");
+  const tot=ALL.reduce((a,s)=>a+s.items.length,0), don=ALL.reduce((a,s)=>a+doneIn(s),0);
+  document.getElementById("overallBar").style.width=(100*don/tot).toFixed(0)+"%";
+  document.getElementById("overallPct").textContent=(100*don/tot).toFixed(0)+"% of your journey ticked";
+}
+let current=null;
+function openSheet(id){
+  current=id; const s=byId[id]; const ov=document.getElementById("overlay");
+  document.getElementById("sheet").innerHTML=sheetHTML(s);
+  ov.classList.add("open"); requestAnimationFrame(()=>ov.classList.add("show"));
+  document.body.style.overflow="hidden";
+}
+function closeSheet(){
+  const ov=document.getElementById("overlay");
+  ov.classList.remove("show");
+  setTimeout(()=>{ov.classList.remove("open");document.body.style.overflow="";renderHub();},280);
+}
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeSheet()});
+function sheetHTML(s){
+  const d=doneIn(s), n=s.items.length;
+  const items=s.items.map((it,i)=>{
+    const on=!!mem[s.id+"|"+i];
+    const tag=it.tag?`<span class="tag ${it.tag}">${{sg:"SG",health:"Health",care:"Care"}[it.tag]||it.tag}</span>`:"";
+    return `<li class="${on?"done":""}" id="li_${i}">
+      <div class="cb ${on?"on":""}" onclick="toggle(${i})"></div>
+      <span class="txt" onclick="toggle(${i})">${esc(it.t)}</span>${tag}</li>`;
+  }).join("");
+  const links=(s.links||[]).map(l=>`<a href="${l.url}" target="_blank" rel="noopener">${esc(l.label)} ↗</a>`).join("");
+  const jumps=(s.jumps||[]).map(j=>`<button onclick="openSheet('${j.to}')">${esc(j.label)} →</button>`).join("");
+  return `<div class="sheet-head">
+      <div class="jblob" style="background:${HUES[1]}">${EMOJI[s.id]||"🌿"}</div>
+      <div><div class="chip">${esc(s.stage)} · ${esc(s.when)}</div><h3>${esc(s.name)}</h3></div>
+      <button class="close" onclick="closeSheet()">✕</button>
+    </div>
+    <p class="intro">${esc(s.intro)}</p>
+    ${jumps?`<div class="jump-label">Handy pages for this stage — one tap, no scrolling</div><div class="jumprow top">${jumps}</div>`:""}
+    <div class="prog"><i id="shProg" style="width:${n?100*d/n:0}%"></i></div>
+    <div class="prog-label" id="shLabel">${d} of ${n} done</div>
+    <div class="celebrate" id="shParty" style="display:${d===n&&n?"block":"none"}">🎉 Everything here is ticked — beautifully done.</div>
+    <ul class="items">${items}</ul>
+    ${links?`<div class="linkrow">${links}</div>`:""}
+    <div style="height:26px"></div>`;
+}
+function toggle(i){
+  const k=current+"|"+i;
+  mem[k]=!mem[k]; if(!mem[k])delete mem[k]; ojSave();
+  const s=byId[current], li=document.getElementById("li_"+i);
+  li.classList.toggle("done",!!mem[k]);
+  li.querySelector(".cb").classList.toggle("on",!!mem[k]);
+  const d=doneIn(s), n=s.items.length;
+  document.getElementById("shProg").style.width=(n?100*d/n:0)+"%";
+  document.getElementById("shLabel").textContent=`${d} of ${n} done`;
+  document.getElementById("shParty").style.display=(d===n&&n)?"block":"none";
+}
+
+/* ============================================================
+   PART C — FEEDBACK & INIT
+   ============================================================ */
+const fbPanel=document.createElement('div');fbPanel.className='fb-panel';
+fbPanel.innerHTML=`<h4>💬 Tell us what you think</h4>
+<p>Missing something? Confusing? We read every message.</p>
+<textarea id="fbText" placeholder="Your thoughts, ideas, or anything we missed…"></textarea>
+<button class="fb-send" onclick="sendFb()">Send feedback</button>
+<div class="fb-thanks" id="fbThanks">💛 Thank you — opening your mail app…</div>`;
+document.body.appendChild(fbPanel);
+const fab=document.createElement('button');fab.className='fab';fab.innerHTML='💬 Feedback';
+fab.onclick=()=>{ if(fbPanel.classList.contains('open')){fbPanel.classList.remove('show');setTimeout(()=>fbPanel.classList.remove('open'),250);} else {fbPanel.classList.add('open');requestAnimationFrame(()=>fbPanel.classList.add('show'));document.getElementById('fbText').focus();} };
+document.body.appendChild(fab);
+function sendFb(){
+  const t=document.getElementById('fbText').value.trim();
+  if(!t)return;
+  document.getElementById('fbThanks').style.display='block';
+  const subj=encodeURIComponent('One Journey feedback');
+  const body=encodeURIComponent(t+"\n\n— sent from the One Journey app");
+  setTimeout(()=>{window.location.href=`mailto:karthikpandiyan10@gmail.com?subject=${subj}&body=${body}`;},400);
+  setTimeout(()=>{document.getElementById('fbText').value='';document.getElementById('fbThanks').style.display='none';fbPanel.classList.remove('show');setTimeout(()=>fbPanel.classList.remove('open'),250);},2600);
+}
+/* ---- boot the app ---- */
+modeUI();
+renderHub();
+boot();
+</script>
+</body>
+</html>

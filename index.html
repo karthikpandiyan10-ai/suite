@@ -418,9 +418,12 @@ const LAUNCH={
   supabase:"https://supabase.com/dashboard/project/drgnimyotoqrzuxflxpy",
   onesafe:(location.protocol==="file:"?"../SafeFrame/OneSafe/onesafe.html":"onesafe.html"),
   dashboard:(location.protocol==="file:"?"../Karthik_Dashboard.html":"dashboard.html"),
-  littlesprout:(location.protocol==="file:"?"../Little Sprout/little-sprout.html":"little-sprout.html"),
-  sproutpage:(location.protocol==="file:"?"../Little Sprout/little-sprout.html":"little-sprout.html"),
-  sprout:(location.protocol==="file:"?"../Little Sprout/little-sprout.html":"little-sprout.html"),
+  littlesprout:"one-journey.html",
+  sproutpage:"one-journey.html",
+  sprout:"one-journey.html",
+  onejourney:"one-journey.html",
+  journey:"one-journey.html",
+  onejourny:"one-journey.html",
   youtube:"https://www.youtube.com", jasper:"https://www.jasper.ai", chatgpt:"https://chatgpt.com",
   claude:"https://claude.ai", tiktok:"https://www.tiktok.com", amazon:"https://www.amazon.sg",
   aliexpress:"https://www.aliexpress.com", shopee:"https://shopee.sg", lazada:"https://www.lazada.sg",
@@ -654,7 +657,7 @@ function renderVentures(){
 }
 renderTasks(); startClock(); applyIdentity(); loadCounts(); renderLocalMetrics(); loadNotes(); loadBrainFiles(); gStatus(); renderVentures(); setInterval(renderVentures,120000); bootSequence();
 /* ---- self-updater: pull new builds automatically when idle ---- */
-const SK_VER="v26-2026-07-13c";  // bump this on every deploy so devices auto-refresh
+const SK_VER="v27-2026-07-14a";  // bump this on every deploy so devices auto-refresh
 async function skCheckUpdate(){try{
   if(speaking||capture)return;
   const txt=await (await fetch(location.pathname+"?u="+Date.now(),{cache:"no-store"})).text();

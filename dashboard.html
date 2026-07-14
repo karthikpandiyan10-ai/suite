@@ -33,11 +33,14 @@ header{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap
 .w{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px;backdrop-filter:blur(10px);position:relative;overflow:hidden;transition:border-color .25s, transform .25s}
 .w:hover{border-color:rgba(255,255,255,.2);transform:translateY(-2px)}
 .w::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--ac,#22D3EE),transparent);opacity:.7}
-.w h2{font-size:15px;font-weight:700;letter-spacing:.03em;display:flex;align-items:center;gap:8px}
+.w h2{font-size:15px;font-weight:700;letter-spacing:.03em;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .w h2 .dot{width:8px;height:8px;border-radius:50%;background:var(--ac);box-shadow:0 0 10px var(--ac)}
 .w .sub{color:var(--dim);font-size:12px;margin-top:2px}
 .span4{grid-column:span 4}.span6{grid-column:span 6}.span8{grid-column:span 8}.span12{grid-column:span 12}
 @media(max-width:980px){.span4,.span6,.span8{grid-column:span 12}}
+.badge{font-size:9.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;padding:2px 8px;border-radius:999px;vertical-align:middle}
+.badge.pri{background:rgba(52,211,153,.15);color:var(--green);border:1px solid rgba(52,211,153,.4)}
+.badge.hold{background:rgba(251,191,36,.12);color:var(--amber);border:1px solid rgba(251,191,36,.4)}
 .appw .top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
 .ringbox{position:relative;width:64px;height:64px;flex-shrink:0}
 .ringbox svg{transform:rotate(-90deg)}
@@ -50,6 +53,9 @@ ul.next li{display:flex;gap:9px;align-items:flex-start;padding:6px 2px;font-size
 ul.next input{accent-color:#22D3EE;width:14px;height:14px;margin-top:3px;cursor:pointer;flex-shrink:0}
 ul.next li.f label::after{content:" ⚑";color:var(--red)}
 ul.next label{cursor:pointer}
+.todo-add{display:flex;gap:8px;margin-top:12px}
+.todo-add input{flex:1;background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:8px 11px;font-family:inherit;font-size:13px}
+.todo-add input:focus{outline:none;border-color:var(--cyan)}
 .wfoot{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
 .btn{border:1px solid var(--line);background:var(--panel2);color:var(--ink);font-family:inherit;font-size:12px;font-weight:600;padding:7px 14px;border-radius:10px;cursor:pointer;transition:background .2s}
 .btn:hover{background:rgba(255,255,255,.12)}
@@ -110,19 +116,114 @@ footer{text-align:center;color:var(--dim);font-size:11.5px;margin-top:24px;font-
 
 <div class="grid" id="grid"></div>
 
-<footer>MISSION CONTROL v3 · ticks &amp; notes save in this browser · ask Claude to update this file anytime</footer>
+<footer>MISSION CONTROL v4 · ticks &amp; notes save in this browser · to-do syncs live from Supabase · ask Claude to update this file anytime</footer>
 </div>
 <div class="overlay" id="overlay"><div class="back" onclick="closeOv()"></div><div class="sheet" id="sheet"></div></div>
 
 <script>
 /*DAILY_BRIEF_START*/
-const DAILY_BRIEF = {date:"11 Jul 2026", lines:["📊 Little Sprout survey: 15/30 real responses (17 rows, 2 test excluded) — flat since yesterday. Still 15 short; the well's gone quiet and needs a fresh push.","📬 Inbox (24h): GitHub sudo codes for the -ai account (you were authing the suite repo / Pages) + a Supabase Auth nudge — nothing needs action.","🎯 Today's focus → Skai: knock out the next Coursiv lesson, then shortlist 3–5 products with real margin math (cost + shipping + ads < price).","⏳ 1–2 month clock ticking. Little Sprout is stalled and Skai's still learning — pick one concrete win today and bank it. Consistency ships all three."]};
+const DAILY_BRIEF = {date:"14 Jul 2026", lines:["🎯 Main focus → One Journey: lock the founding offer and tighten the waitlist page (one-journey.html). Launching this month — aim for the first 100 signups on one main channel.","🛒 SKAI kicks off this week: research one winning product and run the margin math (cost + shipping + ads < price) before anything goes live.","🎬 Studio: later this week — confirm the friend's deliverables in writing, then ship and invoice.","⏸ OneSafe is on hold until end of month. One Journey ships first; don't let the safety build pull focus."]};
 /*DAILY_BRIEF_END*/
 const PROJECTS = [
   {
-    id:"safeframe", accent:"#22D3EE", tag:"One-stop safety platform", title:"OneSafe",
+    id:"sprout", accent:"#34D399", tag:"Main focus · launching this month", title:"One Journey",
+    desc:"New-parents guide app for Singapore — for expecting parents, new mums and dads, and those trying for a baby. Built with your wife.",
+    hint:"MAIN FOCUS NOW. v1 is zero-to-100: founding offer + waitlist + MVP core, launching this month.",
+    phases:[
+      {name:"Offer & waitlist", steps:[
+        {t:"Define & draft the founding offer", f:true},
+        {t:"Tighten the waitlist page (one-journey.html) for signups", f:false},
+        {t:"Set target: first 100 signups + main channel", f:false}
+      ]},
+      {name:"Build & content", steps:[
+        {t:"Build the MVP core (checklists, reminders, stage guidance)", f:false},
+        {t:"Write the S$6 well-being ebook", f:false},
+        {t:"Draft a week of SG-parent content", f:false}
+      ]},
+      {name:"Launch", steps:[
+        {t:"Pick launch date + channels", f:false}
+      ]}
+    ],
+    money:"Founding offer + S$6 well-being ebook; freemium app with a premium tier later",
+    playbook:[
+      ["Lock the founding offer + tighten the waitlist page","Give the first 100 a concrete reason to sign up now"],
+      ["Set the target: first 100 signups + one main channel","One channel done well beats five half-done"],
+      ["Build the MVP core: checklists, reminders, stage guidance","Ship the smallest thing parents will actually open daily"],
+      ["Write the S$6 well-being ebook + a week of SG-parent content","MONEY: the ebook is the first paid product; content fills the funnel"],
+      ["Pick the launch date + channels and go","Launching this month — a dated deadline is what makes it real"]
+    ],
+    notes:""
+  },
+  {
+    id:"skai", accent:"#FBBF24", tag:"Dropshipping · AI money platform · starting this week", title:"SKAI — Dropshipping",
+    desc:"Dropshipping and AI-powered money platform. Learning it end to end this week.",
+    hint:"Page Pilot account ready (created 7 Jul under skai.org2419@gmail.com). Your Coursiv lessons feed straight into product research.",
+    phases:[
+      {name:"Find the product", steps:[
+        {t:"Research a winning product", f:true},
+        {t:"Model margins", f:false}
+      ]},
+      {name:"Build the offer", steps:[
+        {t:"Generate ad angles / hooks", f:false},
+        {t:"Set up store + landing (Page Pilot)", f:false}
+      ]},
+      {name:"Test", steps:[
+        {t:"Launch first test", f:false}
+      ]}
+    ],
+    money:"Margin per sale — buy low from supplier, sell higher, ads in between",
+    playbook:[
+      ["Research a winning product properly (Coursiv + Claude sessions)","Most people lose money by skipping this step"],
+      ["Model margins: cost + shipping + ads < price","If the math doesn't work on paper it won't work live"],
+      ["Generate ad angles, then build the store + landing on Page Pilot","Professional pages = trust = conversions"],
+      ["Launch one small fixed-budget test, kill losers fast","MONEY: profit per sale; treat the first budget as tuition"],
+      ["Scale only proven winners, reinvest profits","This is where dropshipping actually pays"]
+    ],
+    notes:""
+  },
+  {
+    id:"studio", accent:"#A78BFA", tag:"Freelance services · later this week", title:"Studio — Video & Marketing",
+    desc:"Paid video editing and marketing services. First client: your friend. Fastest cash of all four ventures — paid per job.",
+    hint:"Golden rule: scope in writing even with friends — deliverables, revisions, deadline, price. Then testimonial, then referrals.",
+    phases:[
+      {name:"Deliver & get paid", steps:[
+        {t:"Confirm client deliverables", f:false},
+        {t:"Ship + invoice", f:false},
+        {t:"Follow up payment", f:false}
+      ]}
+    ],
+    money:"Per job: short edits ~S$50-150, long-form ~S$150-500, monthly social ~S$500-1,500 (set your own)",
+    playbook:[
+      ["Package the service (3 fixed offers, fixed prices)","Stops the 'friend price' trap; easy to say yes to"],
+      ["Scope in writing, always","Friendships survive contracts, not confusion"],
+      ["Deliver fast and well using AI tools you already have","MONEY: paid on delivery, immediately"],
+      ["Testimonial + referrals after every job","Each client should produce the next one"],
+      ["Raise rates every 2-3 clients","You're underpriced until someone says no"]
+    ],
+    notes:""
+  },
+  {
+    id:"coursiv", accent:"#F472B6", tag:"Learning", title:"Coursiv — AI Mastery",
+    desc:"ChatGPT & Apps course: 2/13 lessons (15%) as of 8 Jul 2026. Streak active.",
+    hint:"After this course: 'AI Side Hustle' and 'AI Copywriting' — both feed directly into SKAI.",
+    phases:[
+      {name:"ChatGPT & Apps course", steps:[
+        {t:"Complete lesson 3", f:true},
+        {t:"Keep the daily streak — 20–30 min at a fixed time", f:false},
+        {t:"Reach halfway (7/13 lessons)", f:false},
+        {t:"Finish all 13 lessons", f:false}
+      ]},
+      {name:"Apply & continue", steps:[
+        {t:"After each lesson, note 1 thing to apply to SKAI or One Journey", f:false},
+        {t:"Start next course: AI Side Hustle or AI Copywriting", f:false}
+      ]}
+    ],
+    money:"", playbook:null, notes:""
+  },
+  {
+    id:"safeframe", accent:"#22D3EE", tag:"Safety SaaS · ON HOLD until end of month", title:"OneSafe",
     desc:"One platform for all safety personnel — WSH coordinators, officers, managers. The MSRA knowledge base powers the app: AI documents grounded in your real company MSRAs, not generic text.",
-    hint:"Knowledge base now at 3,639 hazard rows across 129 activities, fully anonymized (MSRA_Full_Output). App code in SafeFrame_Toolkit.",
+    hint:"ON HOLD until end of month — resume after One Journey launches. Knowledge base sits at 3,639 hazard rows across 129 activities, fully anonymized (MSRA_Full_Output).",
     phases:[
       {name:"Build the knowledge base", steps:[
         {t:"QA & de-dupe the 10 POC activities in MSRA_Master.xlsx (491 hazard rows)", f:true},
@@ -174,127 +275,6 @@ const PROJECTS = [
     notes:""
   },
   {
-    id:"sprout", accent:"#34D399", tag:"App project", title:"Little Sprout",
-    desc:"App for new mothers, expecting parents and those trying for a baby.",
-    hint:"Survey is live with first responses. Redesigned journey-card page is in Desktop/Little Sprout.",
-    phases:[
-      {name:"Validate with real people", steps:[
-        {t:"Create Google Form survey — DONE: 'New Parent Survey — Singapore' is live with first responses", f:false, d:true},
-        {t:"Define exactly who the target audience is (first-time mums? trying-to-conceive? all three?)", f:false},
-        {t:"Share survey (mum groups, friends, social) and collect 15+ responses", f:true}
-      ]},
-      {name:"Analyze & decide", steps:[
-        {t:"Analyze the feedback with Claude — what do they actually want and would pay for?", f:false},
-        {t:"Decide the feature list: what goes in, what gets cut", f:false}
-      ]},
-      {name:"Build", steps:[
-        {t:"Work the chosen features into the app with Claude", f:false},
-        {t:"Complete the app to a testable version", f:false}
-      ]},
-      {name:"Check & validate", steps:[
-        {t:"Full page-by-page checking and validation (works on phones, no broken screens)", f:false},
-        {t:"Beta test with a small group from the survey respondents", f:false}
-      ]},
-      {name:"Secure, sell & advertise", steps:[
-        {t:"Secure it: user accounts, data privacy (health data is sensitive!), terms of use", f:false},
-        {t:"Decide selling model: free + premium, one-time, or subscription", f:false},
-        {t:"Set up advertising: social media ads targeted at expecting parents", f:false}
-      ]}
-    ],
-    money:"One-time S$10–30 (what your survey respondents said they'd pay) or freemium",
-    playbook:[
-      ["Get 30+ real survey responses (share in mum groups, office, family)","Free market research — people already say they'd pay S$10–30"],
-      ["Analyze with Claude → lock the feature list","Build only what they said they'd pay for"],
-      ["Build & beta test with survey respondents who left emails","They're your first customers AND testers"],
-      ["Put it on a real web address, then app stores later","MONEY: one-time unlock or premium tier"],
-      ["Advertise: Instagram/TikTok ads to expecting parents SG, partner with mum influencers","Dads-included angle is your differentiator"]
-    ],
-    notes:""
-  },
-  {
-    id:"skai", accent:"#FBBF24", tag:"E-commerce", title:"Skai — Dropshipping",
-    desc:"Learning to find products and make money from dropshipping.",
-    hint:"Page Pilot account ready (created 7 Jul under skai.org2419@gmail.com). Your Coursiv lessons feed straight into Phase 1.",
-    phases:[
-      {name:"Learn the game", steps:[
-        {t:"Understand the basics: product research, supplier vetting, margins, ad costs", f:false},
-        {t:"Product-research session with Claude: trending niches + criteria for winning products", f:true}
-      ]},
-      {name:"Pick products", steps:[
-        {t:"Shortlist 3–5 candidate products with cost, sell price and margin worked out", f:false},
-        {t:"Verify suppliers and shipping times for the shortlist", f:false}
-      ]},
-      {name:"Set up the store", steps:[
-        {t:"Pick platform (Shopify / Page Pilot) and register store name", f:false},
-        {t:"Build product pages — Claude drafts copy and ad angles", f:false}
-      ]},
-      {name:"First sales", steps:[
-        {t:"Set a small test ad budget (decide the number before spending)", f:false},
-        {t:"Launch first ads, track results daily", f:false}
-      ]},
-      {name:"Scale what works", steps:[
-        {t:"Kill losing products, reinvest in winners", f:false}
-      ]}
-    ],
-    money:"Margin per sale — buy low from supplier, sell higher, ads in between",
-    playbook:[
-      ["Learn product research properly (Coursiv + Claude sessions)","Most people lose money by skipping this step"],
-      ["Shortlist 3–5 products with real margin math (cost + shipping + ads < price)","If the math doesn't work on paper it won't work live"],
-      ["Build the store with Page Pilot / Shopify — Claude writes the copy","Professional pages = trust = conversions"],
-      ["Test with a SMALL fixed ad budget, kill losers fast","MONEY: profit per sale; treat first budget as tuition"],
-      ["Scale only proven winners, reinvest profits","This is where dropshipping actually pays"]
-    ],
-    notes:""
-  },
-  {
-    id:"studio", accent:"#A78BFA", tag:"Freelance services", title:"Studio — Video & Marketing",
-    desc:"Paid video editing and marketing services. First client: your friend. Fastest cash of all four ventures — paid per job.",
-    hint:"Golden rule: scope in writing even with friends — deliverables, revisions, deadline, price. Then testimonial, then referrals.",
-    phases:[
-      {name:"Set up the service", steps:[
-        {t:"Define 2-3 fixed packages with prices (e.g. short-form edit / long-form edit / monthly social plan)", f:true},
-        {t:"Write a one-page scope agreement template (deliverables, 2 revisions, deadline, price)", f:false}
-      ]},
-      {name:"Deliver for your friend", steps:[
-        {t:"Agree current job's scope and price in writing", f:true},
-        {t:"Deliver the edit/campaign on time — use Claude for scripts, captions, edit plans", f:false},
-        {t:"Invoice and get paid", f:false}
-      ]},
-      {name:"Grow", steps:[
-        {t:"Ask for a testimonial + 2 referrals after delivery", f:false},
-        {t:"Raise rates for the next client", f:false},
-        {t:"Portfolio page with before/after clips", f:false}
-      ]}
-    ],
-    money:"Per job: short edits ~S$50-150, long-form ~S$150-500, monthly social ~S$500-1,500 (set your own)",
-    playbook:[
-      ["Package the service (3 fixed offers, fixed prices)","Stops the 'friend price' trap; easy to say yes to"],
-      ["Scope in writing, always","Friendships survive contracts, not confusion"],
-      ["Deliver fast and well using AI tools you already have","MONEY: paid on delivery, immediately"],
-      ["Testimonial + referrals after every job","Each client should produce the next one"],
-      ["Raise rates every 2-3 clients","You're underpriced until someone says no"]
-    ],
-    notes:""
-  },
-  {
-    id:"coursiv", accent:"#F472B6", tag:"Learning", title:"Coursiv — AI Mastery",
-    desc:"ChatGPT & Apps course: 2/13 lessons (15%) as of 8 Jul 2026. Streak active.",
-    hint:"After this course: 'AI Side Hustle' and 'AI Copywriting' — both feed directly into Skai.",
-    phases:[
-      {name:"ChatGPT & Apps course", steps:[
-        {t:"Complete lesson 3", f:true},
-        {t:"Keep the daily streak — 20–30 min at a fixed time", f:false},
-        {t:"Reach halfway (7/13 lessons)", f:false},
-        {t:"Finish all 13 lessons", f:false}
-      ]},
-      {name:"Apply & continue", steps:[
-        {t:"After each lesson, note 1 thing to apply to Skai or Little Sprout", f:false},
-        {t:"Start next course: AI Side Hustle or AI Copywriting", f:false}
-      ]}
-    ],
-    money:"", playbook:null, notes:""
-  },
-  {
     id:"other", accent:"#A78BFA", tag:"Everything else", title:"Other Activities",
     desc:"Anything outside the main projects — add steps as they come up.",
     hint:"",
@@ -336,15 +316,58 @@ const flat=p=>p.phases.flatMap(ph=>ph.steps);
 const doneN=p=>flat(p).filter(t=>t.d).length;
 const curStep=p=>{for(const ph of p.phases){for(const st of ph.steps){if(!st.d)return {ph,st}}}return null;};
 
+/* ---- Supabase (live To-Do) ---- */
+const SB="https://drgnimyotoqrzuxflxpy.supabase.co/rest/v1";
+const SBKEY="sb_publishable_0HIvS0GHcoilXvwDqpfNXA_xh2ocXVO";
+const SBH={apikey:SBKEY, Authorization:"Bearer "+SBKEY};
+let todos=null, todoErr=false;
+function fetchTodos(){
+  todoErr=false;
+  fetch(SB+"/todo?select=id,text,done&done=eq.false&order=id.desc",{headers:SBH})
+    .then(r=>{if(!r.ok)throw new Error(r.status);return r.json();})
+    .then(d=>{todos=Array.isArray(d)?d:[];render();})
+    .catch(()=>{todoErr=true;render();});
+}
+function todoDone(id){
+  fetch(SB+"/todo?id=eq."+id,{method:"PATCH",headers:{...SBH,"Content-Type":"application/json","Prefer":"return=minimal"},body:JSON.stringify({done:true})})
+    .then(r=>{if(!r.ok)throw new Error(r.status); if(todos) todos=todos.filter(t=>t.id!==id); render();})
+    .catch(()=>{todoErr=true;render();});
+}
+function todoAdd(){
+  const inp=document.getElementById("todoAdd"); if(!inp)return;
+  const text=(inp.value||"").trim(); if(!text)return;
+  inp.value="";
+  fetch(SB+"/todo",{method:"POST",headers:{...SBH,"Content-Type":"application/json","Prefer":"return=minimal"},body:JSON.stringify({text})})
+    .then(r=>{if(!r.ok)throw new Error(r.status); fetchTodos();})
+    .catch(()=>{todoErr=true;render();});
+}
+function todoWidget(){
+  let body;
+  if(todoErr) body=`<div class="tip" style="margin-top:12px;border-color:rgba(248,113,113,.4);color:var(--red)">⚠️ Couldn't reach to-do list — try again in a bit.</div>`;
+  else if(todos===null) body=`<div class="sub" style="margin-top:12px">Loading…</div>`;
+  else if(!todos.length) body=`<div class="tip" style="margin-top:12px">No open to-dos — say "SK, add task…" to add one.</div>`;
+  else body=`<ul class="next">${todos.map(t=>`<li><input type="checkbox" onchange="todoDone(${t.id})"><label>${esc(t.text)}</label></li>`).join("")}</ul>`;
+  return `<div class="w span4" id="todoWidget" style="--ac:var(--cyan)">
+    <h2><span class="dot"></span>To-Do</h2><div class="sub">Live from your list — tick to clear it</div>
+    ${body}
+    <div class="todo-add"><input id="todoAdd" placeholder="Add a task…" onkeydown="if(event.key==='Enter')todoAdd()"><button class="btn ac" onclick="todoAdd()">Add</button></div>
+  </div>`;
+}
+
 function ring(pct,ac){
   const r=26,c=2*Math.PI*r;
   return `<div class="ringbox"><svg width="64" height="64"><circle cx="32" cy="32" r="${r}" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="5"/><circle cx="32" cy="32" r="${r}" fill="none" stroke="${ac}" stroke-width="5" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${c*(1-pct)}" style="filter:drop-shadow(0 0 5px ${ac})"/></svg><div class="pct">${Math.round(pct*100)}%</div></div>`;
+}
+function badgeFor(id){
+  if(id==="sprout") return '<span class="badge pri">★ Priority</span>';
+  if(id==="safeframe") return '<span class="badge hold">On hold</span>';
+  return '';
 }
 function appWidget(p, span){
   const tot=flat(p).length, d=doneN(p), cur=curStep(p);
   const nexts=flat(p).filter(t=>!t.d).slice(1,4);
   return `<div class="w appw span${span}" style="--ac:${p.accent}">
-    <div class="top"><div><h2><span class="dot"></span>${esc(p.title)}</h2><div class="sub">${esc(p.tag)}</div></div>${ring(tot?d/tot:0,p.accent)}</div>
+    <div class="top"><div><h2><span class="dot"></span>${esc(p.title)} ${badgeFor(p.id)}</h2><div class="sub">${esc(p.tag)}</div></div>${ring(tot?d/tot:0,p.accent)}</div>
     ${cur?`<div class="phase">▸ ${esc(cur.ph.name)}</div><div class="here-step"><b>YOU ARE HERE</b>${esc(cur.st.t)}</div>`:`<div class="here-step"><b>🎉 COMPLETE</b>All steps done</div>`}
     <ul class="next">${nexts.map(t=>{
       const gi=flat(p).indexOf(t);
@@ -361,7 +384,7 @@ function tick(cb){
   flat(p)[+cb.dataset.g].d=cb.checked; save();
 }
 function moneyWidget(){
-  const rows=[["safeframe","OneSafe"],["sprout","Little Sprout"],["skai","Skai"],["studio","Studio"]].map(([id,name])=>{
+  const rows=[["sprout","One Journey"],["skai","SKAI"],["studio","Studio"],["safeframe","OneSafe"]].map(([id,name])=>{
     const p=state.projects.find(x=>x.id===id);
     return `<div class="money-row"><div><b>${name}</b><div class="model">${esc(p.money)}</div></div>
       <div style="text-align:right"><div style="font-size:10px;color:var(--dim);letter-spacing:.08em">TARGET S$/MO</div>
@@ -381,19 +404,19 @@ function linksWidget(){
   <div class="links">
     <a href="https://app.coursiv.io" target="_blank">Coursiv <small>daily lesson</small></a>
     <a href="https://pagepilot.ai" target="_blank">Page Pilot <small>skai store pages</small></a>
-    <a href="https://docs.google.com/forms/d/14FbCzE6DXH_frXxxhQe88qUSwMSkPK1PqTN5ihAjyhc/edit" target="_blank">Sprout Survey <small>share this</small></a>
+    <a href="https://docs.google.com/forms/d/14FbCzE6DXH_frXxxhQe88qUSwMSkPK1PqTN5ihAjyhc/edit" target="_blank">One Journey Survey <small>share this</small></a>
     <a href="https://docs.google.com/spreadsheets/d/1KOau5_mwvmiNUIdHyeh2clr5EH0ofOg4cYhlCRFqOvU/edit" target="_blank">Survey Responses <small>watch it grow</small></a>
-    <a href="https://lovable.dev/projects/b010de83-e29d-4a37-8536-62de51df5a16" target="_blank">SafeFrame (Lovable) <small>legacy preview</small></a>
+    <a href="https://lovable.dev/projects/b010de83-e29d-4a37-8536-62de51df5a16" target="_blank">OneSafe (Lovable) <small>legacy preview</small></a>
   </div></div>`;
 }
 function skillsWidget(){
   return `<div class="w span12" style="--ac:var(--cyan)"><h2><span class="dot"></span>Your AI Toolkit — how to use your new skills</h2>
   <div class="sub">Type these in Claude (Cowork) — or just ask in plain words, the right skill fires automatically</div>
   <div class="tipbox" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:8px">
-    <div class="tip"><code>/synthesize-research</code> → paste your Little Sprout survey responses, get ranked insights on what parents will pay for</div>
-    <div class="tip"><code>/campaign-plan</code> → full launch campaign for Little Sprout or a Skai product, with week-by-week calendar</div>
+    <div class="tip"><code>/synthesize-research</code> → paste your One Journey survey responses, get ranked insights on what parents will pay for</div>
+    <div class="tip"><code>/campaign-plan</code> → full launch campaign for One Journey or a SKAI product, with week-by-week calendar</div>
     <div class="tip"><code>/draft-content</code> → ad copy, Instagram captions, landing page text for any of the three apps</div>
-    <div class="tip"><code>/write-spec</code> → turn "I want SafeFrame to search hazards" into a proper build plan</div>
+    <div class="tip"><code>/write-spec</code> → turn "I want OneSafe to search hazards" into a proper build plan</div>
     <div class="tip"><code>/roadmap-update</code> → reshuffle priorities across your three apps when plans change</div>
     <div class="tip"><code>/start</code> (productivity) → Claude builds a memory of your projects so you never re-explain</div>
   </div></div>`;
@@ -405,18 +428,19 @@ function render(){
   hOpen.textContent=open;hDone.textContent=dn;hFlag.textContent=fl;hPct.textContent=Math.round(100*dn/tot)+"%";
   const brief=`<div class="w span12" style="--ac:var(--amber)"><h2><span class="dot"></span>Daily Brief — ${esc(DAILY_BRIEF.date)}</h2>
     <div class="tipbox" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:8px">${DAILY_BRIEF.lines.map(l=>`<div class="tip">${esc(l)}</div>`).join("")}</div></div>`;
-  document.getElementById("grid").innerHTML = brief +
-    appWidget(state.projects.find(p=>p.id==="skai"),4) +
+  document.getElementById("grid").innerHTML = brief + todoWidget() +
     appWidget(state.projects.find(p=>p.id==="sprout"),4) +
-    appWidget(state.projects.find(p=>p.id==="safeframe"),4) +
+    appWidget(state.projects.find(p=>p.id==="skai"),4) +
     appWidget(state.projects.find(p=>p.id==="studio"),4) +
+    appWidget(state.projects.find(p=>p.id==="safeframe"),4) +
     moneyWidget() + coursivWidget() + linksWidget() + skillsWidget();
 }
 function openOv(id){
   const p=state.projects.find(x=>x.id===id);
   let found=false;
   const html=`<button class="close" onclick="closeOv()">✕</button>
-    <h3 style="color:${p.accent}">${esc(p.title)}</h3><div class="sub">${esc(p.desc)}</div>
+    <h3 style="color:${p.accent}">${esc(p.title)} ${badgeFor(p.id)}</h3><div class="sub">${esc(p.desc)}</div>
+    ${p.id==="safeframe"?`<div class="tip" style="border-color:rgba(251,191,36,.4);color:var(--amber)">⏸ ON HOLD until end of month — resume after One Journey launches.</div>`:""}
     ${p.hint?`<div class="tip">💡 ${esc(p.hint)}</div>`:""}
     ${p.phases.map((ph,pi)=>{
       const phDone=ph.steps.length&&ph.steps.every(t=>t.d);
@@ -441,6 +465,7 @@ function closeOv(){document.getElementById("overlay").classList.remove("open");r
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeOv()});
 setInterval(()=>{document.getElementById("clock").textContent=new Date().toLocaleString("en-SG",{weekday:"short",day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit",second:"2-digit"})},1000);
 render();
+fetchTodos();
 </script>
 </body>
 </html>
