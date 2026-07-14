@@ -65,6 +65,11 @@ tailwind.config = {
   @keyframes ojfshadow{0%,100%{transform:translateX(-50%) scale(1);opacity:.16}50%{transform:translateX(-50%) scale(.88);opacity:.09}}
   @keyframes ojfloat{0%{transform:translateY(0) scale(.7);opacity:0}12%{opacity:1}80%{opacity:1}100%{transform:translateY(-180px) scale(1.35);opacity:0}}
   @media (prefers-reduced-motion:reduce){ .oj-fam-img,.oj-fam-shadow,.oj-fh{animation:none} .oj-fh{opacity:.85} }
+  .oj-hero-wrap{position:relative}
+  .oj-hero-img{display:block;width:100%;height:auto;border-radius:2rem;box-shadow:0 22px 55px rgba(80,70,40,.20);animation:ojbreathe 5.2s ease-in-out infinite;transform-origin:center bottom}
+  .oj-hh1{left:9%;top:15%;animation-delay:.4s}
+  .oj-hh2{right:13%;top:24%;animation-delay:2.8s}
+  @media (prefers-reduced-motion:reduce){ .oj-hero-img{animation:none} }
 </style>
 </head>
 <body class="min-h-screen bg-background text-foreground">
@@ -103,44 +108,10 @@ tailwind.config = {
     </div>
     <div class="oj-fade-in relative">
       <div class="absolute -inset-6 rounded-[2rem] bg-primary/10 blur-3xl" aria-hidden></div>
-      <div class="relative overflow-hidden rounded-[2rem] shadow-2xl ring-1 ring-black/5 aspect-[8/7]">
-        <svg viewBox="0 0 800 700" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A gentle sunrise over calm hills">
-          <defs>
-            <linearGradient id="oj-sky" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stop-color="#FBF3E6"/>
-              <stop offset="0.5" stop-color="#F6E3C7"/>
-              <stop offset="1" stop-color="#EAC79A"/>
-            </linearGradient>
-            <radialGradient id="oj-sun" cx="0.5" cy="0.5" r="0.5">
-              <stop offset="0" stop-color="#FCE8BD"/>
-              <stop offset="0.65" stop-color="#EDBB63"/>
-              <stop offset="1" stop-color="#DCA94B"/>
-            </radialGradient>
-            <linearGradient id="oj-h1" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stop-color="#77AC80"/><stop offset="1" stop-color="#4C8A5E"/>
-            </linearGradient>
-            <linearGradient id="oj-h2" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stop-color="#3E7A54"/><stop offset="1" stop-color="#2F5E42"/>
-            </linearGradient>
-          </defs>
-          <rect width="800" height="700" fill="url(#oj-sky)"/>
-          <circle class="oj-sun-anim" cx="410" cy="360" r="235" fill="#F4CE86" opacity="0.28"/>
-          <circle class="oj-sun-anim" cx="410" cy="360" r="150" fill="url(#oj-sun)"/>
-          <g fill="none" stroke="#C99F6C" stroke-width="3" stroke-linecap="round" opacity="0.6">
-            <path d="M150 150 q 22 -18 44 0"/><path d="M180 150 q 22 -18 44 0"/>
-            <path d="M600 200 q 20 -16 40 0"/><path d="M626 200 q 20 -16 40 0"/>
-          </g>
-          <path d="M0 470 Q 200 400 400 452 T 800 442 V700 H0 Z" fill="url(#oj-h1)"/>
-          <path d="M0 545 Q 260 480 520 528 T 800 520 V700 H0 Z" fill="url(#oj-h2)"/>
-          <g class="oj-heart-svg" fill="#DCA94B" opacity="0.9">
-            <path d="M405 610c-4-8-16-10-16-2 0 6 9 11 16 16 7-5 16-10 16-16 0-8-12-6-16 2z"/>
-          </g>
-        </svg>
-        <div class="oj-hearts" aria-hidden="true">
-          <span class="oj-heart" style="left:24%;animation-delay:0s">&#10084;</span>
-          <span class="oj-heart" style="left:48%;animation-delay:2.6s;font-size:26px">&#10084;</span>
-          <span class="oj-heart" style="left:70%;animation-delay:5s">&#10084;</span>
-        </div>
+      <div class="oj-hero-wrap">
+        <img class="oj-hero-img" src="oj-hero.jpg" alt="An expecting couple holding hands, sharing a hopeful moment" width="1200" height="800" />
+        <span class="oj-fh oj-hh1"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 21 C12 21 3 14 3 8 C3 5 5 3 8 3 C10 3 11.5 4.5 12 6 C12.5 4.5 14 3 16 3 C19 3 21 5 21 8 C21 14 12 21 12 21 Z" fill="#E8607F"/></svg></span>
+        <span class="oj-fh oj-hh2"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M12 21 C12 21 3 14 3 8 C3 5 5 3 8 3 C10 3 11.5 4.5 12 6 C12.5 4.5 14 3 16 3 C19 3 21 5 21 8 C21 14 12 21 12 21 Z" fill="#EE7C93"/></svg></span>
       </div>
       <div class="absolute -bottom-5 -left-5 hidden rounded-2xl border border-border/70 bg-card px-4 py-3 shadow-lg sm:block">
         <p class="oj-eyebrow mb-1">This week</p>
