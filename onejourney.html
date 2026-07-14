@@ -54,6 +54,17 @@ tailwind.config = {
   .oj-heart { position:absolute; bottom:-26px; font-size:20px; color:#E07856; opacity:0; animation:ojfloat 8s ease-in-out infinite; }
   @keyframes ojfloat { 0%{opacity:0;transform:translateY(0) scale(.75)} 14%{opacity:.9} 78%{opacity:.5} 100%{opacity:0;transform:translateY(-300px) scale(1.05)} }
   @media (prefers-reduced-motion:reduce){ .oj-sun-anim,.oj-heart-svg,.oj-heart{animation:none} }
+  .oj-fam-wrap{position:relative;width:380px;max-width:84%;margin:0 auto}
+  .oj-fam-img{display:block;width:100%;border-radius:22px;box-shadow:0 20px 50px rgba(80,70,40,.16);animation:ojbreathe 4.6s ease-in-out infinite;transform-origin:center bottom}
+  .oj-fam-shadow{position:absolute;bottom:2px;left:50%;width:58%;height:20px;background:rgba(70,55,30,.16);border-radius:50%;transform:translateX(-50%);animation:ojfshadow 4.6s ease-in-out infinite;z-index:-1}
+  .oj-fh{position:absolute;opacity:0;animation:ojfloat 6.5s linear infinite}
+  .oj-fh1{left:6%;bottom:26%;animation-delay:0s}
+  .oj-fh2{right:8%;bottom:36%;animation-delay:2.2s}
+  .oj-fh3{left:46%;bottom:10%;animation-delay:4.4s}
+  @keyframes ojbreathe{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-7px) scale(1.012)}}
+  @keyframes ojfshadow{0%,100%{transform:translateX(-50%) scale(1);opacity:.16}50%{transform:translateX(-50%) scale(.88);opacity:.09}}
+  @keyframes ojfloat{0%{transform:translateY(0) scale(.7);opacity:0}12%{opacity:1}80%{opacity:1}100%{transform:translateY(-180px) scale(1.35);opacity:0}}
+  @media (prefers-reduced-motion:reduce){ .oj-fam-img,.oj-fam-shadow,.oj-fh{animation:none} .oj-fh{opacity:.85} }
 </style>
 </head>
 <body class="min-h-screen bg-background text-foreground">
@@ -136,6 +147,22 @@ tailwind.config = {
         <p class="text-sm font-semibold text-foreground">Week 20 · Anomaly scan</p>
         <p class="text-xs text-muted-foreground">Book at your polyclinic or KKH.</p>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- YOU'RE NOT ALONE (ANIMATED FAMILY) -->
+<section id="together" class="border-t border-border/60 bg-oj-cream-deep">
+  <div class="mx-auto max-w-3xl px-6 py-24 text-center">
+    <p class="oj-eyebrow mb-4 oj-fade-in">You're not alone</p>
+    <h2 class="text-3xl tracking-tight text-primary sm:text-4xl oj-fade-in">You don't have to do this by yourselves.</h2>
+    <p class="mt-4 text-base leading-relaxed text-muted-foreground oj-fade-in">From the two of you holding each other on the hard nights — to one calm plan that holds all three of you.</p>
+    <div class="oj-fam-wrap oj-fade-in" style="margin-top:2.5rem">
+      <img class="oj-fam-img" src="oj-family.png" alt="A mother and father tenderly embracing their sleeping newborn baby" width="900" height="900" loading="lazy" />
+      <div class="oj-fam-shadow"></div>
+      <span class="oj-fh oj-fh1"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M12 21 C12 21 3 14 3 8 C3 5 5 3 8 3 C10 3 11.5 4.5 12 6 C12.5 4.5 14 3 16 3 C19 3 21 5 21 8 C21 14 12 21 12 21 Z" fill="#E8607F"/></svg></span>
+      <span class="oj-fh oj-fh2"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 21 C12 21 3 14 3 8 C3 5 5 3 8 3 C10 3 11.5 4.5 12 6 C12.5 4.5 14 3 16 3 C19 3 21 5 21 8 C21 14 12 21 12 21 Z" fill="#EE7C93"/></svg></span>
+      <span class="oj-fh oj-fh3"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 21 C12 21 3 14 3 8 C3 5 5 3 8 3 C10 3 11.5 4.5 12 6 C12.5 4.5 14 3 16 3 C19 3 21 5 21 8 C21 14 12 21 12 21 Z" fill="#E8607F"/></svg></span>
     </div>
   </div>
 </section>
