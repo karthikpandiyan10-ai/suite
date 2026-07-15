@@ -492,9 +492,8 @@ html{scroll-behavior:smooth}
     <h2 class="text-3xl tracking-tight text-primary sm:text-4xl">Full access to One Journey.</h2>
     <p class="mt-4 text-base text-muted-foreground">Your complete week-by-week companion — guidance, reminders, checklists, Dad Mode and the Singapore money guide. One calm plan for the whole journey.</p>
     <div class="mt-8 flex flex-col items-center gap-3">
-      <a href="#" onclick="event.preventDefault();openApp()" class="inline-flex items-center gap-2 rounded-full bg-primary px-8 py-4 text-sm font-semibold text-primary-foreground shadow-md transition-all hover:-translate-y-0.5 hover:shadow-lg">Open the app <i data-lucide="arrow-right" class="h-4 w-4"></i></a>
-      <a href="https://buy.stripe.com/test_aFa8wI8Z08nw6NFgahgIo02" target="_blank" rel="noopener noreferrer" class="text-sm font-medium text-foreground/80 underline-offset-4 hover:text-primary hover:underline">Or subscribe · S$10/month</a>
-      <p class="text-xs text-muted-foreground">Full access · S$10/month · cancel anytime</p>
+      <a href="#" onclick="event.preventDefault();openApp()" class="inline-flex items-center gap-2 rounded-full bg-primary px-8 py-4 text-sm font-semibold text-primary-foreground shadow-md transition-all hover:-translate-y-0.5 hover:shadow-lg">Start your journey · S$10/month <i data-lucide="arrow-right" class="h-4 w-4"></i></a>
+      <p class="text-xs text-muted-foreground">Full access · cancel anytime · secure checkout by Stripe</p>
     </div>
   </div>
 </section>
@@ -664,6 +663,29 @@ html{scroll-behavior:smooth}
 <div class="sheet" id="sheet"></div>
 </div>
 
+</div>
+
+<!-- ============ SUBSCRIBE GATE (paywall) ============ -->
+<div id="ojPay" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(40,50,45,.55);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:18px;font-family:'Nunito Sans',system-ui,sans-serif">
+  <div style="background:#FBF7F0;max-width:420px;width:100%;border-radius:24px;padding:30px 26px;box-shadow:0 30px 70px rgba(0,0,0,.32);position:relative;text-align:center;max-height:94vh;overflow:auto">
+    <button onclick="closePaywall()" aria-label="Close" style="position:absolute;top:12px;right:15px;background:none;border:none;font-size:24px;color:#8A8F87;cursor:pointer;line-height:1">&times;</button>
+    <div style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:#8A8F87">Start your journey</div>
+    <h2 style="font-family:Fraunces,Georgia,serif;color:#2F5E42;font-size:26px;margin:10px 0 6px;line-height:1.15">Unlock your full plan</h2>
+    <p style="color:#6b7169;font-size:14px;line-height:1.55;margin:0 0 20px">Your complete week-by-week companion — guidance, reminders, checklists, Dad Mode and the Singapore money guide. One calm plan for the whole journey.</p>
+    <a href="https://buy.stripe.com/test_aFa8wI8Z08nw6NFgahgIo02" target="_blank" rel="noopener noreferrer" style="display:block;background:#2F5E42;color:#FBFAF5;font-weight:700;font-size:15px;padding:15px;border-radius:999px;text-decoration:none;box-shadow:0 8px 20px rgba(47,94,66,.28)">Subscribe &middot; S$10/month</a>
+    <p style="color:#8A8F87;font-size:12px;margin:10px 0 0">Cancel anytime &middot; secure checkout by Stripe</p>
+    <button onclick="ojRestore()" style="margin-top:18px;background:none;border:none;color:#2F5E42;font-weight:700;font-size:13.5px;text-decoration:underline;text-underline-offset:3px;cursor:pointer">I've completed payment — open the app &rarr;</button>
+    <div style="border-top:1px solid #ECE5D8;margin:20px 0 0;padding-top:16px">
+      <div style="display:flex;align-items:center;gap:12px;text-align:left">
+        <img src="ebook-cover.jpg" alt="" width="46" height="60" style="border-radius:5px;box-shadow:0 3px 8px rgba(0,0,0,.12);flex-shrink:0;object-fit:cover"/>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:700;color:#33403A;font-size:13.5px">Well-being ebook &middot; <span style="color:#2F5E42">S$6</span></div>
+          <div style="color:#8A8F87;font-size:12px">&ldquo;You Are Not Alone&rdquo; — optional add-on</div>
+        </div>
+        <a href="https://buy.stripe.com/test_8x2cMY0suavEfkb7DLgIo01" target="_blank" rel="noopener noreferrer" style="background:#EDE7DB;color:#2F5E42;font-weight:700;font-size:12.5px;padding:8px 14px;border-radius:999px;text-decoration:none;white-space:nowrap">Buy</a>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -984,15 +1006,26 @@ function sendFb(){
   if (window.lucide) lucide.createIcons();
 /* ---------------- VIEW TOGGLE (landing <-> app) ---------------- */
 function ojRevealInView(){document.querySelectorAll('#landing .oj-fade-in').forEach(function(el){var r=el.getBoundingClientRect();if(r.top<innerHeight*0.95)el.classList.add('is-visible');});}
-function showApp(){landingRoot.style.display='none';appRoot.style.display='block';window.scrollTo({top:0,behavior:'instant'});if(window.lucide)lucide.createIcons();}
+function showApp(){landingRoot.style.display='none';appRoot.style.display='block';var pw=document.getElementById('ojPay');if(pw)pw.style.display='none';window.scrollTo({top:0,behavior:'instant'});if(window.lucide)lucide.createIcons();}
 function showLanding(){appRoot.style.display='none';landingRoot.style.display='block';window.scrollTo({top:0,behavior:'instant'});ojRevealInView();if(window.lucide)lucide.createIcons();}
-function openApp(){showApp();}
+
+/* ---------------- SUBSCRIBE GATE (soft paywall) ---------------- */
+var OJ_SUB='oj_subscribed_v1';
+function ojPaid(){try{return localStorage.getItem(OJ_SUB)==='1';}catch(e){return false;}}
+function ojSetPaid(){try{localStorage.setItem(OJ_SUB,'1');}catch(e){}}
+/* Stripe can send the customer back to ...one-journey.html?paid=1 after checkout — that auto-unlocks. */
+(function(){try{var q=new URLSearchParams(location.search);if(q.get('paid')==='1'){ojSetPaid();history.replaceState({},'',location.pathname);}}catch(e){}})();
+function showPaywall(){var pw=document.getElementById('ojPay');if(pw){pw.style.display='flex';if(window.lucide)lucide.createIcons();}}
+function closePaywall(){var pw=document.getElementById('ojPay');if(pw)pw.style.display='none';}
+function ojRestore(){ojSetPaid();closePaywall();showApp();}
+/* Every "Start your journey" button flows through here: paid -> app, else -> paywall. */
+function openApp(){if(ojPaid()){showApp();}else{showPaywall();}}
 
 /* ---------------- boot ---------------- */
 modeUI();
 renderHub();
 boot();
-if(cfg){showApp();}else{showLanding();}
+if(cfg&&ojPaid()){showApp();}else{showLanding();}
 
 </script>
 </body>
