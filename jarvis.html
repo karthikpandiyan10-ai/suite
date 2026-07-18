@@ -700,7 +700,24 @@ const APP_INTENT={
   linkedin:{pkg:"com.linkedin.android",host:"www.linkedin.com"},
   drive:{pkg:"com.google.android.apps.docs",host:"drive.google.com"},
   photos:{pkg:"com.google.android.apps.photos",host:"photos.google.com"},
-  calendar:{pkg:"com.google.android.calendar",host:"calendar.google.com"}
+  calendar:{pkg:"com.google.android.calendar",host:"calendar.google.com"},
+  messenger:{pkg:"com.facebook.orca",host:"www.messenger.com"},
+  wechat:{pkg:"com.tencent.mm",host:"www.wechat.com"},
+  line:{pkg:"jp.naver.line.android",host:"line.me"},
+  discord:{pkg:"com.discord",host:"discord.com"},
+  reddit:{pkg:"com.reddit.frontpage",host:"www.reddit.com"},
+  pinterest:{pkg:"com.pinterest",host:"www.pinterest.com"},
+  zoom:{pkg:"us.zoom.videomeetings",host:"zoom.us"},
+  teams:{pkg:"com.microsoft.teams",host:"teams.microsoft.com"},
+  uber:{pkg:"com.ubercab",host:"www.uber.com"},
+  waze:{pkg:"com.waze",host:"www.waze.com"},
+  playstore:{pkg:"com.android.vending",host:"play.google.com"},
+  paypal:{pkg:"com.paypal.android.p2pmobile",host:"www.paypal.com"},
+  booking:{pkg:"com.booking",host:"www.booking.com"},
+  agoda:{pkg:"com.agoda.mobile.consumer",host:"www.agoda.com"},
+  twitch:{pkg:"tv.twitch.android.app",host:"www.twitch.tv"},
+  googlesearch:{pkg:"com.google.android.googlequicksearchapp",host:"www.google.com"},
+  chrome:{pkg:"com.android.chrome",host:"www.google.com"}
 };
 function openMobileApp(key){
   const a=APP_INTENT[key]; if(!a) return false;
@@ -1812,6 +1829,12 @@ $("#saveBtn").onclick=()=>{state.assistant=$("#setName").value.trim()||"SK";stat
   applyIdentity();modal.classList.remove("open");
   replyLocal(state.assistant+" reconfigured and ready, "+state.user+".");};
 </script>
-<script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
+<script>
+/* SK always loads fresh — remove any old cached service worker + caches so the phone is never stuck on an old version */
+try{
+  if('serviceWorker' in navigator){ navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){r.unregister();});}).catch(function(){}); }
+  if(window.caches){ caches.keys().then(function(ks){ks.forEach(function(k){caches.delete(k);});}).catch(function(){}); }
+}catch(e){}
+</script>
 </body>
 </html>
