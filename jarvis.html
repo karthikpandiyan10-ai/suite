@@ -34,6 +34,9 @@
   --amber:#ffb547;--amber-dim:#8a5c1e;--red:#ff4d5e;--green:#54f0b8;--hair:rgba(255,181,71,.25);--hair2:rgba(245,233,216,.08);--grgb:255,181,71}
 [data-theme="wolverine"]{--bg:#060809;--bg2:#0e1216;--panel:rgba(14,18,22,.85);--line:#3a3414;--ink:#eef2df;--muted:#8a9a6d;
   --amber:#ffd23f;--amber-dim:#7e6a1f;--red:#ff4d5e;--green:#54f0b8;--hair:rgba(255,210,63,.25);--hair2:rgba(238,242,223,.08);--grgb:255,210,63}
+/* Matrix — blue + purple (Reloaded/Evolution vibe) */
+[data-theme="matrix"]{--bg:#05030f;--bg2:#0b0824;--panel:rgba(15,11,38,.82);--line:#241a58;--ink:#e2e6ff;--muted:#8079c0;
+  --amber:#8a63ff;--amber-dim:#3c2f86;--red:#ff5c9c;--green:#4bc9ff;--hair:rgba(138,99,255,.28);--hair2:rgba(226,230,255,.08);--grgb:138,99,255}
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);overflow:hidden}
@@ -61,7 +64,7 @@ body::after{content:"";position:fixed;left:0;right:0;height:110px;z-index:51;poi
   95%{text-shadow:1px 1px var(--red),-1px -1px var(--amber),0 0 20px rgba(var(--grgb),.7)}
   97%{text-shadow:0 0 14px rgba(var(--grgb),.45)}}
 /* particle field canvas */
-#stars{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.55}
+#stars{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.72}
 /* voice visualizer */
 .viz{display:flex;gap:3px;height:24px;align-items:center;justify-content:center;opacity:.22;transition:opacity .3s}
 .viz i{display:block;width:3px;height:3px;background:var(--amber);box-shadow:0 0 6px rgba(var(--grgb),.6)}
@@ -251,15 +254,86 @@ button.plain.on{background:var(--amber);color:#04121C;border-color:var(--amber)}
   .colL,.colR{border:none}
   .top{flex-wrap:wrap;height:auto;padding:10px 0}
 }
+/* ==================== SK · JARVIS PRO — cinematic HUD overlay ==================== */
+/* deeper cinematic vignette + tighter reactor grid */
+body::before{background-size:36px 36px,36px 36px,auto,auto,auto}
+#hudvig{position:fixed;inset:0;z-index:39;pointer-events:none;
+  background:radial-gradient(125% 100% at 50% 48%, transparent 52%, rgba(2,1,10,.62) 100%)}
+/* viewport HUD frame — glowing corner brackets (purple top, blue bottom) */
+#hudframe{position:fixed;inset:0;z-index:41;pointer-events:none}
+#hudframe span{position:absolute;width:40px;height:40px;opacity:.6;animation:hudpulse 4.5s ease-in-out infinite}
+#hudframe span::before,#hudframe span::after{content:"";position:absolute;background:var(--amber);box-shadow:0 0 10px rgba(var(--grgb),.7)}
+#hudframe span::before{height:2px;width:100%}#hudframe span::after{width:2px;height:100%}
+#hudframe .tl{top:10px;left:10px}#hudframe .tr{top:10px;right:10px}
+#hudframe .bl{bottom:10px;left:10px}#hudframe .br{bottom:10px;right:10px}
+#hudframe .tl::before,#hudframe .tl::after{top:0;left:0}
+#hudframe .tr::before{top:0;right:0}#hudframe .tr::after{top:0;right:0}
+#hudframe .bl::before,#hudframe .bl::after{bottom:0;left:0}
+#hudframe .br::before,#hudframe .br::after{bottom:0;right:0}
+#hudframe .bl::before,#hudframe .bl::after,#hudframe .br::before,#hudframe .br::after{background:var(--green);box-shadow:0 0 10px rgba(75,201,255,.7)}
+@keyframes hudpulse{50%{opacity:1}}
+@media(max-width:1080px){#hudframe,#hudvig{display:none}}
+/* panels: brighter pulsing corner brackets + a light-beam under each header */
+.sec::before,.sec::after{border-color:var(--amber);opacity:.85;animation:brkt 3.4s ease-in-out infinite}
+@keyframes brkt{50%{opacity:.35}}
+.sec-h{position:relative}
+.sec-h::after{content:"";position:absolute;left:0;right:0;bottom:-6px;height:1px;opacity:.6;
+  background:linear-gradient(90deg,transparent,var(--amber) 30%,var(--green) 70%,transparent);
+  background-size:220% 100%;animation:beam 4.5s linear infinite}
+@keyframes beam{0%{background-position:220% 0}100%{background-position:-220% 0}}
+.sec:hover{box-shadow:0 0 26px rgba(var(--grgb),.12),inset 0 0 24px rgba(var(--grgb),.04);border-color:var(--amber-dim)}
+/* ARC-REACTOR: bloom behind the radar core + sonar pings */
+.radar{isolation:isolate}
+.rx-glow{position:absolute;inset:-8%;border-radius:50%;z-index:-1;pointer-events:none;
+  background:radial-gradient(circle, rgba(var(--grgb),.30), rgba(75,201,255,.10) 45%, transparent 66%);
+  animation:reactor 3.2s ease-in-out infinite}
+@keyframes reactor{0%,100%{opacity:.55;transform:scale(.95)}50%{opacity:1;transform:scale(1.07)}}
+.sonar{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;z-index:-1}
+.sonar i{position:absolute;width:44%;height:44%;border-radius:50%;border:1px solid rgba(var(--grgb),.4);animation:ping 3.4s ease-out infinite}
+.sonar i:nth-child(2){animation-delay:1.1s;border-color:rgba(75,201,255,.4)}
+.sonar i:nth-child(3){animation-delay:2.2s}
+@keyframes ping{0%{transform:scale(.6);opacity:.8}100%{transform:scale(2.1);opacity:0}}
+.radar svg{filter:drop-shadow(0 0 26px rgba(var(--grgb),.28))}
+.radar.listening .rx-glow,.radar.thinking .rx-glow{animation-duration:1.1s}
+.radar .micglyph{filter:drop-shadow(0 0 6px var(--amber))}
+/* readout: scan shimmer + stronger glow while speaking */
+.readout{position:relative;overflow:hidden}
+.readout::after{content:"";position:absolute;top:0;bottom:0;width:40%;left:-45%;pointer-events:none;
+  background:linear-gradient(90deg,transparent,rgba(var(--grgb),.10),transparent);animation:rdscan 5s ease-in-out infinite}
+@keyframes rdscan{0%{left:-45%}60%,100%{left:130%}}
+body.talking .readout{border-color:var(--amber);box-shadow:0 0 30px rgba(var(--grgb),.28)}
+/* quick-keys: sheen sweep on hover */
+.keys button{position:relative;overflow:hidden}
+.keys button::after{content:"";position:absolute;inset:0;transform:translateX(-120%);
+  background:linear-gradient(105deg,transparent,rgba(var(--grgb),.22),transparent);transition:transform .5s}
+.keys button:hover::after{transform:translateX(120%)}
+/* status rail: glow the active/hot states */
+.tag b.hot,.tag b.ok,.tag b.live{text-shadow:0 0 10px currentColor}
+/* command line: focus ring glow + animated prompt caret */
+.cmd:focus-within{border-color:var(--amber);box-shadow:0 0 26px rgba(var(--grgb),.22)}
+.cmd .prompt{animation:okblink 1.4s steps(1) infinite}
+/* wordmark: layered neon */
+.wordmark{text-shadow:0 0 18px rgba(var(--grgb),.5)}
+.wordmark small{color:var(--green);opacity:.8}
+/* ticker edge fades */
+.ticker{position:relative;-webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);
+  mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
+@media (prefers-reduced-motion:reduce){
+  #hudframe span,.sec::before,.sec::after,.sec-h::after,.rx-glow,.sonar i,.readout::after,.cmd .prompt{animation:none!important}
+}
 </style>
 </head>
 <body>
-<div id="skgate" style="position:fixed;inset:0;z-index:99999;background:#050A13;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;color:#e8f0ff">
-  <div style="font-family:'Orbitron',sans-serif;font-weight:900;font-size:34px;letter-spacing:6px;color:#ff2b4e">SK</div>
-  <div style="opacity:.65;margin:6px 0 22px;font-size:12px;letter-spacing:3px">COMMAND DECK &middot; LOCKED</div>
-  <input id="skgateInput" type="password" inputmode="text" autocomplete="off" placeholder="passcode" style="background:#0b1220;border:1px solid #24406a;color:#e8f0ff;padding:12px 16px;border-radius:10px;font-size:16px;text-align:center;outline:none;width:220px">
-  <button id="skgateBtn" style="margin-top:14px;background:#ff2b4e;border:0;color:#fff;padding:11px 26px;border-radius:10px;font-size:14px;letter-spacing:2px;cursor:pointer">ENTER</button>
-  <div id="skgateErr" style="height:16px;margin-top:10px;color:#ff6b81;font-size:12px"></div>
+<div id="skgate" style="position:fixed;inset:0;z-index:99999;background:radial-gradient(circle at 50% 42%, #140a40, #05030f 60%);display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;color:#e2e6ff">
+  <div style="position:relative;width:100px;height:100px;margin-bottom:22px">
+    <div style="position:absolute;inset:0;border-radius:50%;border:2px solid rgba(138,99,255,.22);border-top-color:#8a63ff;border-right-color:#4bc9ff;animation:spin 1.1s linear infinite"></div>
+    <div style="position:absolute;inset:15px;border-radius:50%;border:1px solid rgba(75,201,255,.28);border-bottom-color:#4bc9ff;animation:spin 1.8s linear infinite reverse"></div>
+    <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-weight:900;font-size:28px;letter-spacing:3px;color:#e2e6ff;text-shadow:0 0 20px rgba(138,99,255,.9)">SK</div>
+  </div>
+  <div style="opacity:.72;margin-bottom:22px;font-size:11px;letter-spacing:4px;color:#8079c0">COMMAND DECK &middot; SECURED</div>
+  <input id="skgateInput" type="password" inputmode="text" autocomplete="off" placeholder="passcode" style="background:#0b0824;border:1px solid #241a58;color:#e2e6ff;padding:12px 16px;border-radius:10px;font-size:16px;text-align:center;outline:none;width:230px;box-shadow:0 0 24px rgba(138,99,255,.15)">
+  <button id="skgateBtn" style="margin-top:14px;background:linear-gradient(135deg,#8a63ff,#4bc9ff);border:0;color:#05030f;font-weight:700;padding:11px 30px;border-radius:10px;font-size:14px;letter-spacing:2px;cursor:pointer;box-shadow:0 0 26px rgba(138,99,255,.4)">ENTER</button>
+  <div id="skgateErr" style="height:16px;margin-top:10px;color:#ff5c9c;font-size:12px"></div>
 </div>
 <script>
 (function(){
@@ -272,6 +346,104 @@ button.plain.on{background:var(--amber);color:#04121C;border-color:var(--amber)}
   btn.addEventListener('click',tryCode);
   inp.addEventListener('keydown',function(e){ if(e.key==='Enter') tryCode(); });
   setTimeout(function(){try{inp.focus();}catch(e){}},250);
+})();
+</script>
+<!-- ============ SK · COLD-BOOT SEQUENCE (arc-reactor power-on) ============ -->
+<script>
+(function(){
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;   // reduced motion → straight in
+  try{ if(sessionStorage.getItem('sk_booted_v1')) return; }catch(e){}  // once per open
+  var css=""
+  +"#skboot{position:fixed;inset:0;z-index:99998;background:radial-gradient(circle at 50% 45%,#180d52,#05030f 62%);display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;color:#e2e6ff;overflow:hidden;transition:opacity .7s ease,transform .7s ease}"
+  +"#skboot.done{opacity:0;transform:scale(1.06);pointer-events:none}"
+  +"#skboot .core{width:min(47vh,330px);height:min(47vh,330px);filter:drop-shadow(0 0 42px rgba(138,99,255,.72))}"
+  +"#skboot .rot{transform-origin:120px 120px}"
+  +"#skboot .spinA{animation:skbspin 7s linear infinite}#skboot .spinB{animation:skbspin 11s linear infinite reverse}#skboot .spinC{animation:skbspin 4.2s linear infinite}"
+  +"@keyframes skbspin{to{transform:rotate(360deg)}}"
+  +"#skboot .r{fill:none;stroke-linecap:round;stroke-dasharray:var(--l);stroke-dashoffset:var(--l)}"
+  +"#skboot.play .r{animation:skbdraw 1s cubic-bezier(.2,.8,.2,1) forwards}"
+  +"@keyframes skbdraw{to{stroke-dashoffset:0}}"
+  +"#skboot .ct{opacity:0}#skboot.play .ct{animation:skbfade .5s ease forwards}"
+  +"@keyframes skbfade{to{opacity:1}}"
+  +"#skboot .scan{transform-origin:120px 120px;opacity:0}#skboot.play .scan{animation:skbfade .4s .95s ease forwards,skbspin 2.6s linear .95s infinite}"
+  +"#skboot .pulse{transform-origin:120px 120px;opacity:0}#skboot.lock .pulse{animation:skbpulse .8s ease-out}"
+  +"@keyframes skbpulse{0%{opacity:.9;transform:scale(.55)}100%{opacity:0;transform:scale(1.8)}}"
+  +"#skboot .wm{position:absolute;top:calc(50% - 22px);font-family:'Orbitron',sans-serif;font-weight:900;font-size:34px;letter-spacing:6px;color:#fff;text-shadow:0 0 30px rgba(138,99,255,1);opacity:0}"
+  +"#skboot.play .wm{animation:skbfade .6s .6s ease forwards}#skboot.lock .wm{text-shadow:0 0 40px rgba(75,201,255,1)}"
+  +"#skboot .flash{position:fixed;inset:0;background:#e6f0ff;opacity:0;pointer-events:none}"
+  +"#skboot.play .flash{animation:skbflash 1s .82s ease-out}"
+  +"@keyframes skbflash{0%{opacity:0}10%{opacity:.82}100%{opacity:0}}"
+  +"#skboot .surge{position:fixed;left:0;right:0;height:3px;top:-3px;pointer-events:none;background:linear-gradient(90deg,transparent,#8a63ff,#4bc9ff,transparent);box-shadow:0 0 20px rgba(138,99,255,.9);opacity:0}"
+  +"#skboot.play .surge{animation:skbsurge 1.15s .88s cubic-bezier(.4,0,.2,1)}"
+  +"@keyframes skbsurge{0%{top:-3px;opacity:0}9%{opacity:1}100%{top:100vh;opacity:0}}"
+  +"#skboot .log{margin-top:34px;min-height:150px;width:min(92vw,600px);font-size:12px;letter-spacing:1px;line-height:2.15;color:#8079c0;text-align:center}"
+  +"#skboot .log div{opacity:0;animation:skbline .35s ease forwards}"
+  +"@keyframes skbline{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}"
+  +"#skboot .log b{color:#4bc9ff;font-weight:400}#skboot .log .ok{color:#6ef0b8}"
+  +"#skboot .log .g{color:#e2e6ff;font-family:'Orbitron',sans-serif;letter-spacing:3px;font-size:16px;text-shadow:0 0 18px rgba(75,201,255,.8)}"
+  +"#skboot .g::after{content:'_';animation:blink 1s steps(1) infinite}"
+  +"#skboot .skip{position:absolute;bottom:26px;font-size:9px;letter-spacing:3px;color:#5a5488;opacity:.7}";
+  var st=document.createElement('style'); st.textContent=css; document.head.appendChild(st);
+  var ov=document.createElement('div'); ov.id='skboot'; ov.setAttribute('aria-hidden','true');
+  ov.innerHTML=
+    '<svg class="core" viewBox="0 0 240 240">'
+   +'<g class="rot spinB"><circle class="r" style="--l:723" cx="120" cy="120" r="115" stroke="#3a2f86" stroke-width="1" stroke-dasharray="2 6"/></g>'
+   +'<circle class="r" style="--l:628;animation-delay:.1s" cx="120" cy="120" r="100" stroke="#4a3a9e" stroke-width="1.5"/>'
+   +'<g class="rot spinA"><circle class="r" style="--l:553;animation-delay:.22s" cx="120" cy="120" r="88" stroke="#8a63ff" stroke-width="2" stroke-dasharray="34 20"/></g>'
+   +'<g class="rot spinB"><circle class="r" style="--l:452;animation-delay:.34s" cx="120" cy="120" r="72" stroke="#4bc9ff" stroke-width="2.5" stroke-dasharray="72 26"/></g>'
+   +'<g class="rot spinC"><circle class="r" style="--l:352;animation-delay:.46s" cx="120" cy="120" r="56" stroke="#8a63ff" stroke-width="1.5" stroke-dasharray="2 9"/></g>'
+   +'<circle class="r" style="--l:251;animation-delay:.58s" cx="120" cy="120" r="40" stroke="#4bc9ff" stroke-width="2"/>'
+   +'<g class="scan"><line x1="120" y1="120" x2="120" y2="16" stroke="#4bc9ff" stroke-width="2"/><path d="M120,120 L120,16 A104,104 0 0 1 166,28 Z" fill="rgba(75,201,255,.14)"/></g>'
+   +'<circle class="pulse" cx="120" cy="120" r="72" fill="none" stroke="#8a63ff" stroke-width="2"/>'
+   +'<circle class="ct" cx="120" cy="120" r="28" fill="rgba(138,99,255,.20)" style="animation-delay:.6s"/>'
+   +'<circle class="ct" cx="120" cy="120" r="13" fill="#eaf3ff" style="animation-delay:.82s"/>'
+   +'<circle class="ct" cx="120" cy="120" r="5" fill="#fff" style="animation-delay:.9s"/>'
+   +'</svg><div class="wm">SK</div><div class="log" id="skbootlog"></div>'
+   +'<div class="skip">CLICK OR PRESS ANY KEY TO SKIP</div><div class="flash"></div><div class="surge"></div>';
+  var hrs=new Date().getHours(), greet=hrs<12?'GOOD MORNING':hrs<18?'GOOD AFTERNOON':'GOOD EVENING';
+  var lines=[
+    ['▸ REACTOR CORE … <b class="ok">ONLINE</b>',480],
+    ['▸ NEURAL LINK … <b class="ok">ESTABLISHED</b>',860],
+    ['▸ MEMORY BANKS … venture_notes · content · objectives <b class="ok">[OK]</b>',1260],
+    ['▸ VENTURES … <b>ONE JOURNEY · ONESAFE · ONEFLAT · BARBER DEN</b>',1680],
+    ['▸ MISSION CONTROL <b class="ok">SYNCED</b> · CONTENT ENGINE <b class="ok">10 QUEUED</b>',2120],
+    ['▸ ALL SYSTEMS … <b class="ok">NOMINAL</b>',2540],
+    ['<span class="g"></span>',3000]];
+  var done=false;
+  /* --- synthesized boot sound (no files); only fires if audio is unlocked by the ENTER gesture --- */
+  function sound(){ try{
+    var AC=window.AudioContext||window.webkitAudioContext; if(!AC) return; var ctx=new AC();
+    if(ctx.state==='suspended'){ ctx.resume(); }
+    var now=ctx.currentTime;
+    function tone(type,f,t0,dur,gain,slideTo){ var o=ctx.createOscillator(),g=ctx.createGain(); o.type=type;
+      o.frequency.setValueAtTime(f,now+t0); if(slideTo)o.frequency.exponentialRampToValueAtTime(slideTo,now+t0+dur);
+      g.gain.setValueAtTime(0.0001,now+t0); g.gain.exponentialRampToValueAtTime(gain,now+t0+0.05);
+      g.gain.exponentialRampToValueAtTime(0.0001,now+t0+dur); o.connect(g); g.connect(ctx.destination);
+      o.start(now+t0); o.stop(now+t0+dur+0.05); }
+    function whoosh(t0){ var b=ctx.createBuffer(1,Math.floor(ctx.sampleRate*0.6),ctx.sampleRate),d=b.getChannelData(0);
+      for(var i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,2);
+      var s=ctx.createBufferSource(); s.buffer=b; var fl=ctx.createBiquadFilter(); fl.type='bandpass'; fl.frequency.value=650; fl.Q.value=0.8;
+      var g=ctx.createGain(); g.gain.setValueAtTime(0.0001,now+t0); g.gain.exponentialRampToValueAtTime(0.10,now+t0+0.08); g.gain.exponentialRampToValueAtTime(0.0001,now+t0+0.5);
+      s.connect(fl); fl.connect(g); g.connect(ctx.destination); s.start(now+t0); }
+    tone('sawtooth',55,0,1.0,0.045,180);   // power-up drone rising
+    tone('sine',170,0.85,0.55,0.08,540);    // ignition swell
+    whoosh(0.85);                            // ignition whoosh
+    tone('sine',740,3.0,0.12,0.05);          // confirm blip
+    tone('sine',988,3.16,0.18,0.05);         // confirm blip 2
+    tone('sine',88,4.35,0.55,0.09,52);       // reactor lock thunk
+  }catch(e){} }
+  function finish(){ if(done)return; done=true; try{sessionStorage.setItem('sk_booted_v1','1');}catch(e){}
+    ov.classList.add('done'); setTimeout(function(){ if(ov.parentNode)ov.parentNode.removeChild(ov); },700); }
+  function run(){ ov.classList.add('play'); sound(); var log=document.getElementById('skbootlog');
+    lines.forEach(function(ln){ setTimeout(function(){ if(done)return; var d=document.createElement('div'); d.innerHTML=ln[0]; log.appendChild(d); },ln[1]); });
+    setTimeout(function(){ if(done)return; var g=document.querySelector('#skbootlog .g'); if(!g)return;
+      var txt=greet+', KARTHIK.', i=0; (function tp(){ if(done||!g)return; g.textContent=txt.slice(0,++i); if(i<txt.length) setTimeout(tp,48); })(); },3060);
+    setTimeout(function(){ if(!done) ov.classList.add('lock'); },4350);   // reactor locks
+    setTimeout(finish,4900);
+    ov.addEventListener('click',finish); window.addEventListener('keydown',finish,{once:true}); }
+  function mount(){ if(!document.body){ setTimeout(mount,20); return; } document.body.appendChild(ov); waitGate(); }
+  function waitGate(){ if(document.getElementById('skgate')){ setTimeout(waitGate,120); return; } run(); } // play once the passcode gate clears
+  mount();
 })();
 </script>
 <div class="deck">
@@ -433,6 +605,51 @@ const LAUNCH={
   insta:"https://www.instagram.com", linkedin:"https://www.linkedin.com",
   wsh:"https://www.tal.sg/wshc", wshcouncil:"https://www.tal.sg/wshc", wshc:"https://www.tal.sg/wshc"
 };
+/* ---- SK can open (almost) everything Karthik uses — aliases + full toolset ---- */
+Object.assign(LAUNCH,{
+  // Google (your ventures world)
+  mail:"https://mail.google.com", email:"https://mail.google.com", inbox:"https://mail.google.com",
+  googledrive:"https://drive.google.com", mydrive:"https://drive.google.com",
+  googlecalendar:"https://calendar.google.com", gcal:"https://calendar.google.com", agenda:"https://calendar.google.com", schedule:"https://calendar.google.com",
+  docs:"https://docs.google.com/document/u/0/", googledocs:"https://docs.google.com/document/u/0/", gdocs:"https://docs.google.com/document/u/0/",
+  sheets:"https://docs.google.com/spreadsheets/u/0/", googlesheets:"https://docs.google.com/spreadsheets/u/0/", gsheets:"https://docs.google.com/spreadsheets/u/0/", spreadsheet:"https://docs.google.com/spreadsheets/u/0/",
+  slides:"https://docs.google.com/presentation/u/0/", googleslides:"https://docs.google.com/presentation/u/0/",
+  meet:"https://meet.google.com", googlemeet:"https://meet.google.com",
+  maps:"https://www.google.com/maps", googlemaps:"https://www.google.com/maps", gmaps:"https://www.google.com/maps",
+  photos:"https://photos.google.com", googlephotos:"https://photos.google.com",
+  keep:"https://keep.google.com", googlekeep:"https://keep.google.com", contacts:"https://contacts.google.com",
+  forms:"https://docs.google.com/forms", translate:"https://translate.google.com",
+  searchconsole:"https://search.google.com/search-console", gsc:"https://search.google.com/search-console",
+  // Microsoft / work (Outlook world)
+  outlook:"https://outlook.office.com/mail/", outlookmail:"https://outlook.office.com/mail/", workmail:"https://outlook.office.com/mail/", workemail:"https://outlook.office.com/mail/",
+  outlookcalendar:"https://outlook.office.com/calendar/", workcalendar:"https://outlook.office.com/calendar/",
+  office:"https://www.office.com", office365:"https://www.office.com", microsoft365:"https://www.office.com",
+  teams:"https://teams.microsoft.com", msteams:"https://teams.microsoft.com", onedrive:"https://onedrive.live.com", sharepoint:"https://www.office.com",
+  // dev / infra
+  github:"https://github.com", git:"https://github.com", repo:"https://github.com/karthikpandiyan10-ai/suite", suite:"https://github.com/karthikpandiyan10-ai/suite",
+  stripe:"https://dashboard.stripe.com", payments:"https://dashboard.stripe.com", stripedashboard:"https://dashboard.stripe.com",
+  lovable:"https://lovable.dev", vercel:"https://vercel.com", netlify:"https://app.netlify.com", cloudflare:"https://dash.cloudflare.com", render:"https://dashboard.render.com",
+  // AI tools
+  gemini:"https://gemini.google.com", bard:"https://gemini.google.com", openai:"https://chatgpt.com",
+  perplexity:"https://www.perplexity.ai", midjourney:"https://www.midjourney.com", higgsfield:"https://higgsfield.ai",
+  copilot:"https://copilot.microsoft.com", grok:"https://grok.com", anthropic:"https://claude.ai",
+  // social / media
+  x:"https://x.com", twitter:"https://x.com", threads:"https://www.threads.net", telegram:"https://web.telegram.org",
+  reddit:"https://www.reddit.com", pinterest:"https://www.pinterest.com", snapchat:"https://web.snapchat.com",
+  youtubestudio:"https://studio.youtube.com", spotify:"https://open.spotify.com", netflix:"https://www.netflix.com", news:"https://news.google.com",
+  // shopping / dropship (SKAI world)
+  etsy:"https://www.etsy.com", temu:"https://www.temu.com", carousell:"https://www.carousell.sg", alibaba:"https://www.alibaba.com",
+  cj:"https://www.cjdropshipping.com", cjdropshipping:"https://www.cjdropshipping.com", beacons:"https://beacons.ai", stan:"https://www.stan.store", stanstore:"https://www.stan.store", gumroad:"https://gumroad.com",
+  // Singapore gov / your work
+  lifesg:"https://www.life.gov.sg", cpf:"https://www.cpf.gov.sg", iras:"https://www.iras.gov.sg", bca:"https://www.bca.gov.sg",
+  singpass:"https://www.singpass.gov.sg", skillsfuture:"https://www.skillsfuture.gov.sg", madeforfamilies:"https://www.madeforfamilies.gov.sg",
+  // your ventures & own pages
+  onejourneylive:"https://karthikpandiyan10-ai.github.io/suite/one-journey.html",
+  first100:"first100.html", firsthundred:"first100.html", waitlist:"first100.html", signups:"first100.html",
+  oneflat:"https://www.propertyguru.com.sg", barberden:"https://www.instagram.com", barbersden:"https://www.instagram.com",
+  skai:"https://www.instagram.com/skai.tested", skaiig:"https://www.instagram.com/skai.tested",
+  missioncontrol:(location.protocol==="file:"?"../Karthik_Dashboard.html":"dashboard.html")
+});
 const SEARCHERS={
   youtube:q=>"https://www.youtube.com/results?search_query="+encodeURIComponent(q),
   google:q=>"https://www.google.com/search?q="+encodeURIComponent(q),
@@ -442,9 +659,13 @@ const SEARCHERS={
   lazada:q=>"https://www.lazada.sg/catalog/?q="+encodeURIComponent(q),
   tiktok:q=>"https://www.tiktok.com/search?q="+encodeURIComponent(q)
 };
-let state=Object.assign({assistant:"SK",user:"Karthik",brain:"gemini",key:"",wake:true,voiceName:"",rate:1.04,pitch:0.9,gclient:"48949141447-r13f99da1gnhpssj2e0m8ls51u1fs0u7.apps.googleusercontent.com",theme:"deadpool"},
+let state=Object.assign({assistant:"SK",user:"Karthik",brain:"gemini",key:"",wake:false,voiceName:"",rate:1.04,pitch:0.9,gclient:"48949141447-r13f99da1gnhpssj2e0m8ls51u1fs0u7.apps.googleusercontent.com",theme:"matrix"},
   JSON.parse(localStorage.getItem("jarvis_cfg")||"{}"));
 function saveCfg(){localStorage.setItem("jarvis_cfg",JSON.stringify(state));}
+/* One-time flip to the blue/purple Matrix theme (users can switch away after). */
+if(!localStorage.getItem("sk_matrix_v1")){ state.theme="matrix"; localStorage.setItem("sk_matrix_v1","1"); saveCfg(); }
+/* One-time flip to always-listening (no wake word). Karthik can re-enable via the WAKE button. */
+if(!localStorage.getItem("sk_listen_v1")){ state.wake=false; localStorage.setItem("sk_listen_v1","1"); saveCfg(); }
 if(state.theme)document.documentElement.dataset.theme=state.theme;
 function wakeName(){return state.assistant.trim().split(/\s+/)[0].toLowerCase();}
 
@@ -628,8 +849,9 @@ async function loadBrainFiles(){
 function ventureKey(low){
   if(/one ?safe|safeframe/.test(low))return "onesafe";
   if(/one ?journey|journey|sprout|little spro|little spot/.test(low))return "sprout";
+  if(/one ?flat|oneflat|hdb|flat listing|flat admin|property/.test(low))return "oneflat";
+  if(/barber ?den|barber|studio|video edit|editing|marketing service|freelance|my friend/.test(low))return "studio";
   if(/skai|sky|dropship/.test(low))return "skai";
-  if(/studio|video edit|editing|marketing service|freelance|my friend/.test(low))return "studio";
   return null;
 }
 /* ---- boot ---- */
@@ -648,14 +870,50 @@ function renderVentures(){
   const box=$("#ventures"); if(!box) return;
   const d=projSummary();
   if(!d){box.innerHTML='<div class="empty">Open Mission Control once in this browser and your business to-dos appear here.</div>';return;}
-  const order=[["sprout","ONE JOURNEY"],["skai","SKAI"],["studio","STUDIO"],["safeframe","ONESAFE"]];
+  const order=[["safeframe","ONESAFE"],["sprout","ONE JOURNEY"],["oneflat","ONE FLAT"],["studio","BARBER DEN"]];
   box.innerHTML=order.filter(([k])=>d[k]).map(([k,label])=>{
     const p=d[k];
     return '<div class="vrow"><div class="vh"><b>'+label+'</b><span>'+p.done+'/'+p.total+' done</span></div>'+
            '<div class="vnext">▸ '+escapeHtml(String(p.current).slice(0,70))+'</div></div>';
   }).join("")||'<div class="empty">No businesses found yet.</div>';
 }
-renderTasks(); startClock(); applyIdentity(); loadCounts(); renderLocalMetrics(); loadNotes(); loadBrainFiles(); gStatus(); renderVentures(); setInterval(renderVentures,120000); bootSequence();
+/* ---- SK DOCTOR: one clear line telling Karthik the single thing to fix ---- */
+var micBlocked=false; var _docDismissed={};
+function runDoctor(){
+  try{
+    var host=document.getElementById('skDoctor');
+    if(!host){host=document.createElement('div');host.id='skDoctor';
+      host.style.cssText='position:fixed;left:0;right:0;top:0;z-index:99999;display:none;font:600 13px/1.45 system-ui,"Segoe UI",sans-serif;padding:11px 46px 11px 16px;text-align:center;letter-spacing:.2px;box-shadow:0 6px 22px rgba(0,0,0,.4)';
+      document.body.appendChild(host);}
+    var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    var msg=null,kind='warn',action=null,id=null;
+    if(location.protocol==='file:'){
+      id='file';kind='bad';
+      msg='SK is opened as a file, so voice and memory can’t load. Close this and launch with <b>Start SK.bat</b> — the address bar should say <b>localhost</b>.';
+    } else if(state.brain!=='none' && !state.key){
+      id='key';kind='warn';
+      msg='SK’s brain is asleep. Add a free <b>Gemini</b> key in CONFIG and I’ll start talking.';
+      action={label:'Open CONFIG',fn:function(){var g=document.getElementById('gearBtn');if(g)g.click();}};
+    } else if(micBlocked){
+      id='mic';kind='bad';
+      msg='Microphone is blocked. Click the site icon at the <b>left of the address bar</b> → Microphone → <b>Allow</b> → reload.';
+    } else if(!SR){
+      id='nosr';kind='info';
+      msg='Voice isn’t supported in this browser (iPhone/Safari or Firefox). <b>Type commands below</b> — everything else works.';
+    }
+    if(!msg || _docDismissed[id]){host.style.display='none';return;}
+    var bg=kind==='bad'?'var(--red)':kind==='info'?'var(--bg2)':'var(--amber)';
+    var fg=kind==='info'?'var(--ink)':'#0a0507';
+    host.style.background=bg;host.style.color=fg;host.style.borderBottom=(kind==='info'?'1px solid var(--line)':'none');
+    host.innerHTML='<span>'+msg+'</span>'
+      +(action?' <button id="skDocAct" style="margin-left:10px;background:rgba(0,0,0,.22);color:inherit;border:1px solid rgba(0,0,0,.35);border-radius:8px;padding:5px 12px;font:inherit;font-weight:800;cursor:pointer">'+action.label+'</button>':'')
+      +'<button id="skDocX" aria-label="dismiss" style="position:absolute;right:12px;top:9px;background:none;border:none;color:inherit;font-size:18px;line-height:1;cursor:pointer;opacity:.7">×</button>';
+    host.style.display='block';
+    var x=document.getElementById('skDocX');if(x)x.onclick=function(){_docDismissed[id]=1;host.style.display='none';};
+    if(action){var a=document.getElementById('skDocAct');if(a)a.onclick=action.fn;}
+  }catch(e){}
+}
+renderTasks(); startClock(); applyIdentity(); loadCounts(); renderLocalMetrics(); loadNotes(); loadBrainFiles(); gStatus(); renderVentures(); setInterval(renderVentures,120000); bootSequence(); runDoctor();
 /* ---- self-updater: pull new builds automatically when idle ---- */
 const SK_VER="v27-2026-07-14a";  // bump this on every deploy so devices auto-refresh
 async function skCheckUpdate(){try{
@@ -668,27 +926,55 @@ setInterval(skCheckUpdate,5*60*1000);
 // check the instant the app is reopened / regains focus — so phones update on open
 document.addEventListener("visibilitychange",()=>{ if(!document.hidden) skCheckUpdate(); });
 window.addEventListener("focus",skCheckUpdate);
-/* ---- cinematic layer: particle field + voice visualizer ---- */
+/* ---- cinematic layer: MATRIX digital rain (blue + purple · Reloaded/Evolution) ---- */
 (function(){
   if(window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   const c=document.createElement("canvas"); c.id="stars"; document.body.appendChild(c);
-  const x=c.getContext("2d"); let W,H;
-  const R=()=>{W=c.width=innerWidth;H=c.height=innerHeight;};
-  addEventListener("resize",R); R();
-  const P=Array.from({length:70},()=>({x:Math.random()*W,y:Math.random()*H,z:Math.random()+0.2,s:Math.random()*1.5+0.5}));
-  let starColor=(getComputedStyle(document.documentElement).getPropertyValue("--amber").trim())||"#35e6ff", fc=0;
+  const x=c.getContext("2d"); let W,H,cols,drops,speeds,tint,fontSize;
+  const GLYPHS="ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ0123456789ABCDEFｸｼﾜ<>*+=／".split("");
+  const BLUE="#3aa0ff", PURPLE="#a25bff", HEAD="#e8f0ff";   // blue trail, purple trail, bright head
+  const setup=()=>{
+    W=c.width=innerWidth; H=c.height=innerHeight;
+    fontSize=Math.max(12,Math.round(innerWidth/68));   // denser columns
+    cols=Math.ceil(W/fontSize);
+    drops=Array.from({length:cols},()=>Math.floor(Math.random()*-40));
+    speeds=Array.from({length:cols},()=>0.7+Math.random()*0.95);  // a touch faster, varied depth
+    tint=Array.from({length:cols},(_,i)=>Math.random()<0.62?PURPLE:BLUE); // purple-leaning
+  };
+  addEventListener("resize",setup); setup();
+  x.textBaseline="top";
   (function loop(){
     requestAnimationFrame(loop);
-    if(document.hidden) return;               // skip painting when backgrounded (battery)
-    if((fc++%120)===0){ const c=getComputedStyle(document.documentElement).getPropertyValue("--amber").trim(); if(c) starColor=c; } // read colour ~2s, not per-particle
-    x.clearRect(0,0,W,H);
-    x.fillStyle=starColor;
-    for(const p of P){
-      p.y-=p.z*0.4; if(p.y<-6){p.y=H+6;p.x=Math.random()*W;}
-      x.globalAlpha=0.10+p.z*0.22;
-      x.fillRect(p.x,p.y,p.s,p.s*3);
+    if(document.hidden) return;                 // skip when backgrounded (battery)
+    x.fillStyle="rgba(5,3,15,0.09)";            // dark blue-purple fade → trails
+    x.fillRect(0,0,W,H);
+    x.font="700 "+fontSize+"px 'Courier New',monospace";
+    for(let i=0;i<cols;i++){
+      const g=GLYPHS[(Math.random()*GLYPHS.length)|0];
+      const px=i*fontSize, py=drops[i]*fontSize;
+      const head=Math.random()<0.075;           // occasional bright leading glyph
+      if(head){ x.fillStyle=HEAD; x.shadowColor=tint[i]; x.shadowBlur=14; }
+      else{ x.fillStyle=tint[i]; x.shadowBlur=0; }
+      x.fillText(g,px,py);
+      x.shadowBlur=0;
+      if(py>H && Math.random()>0.972){ drops[i]=Math.floor(Math.random()*-20); tint[i]=Math.random()<0.5?BLUE:PURPLE; }
+      drops[i]+=speeds[i];
     }
   })();
+})();
+/* ---- SK · JARVIS PRO: inject HUD frame, reactor bloom, sonar pings ---- */
+(function(){
+  try{
+    var vig=document.createElement("div"); vig.id="hudvig"; document.body.appendChild(vig);
+    var fr=document.createElement("div"); fr.id="hudframe";
+    ["tl","tr","bl","br"].forEach(function(c){var s=document.createElement("span");s.className=c;fr.appendChild(s);});
+    document.body.appendChild(fr);
+    var rd=document.querySelector(".radar");
+    if(rd){
+      var g=document.createElement("div"); g.className="rx-glow"; rd.appendChild(g);
+      var son=document.createElement("div"); son.className="sonar"; son.innerHTML="<i></i><i></i><i></i>"; rd.appendChild(son);
+    }
+  }catch(e){}
 })();
 (function(){
   const v=document.createElement("div"); v.className="viz"; v.id="viz";
@@ -697,28 +983,68 @@ window.addEventListener("focus",skCheckUpdate);
   const ro=$("#readout"); if(ro&&ro.parentNode) ro.parentNode.insertBefore(v,ro.nextSibling);
   setInterval(()=>{document.body.classList.toggle("talking",!!speaking);},150);
 })();
+function sgtDate(){ return new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Singapore'})); }
 function startClock(){const tick=()=>{const d=new Date();
-  $("#clockT").textContent=d.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit",second:"2-digit"});
-  $("#clockD").textContent=d.toLocaleDateString([],{weekday:"short",month:"short",day:"numeric"}).toUpperCase();};
+  $("#clockT").textContent=d.toLocaleTimeString('en-GB',{timeZone:'Asia/Singapore',hour:"2-digit",minute:"2-digit",second:"2-digit"});
+  $("#clockD").textContent=('SGT · '+d.toLocaleDateString('en-GB',{timeZone:'Asia/Singapore',weekday:"short",month:"short",day:"numeric"})).toUpperCase();};
   tick();setInterval(tick,1000);}
-function greetWord(){const h=new Date().getHours();return h<12?"Good morning":h<18?"Good afternoon":"Good evening";}
+function greetWord(){const h=sgtDate().getHours();return h<12?"Good morning":h<18?"Good afternoon":"Good evening";}
+/* ---- HOURLY SINGAPORE-TIME BRIEFING: what you missed + what to do next ---- */
+async function hourlyBriefing(){
+  try{
+    const s=sgtDate();
+    const today=s.getFullYear()+'-'+('0'+(s.getMonth()+1)).slice(-2)+'-'+('0'+s.getDate()).slice(-2);
+    const hhmm=('0'+s.getHours()).slice(-2)+':'+('0'+s.getMinutes()).slice(-2);
+    let posts=[],todos=[];
+    try{ posts=await (await fetch(SB+"/content_calendar?select=post_time,platform,hook&status=eq.planned&post_date=eq."+today+"&order=post_time",{headers:SBH})).json(); }catch(e){}
+    try{ todos=await (await fetch(SB+"/todo?select=text&done=eq.false&order=id.desc&limit=60",{headers:SBH})).json(); }catch(e){}
+    const missed=posts.filter(p=>(p.post_time||'')<hhmm), upcoming=posts.filter(p=>(p.post_time||'')>=hhmm);
+    const openN=todos.length, must=todos.find(t=>/🔴/.test(t.text))||todos[0];
+    let p=[`It's ${hhmm} in Singapore, ${state.user}.`];
+    if(missed.length) p.push(`${missed.length} post${missed.length>1?'s':''} already due today — first was ${missed[0].platform} at ${missed[0].post_time}.`);
+    if(upcoming.length) p.push(`Next post: ${upcoming[0].platform} at ${upcoming[0].post_time}.`);
+    if(!posts.length) p.push(`No posts scheduled today.`);
+    if(openN) p.push(`${openN} task${openN>1?'s':''} still open.`);
+    if(must) p.push(`Do this next: ${must.text.replace(/[🔴🎓🚀]/g,'').trim().slice(0,90)}.`);
+    const say=p.join(' ');
+    setReadout(say); logLine('j',state.assistant+': '+say); try{speak(say);}catch(e){}
+    const items=[];
+    missed.forEach(x=>items.push({h:'MISSED '+x.post_time+' · '+x.platform,s:(x.hook||'').slice(0,72)}));
+    upcoming.forEach(x=>items.push({h:'DUE '+x.post_time+' · '+x.platform,s:(x.hook||'').slice(0,72)}));
+    if(must) items.push({h:'DO NEXT',s:must.text.replace(/[🔴🎓🚀]/g,'').trim().slice(0,90)});
+    if(items.length) renderFeed('HOURLY · '+hhmm+' SGT',items);
+  }catch(e){}
+}
+function startBriefings(){
+  const key='sk_last_brief';
+  function stamp(){ const s=sgtDate(); return s.getFullYear()+'-'+(s.getMonth()+1)+'-'+s.getDate()+'-'+s.getHours(); }
+  function tick(force){ let st=stamp(),last=null; try{last=localStorage.getItem(key);}catch(e){}
+    if(force||st!==last){ try{localStorage.setItem(key,st);}catch(e){} hourlyBriefing(); } }
+  setTimeout(()=>tick(false),7000);    // first update shortly after boot (once per Singapore hour)
+  setInterval(()=>tick(false),60000);  // then at the top of every new Singapore hour
+  window.skBriefNow=()=>hourlyBriefing();
+}
 function applyIdentity(){
   $("#brandName").firstChild.textContent=state.assistant.toUpperCase();
   document.title=state.assistant.toUpperCase()+" — Command Deck";
   $("#stBrain").textContent=(state.brain!=="none"&&state.key)?state.brain.toUpperCase():"COMMANDS";
   $("#stBrain").className=(state.brain!=="none"&&state.key)?"ok":"";
-  $("#stWake").textContent=state.wake?"ON":"OFF";
-  $("#stWake").className=state.wake?"hot":"";
+  $("#stWake").textContent=state.wake?"WORD":"ALWAYS";
+  $("#stWake").className=state.wake?"hot":"ok";
   $("#wakeBtn").classList.toggle("on",state.wake);
-  $("#hint").innerHTML=`TAP RADAR · HOLD <b>SPACE</b> · OR ENABLE <b>WAKE WORD</b> AND SAY "HI ${state.assistant.toUpperCase()}"`;
+  $("#hint").innerHTML=state.wake
+    ? `WAKE WORD ON · SAY "HI ${state.assistant.toUpperCase()}" · TAP <b>WAKE</b> TO GO ALWAYS-ON`
+    : `ALWAYS LISTENING · JUST TALK · TAP <b>WAKE</b> IF NOISE IS AN ISSUE`;
+  if(typeof runDoctor==="function") runDoctor();
 }
 function bootSequence(){
   const lines=[["sys","▸ SK core v23: content calendar online. Ask me: what do I post today. Claude writes, you post, I schedule."],["sys","▸ core systems: online"],["sys","▸ voice interface: online"],["sys","▸ onesafe knowledge base: linking"],["sys","▸ mission control: synced"]];
   let i=0;const step=()=>{ if(i<lines.length){logLine(lines[i][0],lines[i][1]);i++;setTimeout(step,350);}
     else{const hasBrain=state.brain!=="none"&&state.key;
-      const hi=`${greetWord()}, ${state.user}. All systems nominal.${state.wake?` Wake word armed. Say "hi ${state.assistant}" anytime.`:""}${hasBrain?"":" Brain module offline. Voice commands active."}`;
+      const hi=`${greetWord()}, ${state.user}. All systems nominal.${state.wake?` Wake word armed. Say "hi ${state.assistant}" anytime.`:" I'm listening — just talk."}${hasBrain?"":" Brain module offline. Voice commands active."}`;
       setReadout(hi);logLine("j",state.assistant+": "+hi);speak(hi);
-      if(state.wake) startEngine();
+      startEngine();                 // always-on mic — SK listens without a wake word
+      startBriefings();              // hourly Singapore-time updates: what you missed + what's next
       // dashboard feel: preload headlines into the idle feed
       fetchNews().then(items=>{ try{ if(items.length && $("#feedTag").textContent==="STANDBY"){ renderFeed("NEWS",items); } }catch(e){} });
     } };
@@ -774,7 +1100,7 @@ function micState(s,cls){$("#stMic").textContent=s;$("#stMic").className=cls||""
 let recAlive=0, recRunning=false;
 function buildRec(){
   const r=new SR(); r.lang="en-SG"; r.interimResults=true; r.continuous=true;
-  r.onstart=()=>{recRunning=true;recAlive=Date.now();};
+  r.onstart=()=>{recRunning=true;recAlive=Date.now();if(micBlocked){micBlocked=false;runDoctor();}};
   r.onaudiostart=()=>{recAlive=Date.now();};
   r.onspeechstart=()=>{recAlive=Date.now();};
   r.onresult=(e)=>{
@@ -792,7 +1118,8 @@ function buildRec(){
     if(e.error==="not-allowed"||e.error==="service-not-allowed"){
       engineOn=false;micState("BLOCKED","live");
       setReadout("Microphone blocked. Click the mic icon at the right of the address bar, choose Allow, then reload.");
-      logLine("sys","▸ mic permission denied by browser");}
+      logLine("sys","▸ mic permission denied by browser");
+      micBlocked=true; runDoctor();}
   };
   r.onend=()=>{ recRunning=false;
     if(engineOn&&!speaking){ setTimeout(()=>{ if(engineOn&&!speaking&&!recRunning){ try{r.start();}catch(_){ } } },300); }
@@ -935,9 +1262,10 @@ async function handleCommand(text){
   let go=low.match(/^(?:open(?: up)?|launch|start|visit|go(?: to| on)?|take me to|bring up|pull up)\s+(?:the\s+)?([a-z0-9 .&-]+?)$/);
   if(!go && LAUNCH[low.replace(/\s+/g,"")]) go=[low,low];
   if(go){
-    const name=go[1].trim().replace(/\s+/g,"");
-    if(LAUNCH[name]){ safeOpen(LAUNCH[name], go[1].trim()); return; }
-    if(/^[a-z0-9-]+\.[a-z]{2,}$/.test(name)){ safeOpen("https://"+name, go[1].trim()); return; }
+    const raw=go[1].trim().replace(/^(?:the|your|my|our)\s+/,"");   // "your gmail" -> "gmail"
+    const name=raw.replace(/[\s'']+/g,"");
+    if(LAUNCH[name]){ safeOpen(LAUNCH[name], raw); return; }
+    if(/^[a-z0-9-]+\.[a-z]{2,}$/.test(name)){ safeOpen("https://"+name, raw); return; }
     if(/^[a-z0-9]{2,20}$/.test(name) && !/onesafe|dashboard|mission|mail|inbox|calendar|schedule|agenda|drive|survey|responses|supabase|coursiv|pagepilot|analytics/.test(name)){
       safeOpen("https://www."+name+".com", go[1].trim());
       return;
@@ -1031,13 +1359,13 @@ async function handleCommand(text){
     }catch(e){replyLocal("Couldn't log that for Claude. Check the connection.");}
     return;}
   // ---- THEME PROTOCOLS ----
-  let th=low.match(/\b(?:theme|team|tim|teem|time|skin|mode|protocol|suit)\s+(dead ?pool|stark|iron ?man|wolverine|cyan|default|reference|blue)\b/)
-       ||low.match(/\b(dead ?pool|stark|iron ?man|wolverine)\s+(?:theme|team|mode|skin|protocol)\b/)
-       ||low.match(/\b(?:change|switch|go|suit up)(?: to| into)?\s+(dead ?pool|stark|iron ?man|wolverine|cyan)\b/);
-  if(!th && low.split(/\s+/).length<=3){ const bare=low.match(/\b(dead ?pool|stark|wolverine)\b/); if(bare) th=[0,bare[1]]; }
+  let th=low.match(/\b(?:theme|team|tim|teem|time|skin|mode|protocol|suit)\s+(dead ?pool|stark|iron ?man|wolverine|matrix|cyan|default|reference|blue)\b/)
+       ||low.match(/\b(dead ?pool|stark|iron ?man|wolverine|matrix)\s+(?:theme|team|mode|skin|protocol)\b/)
+       ||low.match(/\b(?:change|switch|go|suit up)(?: to| into)?\s+(dead ?pool|stark|iron ?man|wolverine|matrix|cyan)\b/);
+  if(!th && low.split(/\s+/).length<=3){ const bare=low.match(/\b(dead ?pool|stark|wolverine|matrix)\b/); if(bare) th=[0,bare[1]]; }
   if(th){
     const k=(th[1]||th[2]||"").replace(/\s+/g,"");
-    const map={deadpool:"deadpool",ironman:"stark",stark:"stark",wolverine:"wolverine",cyan:"",default:"",reference:"",blue:""};
+    const map={deadpool:"deadpool",ironman:"stark",stark:"stark",wolverine:"wolverine",matrix:"matrix",cyan:"",default:"",reference:"",blue:""};
     if(k in map){
       const v=map[k];
       if(v)document.documentElement.dataset.theme=v; else delete document.documentElement.dataset.theme;
@@ -1045,6 +1373,10 @@ async function handleCommand(text){
       replyLocal(v?("Suiting up. "+k.charAt(0).toUpperCase()+k.slice(1)+" protocol engaged, "+state.user+"."):("Back to reference cyan, "+state.user+"."));
       return;
     }
+  }
+  // ---- HOURLY UPDATE on demand: "what did I miss", "catch me up" ----
+  if(/\b(what did i miss|catch me up|hourly update|any updates?|where am i|whats the update|what.?s the update)\b/.test(low)){
+    if(typeof hourlyBriefing==="function"){ hourlyBriefing(); } return;
   }
   // ---- CONTENT CALENDAR: "what do I post today" ----
   if(/\b(what.*post|post today|content (calendar|plan|today)|today.*content)\b/.test(low)){
@@ -1091,7 +1423,7 @@ async function handleCommand(text){
     const d=projSummary();
     if(!d){replyLocal("I can't read Mission Control yet. Open the dashboard once in this browser and I'll sync.");return;}
     let items=[];let msg="Status report. ";
-    for(const id of ["safeframe","sprout","skai","coursiv"]){ if(d[id]){msg+=`${d[id].title.split("—")[0].trim()}: ${d[id].done} of ${d[id].total} done. `;
+    for(const id of ["safeframe","sprout","oneflat","studio","skai"]){ if(d[id]){msg+=`${d[id].title.split("—")[0].trim()}: ${d[id].done} of ${d[id].total} done. `;
       items.push({h:d[id].title,s:`${d[id].done}/${d[id].total} · next: ${d[id].current.slice(0,70)}`});}}
     msg+=`Follow-ups pending: ${Object.values(d).reduce((a,p)=>a+p.flags.length,0)}.`;
     renderFeed("STATUS",items);renderLocalMetrics();

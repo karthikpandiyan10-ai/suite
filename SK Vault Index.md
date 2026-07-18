@@ -16,9 +16,11 @@ full-time in **1–2 months**. Runs everything through SK by voice. Fast-moving,
 technical, hands-on. Prefers short answers, clear next actions, and drafts he
 can approve rather than open-ended questions.
 
-**Current focus (July):** **One Journey** launch is the priority. SKAI
-(dropshipping) starts this week, Studio after. **OneSafe is parked** until end
-of month / after One Journey launches — don't push MSRA work unless asked.
+**Current focus (July):** **One Journey** launch is the priority. The four
+ventures are **One Journey, OneSafe, OneFlat, Barber Den** (SKAI kept but not
+featured). **OneSafe is parked** until end of month / after One Journey
+launches — don't push MSRA work unless asked. **OneFlat** is new and still in
+scoping — don't build it yet, help define the offer when asked.
 
 **One Journey — v1 focus (zero to 100), from `One Journey — Action Plan.md`:**
 1) define & draft the founding offer; 2) tighten the `first100.html` waitlist
@@ -53,19 +55,27 @@ to be spoken to, goals for the year.)*
 - **`msra_documents` / `msra_hazards`** — OneSafe's risk-assessment library
   (129 activities, 3,639 anonymized hazard rows).
 
-### 🚀 Ventures (current priority order)
+### 🚀 The four ventures (current priority order)
 - **One Journey** — new-parents guide app for Singapore, built with his wife
   (formerly "Little Sprout"): checklists, reminders, stage-by-stage guidance,
-  plus a S$6 well-being ebook. Survey of 15 responses reached. **MAIN FOCUS —
-  launching this month.** Landing page: `first100.html`; app `little-sprout.html`.
-  (Supabase venture key may still be `sprout` until renamed — match the existing key.)
-- **SKAI** — dropshipping / e-commerce; Page Pilot ready. **Next up this week** —
-  Karthik wants to learn dropshipping end to end.
-- **Studio** — paid video editing & marketing for a friend. Later this week.
+  plus a S$6 well-being ebook. Survey of 15 responses reached. **FLAGSHIP —
+  launches Sat 1 Aug, on autopilot via the 8:30am brief** (site already live
+  with real Stripe payments). Waitlist + app: `first100.html` (now captures
+  signups → Supabase `signups`). Supabase venture key is `sprout` — match it.
 - **OneSafe** — safety-document platform for SG construction. MSRA library
   (129 activities, 3,639 hazard rows), toolbox talks in 6 languages, PE-design
-  guides; subscriptions. App: `onesafe.html`. **ON HOLD until end of month —
-  don't open MSRA work unless asked.**
+  guides; subscriptions. App: `onesafe.html`. Venture key `safeframe`/`onesafe`.
+  **ON HOLD until end of month — don't open MSRA work unless asked.**
+- **OneFlat** — **new** property idea (Karthik's words: "three words so far").
+  **Un-scoped** — nothing built, no offer defined, just the working name.
+  Needs one scoping session with SK first. Don't state specifics as decided.
+  Venture key `oneflat`. Part of the "One" brand family.
+- **Barber Den** — paid video editing & marketing for a friend (renamed from
+  "Studio"). Fastest cash, per job. Venture key still `studio` (display renamed).
+
+Also in SK, not featured:
+- **SKAI** — faceless TikTok dropshipping; Page Pilot ready. Learning phase —
+  raise only when Karthik asks. Venture key `skai`.
 - **Coursiv** — AI course Karthik is working through.
 
 ### 🔌 Connected services

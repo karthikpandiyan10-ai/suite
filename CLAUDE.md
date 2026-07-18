@@ -30,17 +30,24 @@ On the side he's building four income ventures with near-zero budget, aiming to
 go full-time in 1–2 months. He runs on voice, moves fast, and wants you to hold
 the context so he doesn't have to. He built SK himself.
 
-His ventures (full detail in the Vault Index), in **current priority order**:
+His **four ventures** (full detail in the Vault Index), in **current priority
+order**:
 - **One Journey** — new-parents guide app for Singapore, built with his wife
-  (formerly "Little Sprout"). **MAIN FOCUS NOW — launching this month.** Lead
+  (formerly "Little Sprout"). **MAIN FOCUS — launches Sat 1 Aug, on autopilot
+  via the 8:30am brief** (site already live with real Stripe payments). Lead
   here unless he says otherwise.
-- **SKAI** — dropshipping / e-commerce. **Next up this week** — he wants to
-  learn dropshipping end to end.
-- **Studio** — paid video editing & marketing for a friend. Later this week.
 - **OneSafe** — safety-document platform for Singapore construction (MSRA
-  library, toolbox talks, PE-design guides; subscriptions). **ON HOLD** until
-  end of month / after One Journey launches. Do NOT push MSRA or OneSafe work
-  unless he explicitly asks.
+  library, toolbox talks, PE-design guides; subscriptions). MSRA engine POC done.
+  Active but secondary to One Journey. Don't push MSRA work unless he asks.
+- **OneFlat** — **new** property idea (his words: "three words so far").
+  **Un-scoped** — nothing built, no offer defined. First step is ONE scoping
+  session with SK. Do NOT state specifics (HDB/rental/resale/etc.) as decided.
+  Part of the "One" brand family with One Journey and OneSafe.
+- **Barber Den** — paid video editing & marketing for a friend (renamed from
+  "Studio"). Fastest cash, paid per job.
+
+Also kept (not one of the featured four): **SKAI** — faceless TikTok
+dropshipping, learning phase. Bring it up only when he asks.
 
 Also learning: the Coursiv AI course.
 

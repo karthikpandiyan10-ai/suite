@@ -137,7 +137,6 @@ label{font-size:11.5px;font-weight:800;letter-spacing:1.2px;color:var(--mut);dis
 <button class="nv" data-v="appts" onclick="go('appts',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 11h18"/></svg>Appts</button>
 <button class="nv" data-v="checklist" onclick="go('checklist',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m4 12 4 4L20 6"/><path d="M4 19h16" opacity=".4"/></svg>Lists</button>
 <button class="nv" data-v="money" onclick="go('money',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9.5 9.5c0-1 1-1.7 2.5-1.7s2.5.7 2.5 1.7-1 1.4-2.5 1.7-2.5.7-2.5 1.7 1 1.7 2.5 1.7 2.5-.7 2.5-1.7"/></svg>Money</button>
-<button class="nv" data-v="wellbeing" onclick="go('wellbeing',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 21s-7-4.35-9.5-8.5C.7 9.5 2 6 5.2 6 7 6 8.2 7 12 10c3.8-3 5-4 6.8-4C22 6 23.3 9.5 21.5 12.5 19 16.65 12 21 12 21Z"/></svg>Well being</button>
 </nav>
 </div>
 </div>
@@ -148,8 +147,26 @@ label{font-size:11.5px;font-weight:800;letter-spacing:1.2px;color:var(--mut);dis
 <div class="aff" id="hAff">One clear answer, every week.</div>
 </div>
 
+<!-- JOIN (first 100) -->
+<div id="join" class="view hidden">
+<div class="card" style="animation-delay:.05s">
+<span class="pill now" style="background:#EAF2E6;color:var(--green)">FIRST 100 FOUNDING FAMILIES</span>
+<div class="it-t">Be one of the first 100. 💛</div>
+<div class="it-w">One clear answer every week of your journey — from two pink lines to day 100. Join now and you get the <b>S$6 well-being ebook free</b> and <b>lifetime founding-member access</b>.</div>
+<label>YOUR NAME</label>
+<input id="jName" placeholder="e.g. Karthik" autocomplete="name">
+<label>EMAIL</label>
+<input id="jEmail" type="email" placeholder="you@email.com" autocomplete="email" inputmode="email">
+<label>WHATSAPP (OPTIONAL — FOR REMINDERS)</label>
+<input id="jWa" type="tel" placeholder="+65 8123 4567" autocomplete="tel" inputmode="tel">
+<button class="cta" id="jBtn" onclick="submitJoin()">Claim my founding spot 💛</button>
+<div id="jErr" style="font-size:12.5px;color:var(--coral);margin-top:8px;min-height:16px"></div>
+</div>
+<div class="disc">We'll only message you about One Journey — no spam, leave anytime. Your details are stored securely and never shown to other users.</div>
+</div>
+
 <!-- SETUP -->
-<div id="setup" class="view">
+<div id="setup" class="view hidden">
 <div class="card" style="animation-delay:.05s">
 <div class="it-t">Let's set up — 20 seconds. 🌱</div>
 <label>BABY'S NAME OR NICKNAME (OPTIONAL)</label>
@@ -218,25 +235,6 @@ label{font-size:11.5px;font-weight:800;letter-spacing:1.2px;color:var(--mut);dis
 <div class="card" style="animation-delay:.24s"><div class="money-amt">16 + 4 + 10 wks</div><div class="money-t">Maternity, Paternity & Shared Leave</div><div class="money-w">16 weeks government-paid maternity leave, 4 weeks paternity leave — PLUS up to 10 weeks Shared Parental Leave (births from 1 Apr 2026) that you split between you. Most employed parents of Singapore-citizen babies qualify — check MOM's eligibility checker. <b>One action (dad):</b> tell HR your dates at least 1 month ahead.</div></div>
 <div class="disc">Amounts current as of mid-2026 — confirm on <b>LifeSG</b> / madeforfamilies.gov.sg before money decisions.</div>
 </div>
-
-<!-- WELL BEING -->
-<div id="wellbeing" class="view hidden">
-<div class="card" style="padding:0;overflow:hidden">
-<img src="ebook-cover.jpg" alt="You Are Not Alone — ebook cover" style="width:100%;display:block">
-</div>
-<div class="card" style="animation-delay:.06s">
-<span class="pill soon">EBOOK · ADD-ON</span>
-<div class="it-t">You Are Not Alone</div>
-<div class="it-w">Real solutions for the hard days of parenting. Short stories every tired mum and dad will recognise — each ending with what you can actually do: when your partner's beside you, when they're working overseas, and for you, on your own tonight.</div>
-<div class="it-y" style="margin-top:10px">In this book: 3 a.m. · The ocean between us · He's home and doesn't know what to do · Where did I go? · The comparison trap · Fathers feel it too.</div>
-<div style="display:flex;align-items:center;justify-content:space-between;margin-top:16px;gap:12px">
-<div class="money-amt" style="font-size:24px">S$6</div>
-<a href="https://buy.stripe.com/test_8x2cMY0suavEfkb7DLgIo01" target="_blank" rel="noopener" class="cta" style="margin-top:0;width:auto;padding:13px 22px;text-decoration:none;display:inline-block">Buy the ebook</a>
-</div>
-<div class="it-y" style="margin-top:10px">Instant access after payment — opens right in your browser. 💛</div>
-</div>
-<div class="disc">A companion, not a doctor. If the heavy days feel too heavy, please reach out to someone you trust or a professional.</div>
-</div>
 </div>
 
 <div id="toast" role="status" aria-live="polite"></div>
@@ -285,7 +283,10 @@ const AFF=["One clear answer, every week. No forums. No ten opinions.","You're d
 const BLESS=["Today's little blessing: somewhere in there, a heartbeat is practising just for you.","Today's little blessing: your baby already knows your voice better than any song.","Today's little blessing: you were chosen for this exact baby. No one else.","Today's little blessing: every kick is a hello.","Today's little blessing: one day this tiny human will laugh at your jokes.","Today's little blessing: you are already someone's whole world.","Today's little blessing: babies don't remember perfect houses — they remember warm arms.","Today's little blessing: today counts, even the messy parts."];
 const MILES={0:["Baby is HERE 🎉","The biggest day of your life. Everything else can wait."],7:["One whole week 💛","You kept a human alive for 7 days. Legends."],30:["One month strong 🌙","满月! The hardest month is behind you."],50:["Halfway to 100 🎈","Look how far you three have come."],100:["DAY 100 🎊","You did the whole climb. This app was built for exactly this moment."]};
 // ---------- STATE ----------
+const SB="https://drgnimyotoqrzuxflxpy.supabase.co/rest/v1";
+const SBKEY="sb_publishable_0HIvS0GHcoilXvwDqpfNXA_xh2ocXVO";
 let cfg=JSON.parse(localStorage.getItem('f100_cfg')||'null');
+let signup=JSON.parse(localStorage.getItem('f100_signup')||'null');
 let done=JSON.parse(localStorage.getItem('f100_done')||'{}');
 let chk=JSON.parse(localStorage.getItem('f100_chk')||'{}');
 let apts=JSON.parse(localStorage.getItem('f100_apts')||'[]');
@@ -302,6 +303,38 @@ localStorage.setItem('f100_cfg',JSON.stringify(cfg));boot()}
 function resetAll(){if(confirm('Start over? Your ticks and appointments are kept.')){localStorage.removeItem('f100_cfg');location.reload()}}
 function weeksNow(){const ref=new Date(cfg.date+'T00:00:00');return (Date.now()-ref.getTime())/(7*24*3600*1000)}
 function dayNum(){return Math.floor(weeksNow()*7)}
+// ---------- SIGNUP (first 100) ----------
+function validEmail(e){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)}
+async function pushSignup(rec){
+  const r=await fetch(SB+'/signups',{method:'POST',headers:{apikey:SBKEY,Authorization:'Bearer '+SBKEY,'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify({name:rec.name,email:rec.email,whatsapp:rec.whatsapp||null,venture:'one_journey',source:'first100'})});
+  if(!r.ok)throw new Error('HTTP '+r.status);
+}
+async function submitJoin(){
+  const nm=document.getElementById('jName').value.trim();
+  const em=document.getElementById('jEmail').value.trim();
+  const wa=document.getElementById('jWa').value.trim();
+  const err=document.getElementById('jErr'),btn=document.getElementById('jBtn');
+  if(!nm){err.textContent='Just your name first 🙂';return}
+  if(!validEmail(em)){err.textContent='That email looks off — mind checking it?';return}
+  err.textContent='';btn.disabled=true;btn.textContent='Saving your spot…';
+  const rec={name:nm,email:em,whatsapp:wa,synced:false};
+  try{await pushSignup(rec);rec.synced=true}
+  catch(e){/* keep locally, retry on next load so a founding user is never blocked by a hiccup */}
+  signup=rec;localStorage.setItem('f100_signup',JSON.stringify(signup));
+  btn.disabled=false;btn.textContent='Claim my founding spot 💛';
+  burst(innerWidth/2,innerHeight/2);toast("You're in — welcome, founding family 💛");
+  setTimeout(()=>route(),650);
+}
+async function retrySignup(){
+  if(!signup||signup.synced)return;
+  try{await pushSignup(signup);signup.synced=true;localStorage.setItem('f100_signup',JSON.stringify(signup))}catch(e){}
+}
+function route(){
+  ['join','setup','today','timeline','appts','checklist','money'].forEach(x=>{const n=document.getElementById(x);if(n){n.classList.add('hidden')}});
+  if(cfg){boot();return}
+  if(!signup){const j=document.getElementById('join');j.classList.remove('hidden');void j.offsetWidth;j.classList.add('view');return}
+  const s=document.getElementById('setup');s.classList.remove('hidden');void s.offsetWidth;s.classList.add('view');
+}
 // ---------- DELIGHT ----------
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),2600)}
 const PRAISE=["One less thing on your mind 💛","Done. You two are a good team.","Tick. Baby's lucky to have you.","Handled. Go rest a bit.","That's the kancheong handled for today."];
@@ -406,10 +439,10 @@ if(Notification.permission==='default')el.innerHTML='<div class="notif-ask">Want
 else el.innerHTML=''}
 setInterval(checkReminders,18e5);
 function go(v,el){document.querySelectorAll('.nv').forEach(t=>t.classList.remove('on'));el.classList.add('on');
-['today','timeline','appts','checklist','money','wellbeing'].forEach(x=>{const n=document.getElementById(x);n.classList.add('hidden');n.classList.remove('view')});
+['today','timeline','appts','checklist','money'].forEach(x=>{const n=document.getElementById(x);n.classList.add('hidden');n.classList.remove('view')});
 const tgt=document.getElementById(v);tgt.classList.remove('hidden');void tgt.offsetWidth;tgt.classList.add('view');
 window.scrollTo({top:0,behavior:'instant'})}
-modeUI();boot();
+modeUI();retrySignup();route();
 </script>
 </body>
 </html>

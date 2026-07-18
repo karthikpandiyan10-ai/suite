@@ -5,11 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Karthik · Mission Control</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#070B14; --panel:rgba(255,255,255,.045); --panel2:rgba(255,255,255,.07); --line:rgba(255,255,255,.09);
-  --ink:#E6EBF5; --dim:#8B94A9; --cyan:#22D3EE; --violet:#A78BFA; --green:#34D399; --amber:#FBBF24; --pink:#F472B6; --red:#F87171;
+  /* matrix — blue + purple, matched to the SK deck */
+  --bg:#05030f; --panel:rgba(15,11,38,.55); --panel2:rgba(138,99,255,.08); --line:rgba(138,99,255,.18);
+  --ink:#e2e6ff; --dim:#8079c0; --cyan:#4bc9ff; --violet:#8a63ff; --green:#4bc9ff; --amber:#8a63ff; --pink:#ff5c9c; --red:#ff5c9c;
+  --grgb:138,99,255;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Space Grotesk',system-ui,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;padding:22px;overflow-x:hidden}
@@ -97,6 +99,40 @@ ul.next label{cursor:pointer}
 .ph .flag.off{color:#3a4356;border-color:#3a4356}
 footer{text-align:center;color:var(--dim);font-size:11.5px;margin-top:24px;font-family:'JetBrains Mono',monospace}
 @media(max-width:700px){body{padding:14px}}
+/* ==================== MISSION CONTROL · JARVIS EVOLUTION ==================== */
+#mcrain{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.28}
+.hello h1{font-family:'Orbitron',sans-serif;font-weight:900;letter-spacing:.06em;text-shadow:0 0 22px rgba(var(--grgb),.4)}
+.w h2{font-family:'Orbitron',sans-serif;font-weight:700;letter-spacing:.04em}
+.chip b{color:var(--cyan);text-shadow:0 0 12px rgba(75,201,255,.5)}
+.chip.flag b{text-shadow:0 0 12px rgba(255,92,156,.5)}
+/* animated light-beam on each widget's top edge */
+.w::before{background:linear-gradient(90deg,transparent,var(--ac,#8a63ff) 40%,#4bc9ff 60%,transparent);background-size:220% 100%;animation:mcbeam 5s linear infinite;opacity:.85}
+@keyframes mcbeam{0%{background-position:220% 0}100%{background-position:-220% 0}}
+/* pulsing HUD corner brackets on every widget */
+.w::after{content:"";position:absolute;top:8px;right:8px;width:12px;height:12px;border-top:2px solid var(--ac,#8a63ff);border-right:2px solid var(--ac,#8a63ff);opacity:.55;animation:mcbrkt 3.6s ease-in-out infinite}
+@keyframes mcbrkt{50%{opacity:.2}}
+.w:hover{border-color:var(--violet);box-shadow:0 0 26px rgba(var(--grgb),.14)}
+/* viewport HUD frame corners */
+#mcframe{position:fixed;inset:0;z-index:5;pointer-events:none}
+#mcframe span{position:absolute;width:34px;height:34px;opacity:.5}
+#mcframe span::before,#mcframe span::after{content:"";position:absolute;background:var(--violet);box-shadow:0 0 10px rgba(var(--grgb),.7)}
+#mcframe span::before{height:2px;width:100%}#mcframe span::after{width:2px;height:100%}
+#mcframe .tl{top:8px;left:8px}#mcframe .tr{top:8px;right:8px}#mcframe .bl{bottom:8px;left:8px}#mcframe .br{bottom:8px;right:8px}
+#mcframe .tl::before,#mcframe .tl::after{top:0;left:0}#mcframe .tr::before{top:0;right:0}#mcframe .tr::after{top:0;right:0}
+#mcframe .bl::before,#mcframe .bl::after{bottom:0;left:0}#mcframe .br::before,#mcframe .br::after{bottom:0;right:0}
+#mcframe .bl::before,#mcframe .bl::after,#mcframe .br::before,#mcframe .br::after{background:var(--cyan);box-shadow:0 0 10px rgba(75,201,255,.7)}
+@media(max-width:980px){#mcframe{display:none}}
+/* LAUNCH / TODAY hero strip */
+.hero{display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center}
+.count{display:flex;gap:10px}
+.count .u{text-align:center;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px 14px;min-width:64px}
+.count .u b{font-family:'Orbitron',sans-serif;font-size:26px;display:block;color:var(--cyan);text-shadow:0 0 14px rgba(75,201,255,.5)}
+.count .u small{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.14em;color:var(--dim);text-transform:uppercase}
+.nextpost{font-size:13.5px;line-height:1.5}
+.nextpost .lbl{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;color:var(--violet);text-transform:uppercase}
+.nextpost .t{font-family:'Orbitron',sans-serif;color:var(--cyan);letter-spacing:.06em}
+@media (prefers-reduced-motion:reduce){#mcrain{display:none}.w::before,.w::after,#mcframe span{animation:none}}
+@media(max-width:700px){.hero{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -107,6 +143,7 @@ footer{text-align:center;color:var(--dim);font-size:11.5px;margin-top:24px;font-
     <p id="clock">—</p>
   </div>
   <div class="hud">
+    <div class="chip"><b id="hLaunch" style="color:var(--violet)">—</b><small>Days to launch</small></div>
     <div class="chip"><b id="hOpen">0</b><small>Open</small></div>
     <div class="chip"><b id="hDone" style="color:var(--green)">0</b><small>Done</small></div>
     <div class="chip flag"><b id="hFlag">0</b><small>Follow-up</small></div>
@@ -182,8 +219,8 @@ const PROJECTS = [
     notes:""
   },
   {
-    id:"studio", accent:"#A78BFA", tag:"Freelance services · later this week", title:"Studio — Video & Marketing",
-    desc:"Paid video editing and marketing services. First client: your friend. Fastest cash of all four ventures — paid per job.",
+    id:"studio", accent:"#A78BFA", tag:"Freelance services · later this week", title:"Barber Den — Video & Marketing",
+    desc:"Barber Den — paid video editing and marketing services (formerly 'Studio'). First client: your friend. Fastest cash of all your ventures — paid per job.",
     hint:"Golden rule: scope in writing even with friends — deliverables, revisions, deadline, price. Then testimonial, then referrals.",
     phases:[
       {name:"Deliver & get paid", steps:[
@@ -199,6 +236,26 @@ const PROJECTS = [
       ["Deliver fast and well using AI tools you already have","MONEY: paid on delivery, immediately"],
       ["Testimonial + referrals after every job","Each client should produce the next one"],
       ["Raise rates every 2-3 clients","You're underpriced until someone says no"]
+    ],
+    notes:""
+  },
+  {
+    id:"oneflat", accent:"#38BDF8", tag:"Property · new idea · needs scoping", title:"OneFlat — Property (idea)",
+    desc:"A new property venture idea — 'three words so far'. Nothing built, no offer defined yet. Part of the One brand family (One Journey, OneSafe).",
+    hint:"First job: one scoping session with SK to decide what OneFlat actually is, who it's for, and whether it beats the current stack for your time — before building anything.",
+    phases:[
+      {name:"Scope the idea", steps:[
+        {t:"Talk it out with SK: what is OneFlat, in one line", f:false},
+        {t:"Write the one-line offer: who it's for + the problem it solves", f:false},
+        {t:"Pick who it's for (the single beachhead)", f:false},
+        {t:"Check who already serves this space", f:false},
+        {t:"Decide the first thin slice to build or test", f:false}
+      ]}
+    ],
+    money:"To be defined — e.g. listing fees, lead gen, or a paid flat-admin service",
+    playbook:[
+      ["Own one flat problem, not all of them","Focus beats a broad property app with no edge"],
+      ["Talk to 5 people living the problem before building","Cheapest way to avoid building the wrong thing"]
     ],
     notes:""
   },
@@ -384,7 +441,7 @@ function tick(cb){
   flat(p)[+cb.dataset.g].d=cb.checked; save();
 }
 function moneyWidget(){
-  const rows=[["sprout","One Journey"],["skai","SKAI"],["studio","Studio"],["safeframe","OneSafe"]].map(([id,name])=>{
+  const rows=[["safeframe","OneSafe"],["sprout","One Journey"],["oneflat","OneFlat"],["studio","Barber Den"]].map(([id,name])=>{
     const p=state.projects.find(x=>x.id===id);
     return `<div class="money-row"><div><b>${name}</b><div class="model">${esc(p.money)}</div></div>
       <div style="text-align:right"><div style="font-size:10px;color:var(--dim);letter-spacing:.08em">TARGET S$/MO</div>
@@ -421,6 +478,35 @@ function skillsWidget(){
     <div class="tip"><code>/start</code> (productivity) → Claude builds a memory of your projects so you never re-explain</div>
   </div></div>`;
 }
+/* ---- LIVE: Singapore time, launch countdown, today's content ---- */
+function sgtNow(){ return new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Singapore'})); }
+function launchDelta(){ return Math.max(0, new Date('2026-08-01T00:00:00+08:00') - sgtNow()); }
+function fmtCount(ms){ return {d:Math.floor(ms/864e5), h:Math.floor(ms/36e5)%24, m:Math.floor(ms/6e4)%60}; }
+let __posts=null;
+async function fetchTodayPosts(){
+  try{ const s=sgtNow(); const today=s.getFullYear()+'-'+('0'+(s.getMonth()+1)).slice(-2)+'-'+('0'+s.getDate()).slice(-2);
+    __posts=await (await fetch(SB+"/content_calendar?select=post_time,platform,hook&status=eq.planned&post_date=eq."+today+"&order=post_time",{headers:SBH})).json();
+  }catch(e){ __posts=[]; }
+  render();
+}
+function heroWidget(){
+  const c=fmtCount(launchDelta());
+  const s=sgtNow(), hhmm=('0'+s.getHours()).slice(-2)+':'+('0'+s.getMinutes()).slice(-2);
+  let np;
+  if(__posts===null) np='<span class="lbl">Today</span><div class="sub" style="margin-top:4px">Loading content…</div>';
+  else{ const up=(__posts||[]).filter(p=>(p.post_time||'')>=hhmm), missed=(__posts||[]).filter(p=>(p.post_time||'')<hhmm);
+    if(up.length) np=`<span class="lbl">Next post · ${esc(up[0].post_time)} SGT</span><div class="t" style="margin-top:3px">${esc(up[0].platform)}</div><div style="color:var(--dim);margin-top:3px">${esc(up[0].hook||'')}</div>`;
+    else if(missed.length) np=`<span class="lbl" style="color:var(--pink)">⚠ ${missed.length} post${missed.length>1?'s':''} due earlier today</span><div class="t" style="margin-top:3px">${esc(missed[0].platform)} · ${esc(missed[0].post_time)}</div>`;
+    else np=`<span class="lbl">Today</span><div style="margin-top:4px">No posts scheduled — time to batch the next set.</div>`;
+  }
+  return `<div class="w span12" style="--ac:var(--violet)"><h2><span class="dot"></span>ONE JOURNEY · LAUNCH</h2><div class="sub">Flagship goes live Sat 1 Aug · Singapore time</div>
+    <div class="hero" style="margin-top:14px">
+      <div class="count"><div class="u"><b id="cD">${c.d}</b><small>Days</small></div><div class="u"><b id="cH">${c.h}</b><small>Hrs</small></div><div class="u"><b id="cM">${c.m}</b><small>Min</small></div></div>
+      <div class="nextpost">${np}</div>
+    </div></div>`;
+}
+function tickCount(){ const c=fmtCount(launchDelta());
+  [['hLaunch',c.d],['cD',c.d],['cH',c.h],['cM',c.m]].forEach(([id,v])=>{const el=document.getElementById(id); if(el)el.textContent=v;}); }
 function render(){
   const all=state.projects;
   let open=0,dn=0,fl=0,tot=0;
@@ -428,12 +514,13 @@ function render(){
   hOpen.textContent=open;hDone.textContent=dn;hFlag.textContent=fl;hPct.textContent=Math.round(100*dn/tot)+"%";
   const brief=`<div class="w span12" style="--ac:var(--amber)"><h2><span class="dot"></span>Daily Brief — ${esc(DAILY_BRIEF.date)}</h2>
     <div class="tipbox" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:8px">${DAILY_BRIEF.lines.map(l=>`<div class="tip">${esc(l)}</div>`).join("")}</div></div>`;
-  document.getElementById("grid").innerHTML = brief + todoWidget() +
-    appWidget(state.projects.find(p=>p.id==="sprout"),4) +
-    appWidget(state.projects.find(p=>p.id==="skai"),4) +
-    appWidget(state.projects.find(p=>p.id==="studio"),4) +
+  document.getElementById("grid").innerHTML = heroWidget() + brief + todoWidget() +
     appWidget(state.projects.find(p=>p.id==="safeframe"),4) +
+    appWidget(state.projects.find(p=>p.id==="sprout"),4) +
+    appWidget(state.projects.find(p=>p.id==="oneflat"),4) +
+    appWidget(state.projects.find(p=>p.id==="studio"),4) +
     moneyWidget() + coursivWidget() + linksWidget() + skillsWidget();
+  tickCount();
 }
 function openOv(id){
   const p=state.projects.find(x=>x.id===id);
@@ -463,9 +550,32 @@ function toggleFlag(pid,gi){
 }
 function closeOv(){document.getElementById("overlay").classList.remove("open");render();}
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeOv()});
-setInterval(()=>{document.getElementById("clock").textContent=new Date().toLocaleString("en-SG",{weekday:"short",day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit",second:"2-digit"})},1000);
+function tickClock(){ document.getElementById("clock").textContent=new Date().toLocaleString("en-GB",{timeZone:"Asia/Singapore",weekday:"short",day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit",second:"2-digit"})+" · SGT"; }
+tickClock(); setInterval(tickClock,1000); setInterval(tickCount,30000);
 render();
 fetchTodos();
+fetchTodayPosts();
+/* HUD frame + matrix rain (blue+purple, matched to the SK deck) */
+(function(){ try{
+  var fr=document.createElement('div'); fr.id='mcframe';
+  ['tl','tr','bl','br'].forEach(function(c){var s=document.createElement('span');s.className=c;fr.appendChild(s);});
+  document.body.appendChild(fr);
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var c=document.createElement('canvas'); c.id='mcrain'; document.body.appendChild(c);
+  var x=c.getContext('2d'),W,H,cols,drops,speeds,tint;
+  var G="ｱｲｳｴｵｶｷｸｹｺ0123456789ABCDEF<>*+/=".split(""), B="#3aa0ff", P="#a25bff";
+  function setup(){ W=c.width=innerWidth; H=c.height=innerHeight; var fs=Math.max(12,Math.round(innerWidth/74)); c._fs=fs;
+    cols=Math.ceil(W/fs); drops=Array.from({length:cols},()=>Math.floor(Math.random()*-40));
+    speeds=Array.from({length:cols},()=>0.6+Math.random()*0.8); tint=Array.from({length:cols},()=>Math.random()<0.6?P:B); }
+  addEventListener('resize',setup); setup(); x.textBaseline='top';
+  (function loop(){ requestAnimationFrame(loop); if(document.hidden) return; var fs=c._fs;
+    x.fillStyle='rgba(5,3,15,0.10)'; x.fillRect(0,0,W,H); x.font='700 '+fs+"px 'JetBrains Mono',monospace";
+    for(var i=0;i<cols;i++){ var g=G[(Math.random()*G.length)|0], px=i*fs, py=drops[i]*fs, head=Math.random()<0.06;
+      if(head){ x.fillStyle='#e8f0ff'; x.shadowColor=tint[i]; x.shadowBlur=12; } else { x.fillStyle=tint[i]; x.shadowBlur=0; }
+      x.fillText(g,px,py); x.shadowBlur=0;
+      if(py>H&&Math.random()>0.975){ drops[i]=Math.floor(Math.random()*-20); tint[i]=Math.random()<0.6?P:B; } drops[i]+=speeds[i]; }
+  })();
+}catch(e){} })();
 </script>
 </body>
 </html>
