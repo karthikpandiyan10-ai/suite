@@ -518,6 +518,14 @@ body.talking .readout{border-color:var(--amber);box-shadow:0 0 30px rgba(var(--g
         <button onclick="handleCommand('what is next for skai')">SKAI</button>
         <button onclick="handleCommand('open dashboard')">MISSION CTRL</button>
       </div>
+      <div class="keys" style="margin-top:8px">
+        <button onclick="handleCommand('open camera')">📷 CAMERA</button>
+        <button onclick="handleCommand('open tiktok')">TIKTOK</button>
+        <button onclick="handleCommand('open facebook')">FACEBOOK</button>
+        <button onclick="handleCommand('open instagram')">INSTAGRAM</button>
+        <button onclick="handleCommand('open whatsapp')">WHATSAPP</button>
+        <button onclick="handleCommand('open gmail')">GMAIL</button>
+      </div>
     </div>
 
     <!-- RIGHT -->
@@ -656,6 +664,46 @@ Object.assign(LAUNCH,{
   skai:"https://www.instagram.com/skai.tested", skaiig:"https://www.instagram.com/skai.tested",
   missioncontrol:(location.protocol==="file:"?"../Karthik_Dashboard.html":"dashboard.html")
 });
+/* ---- Android: open the real APP (not the website) via intent links ---- */
+const IS_ANDROID=/Android/i.test(navigator.userAgent||"");
+const APP_INTENT={
+  tiktok:{pkg:"com.zhiliaoapp.musically",host:"www.tiktok.com"},
+  facebook:{pkg:"com.facebook.katana",host:"www.facebook.com"},
+  instagram:{pkg:"com.instagram.android",host:"www.instagram.com"},
+  insta:{pkg:"com.instagram.android",host:"www.instagram.com"},
+  youtube:{pkg:"com.google.android.youtube",host:"www.youtube.com"},
+  whatsapp:{pkg:"com.whatsapp",host:"wa.me"},
+  telegram:{pkg:"org.telegram.messenger",host:"t.me"},
+  x:{pkg:"com.twitter.android",host:"twitter.com"},
+  twitter:{pkg:"com.twitter.android",host:"twitter.com"},
+  snapchat:{pkg:"com.snapchat.android",host:"www.snapchat.com"},
+  spotify:{pkg:"com.spotify.music",host:"open.spotify.com"},
+  maps:{pkg:"com.google.android.apps.maps",host:"maps.google.com"},
+  gmail:{pkg:"com.google.android.gm",host:"mail.google.com"},
+  shopee:{pkg:"com.shopee.sg",host:"shopee.sg"},
+  lazada:{pkg:"com.lazada.android",host:"www.lazada.sg"}
+};
+function openMobileApp(key){
+  const a=APP_INTENT[key]; if(!a) return false;
+  const web=LAUNCH[key]||("https://"+a.host);
+  const intent="intent://"+a.host+"/#Intent;scheme=https;package="+a.pkg+";S.browser_fallback_url="+encodeURIComponent(web)+";end";
+  const w=window.open(intent,"_blank");
+  if(w){ replyLocal("Opening "+key+" on your phone, "+state.user+"."); return true; }
+  renderFeed("TAP TO OPEN",[{h:"Open "+key+" app",s:"tap here",u:intent}]);
+  replyLocal("Tap "+key+" on the feed to open the app, "+state.user+".");
+  return true;
+}
+function openCamera(){
+  if(IS_ANDROID){
+    const intent="intent://scan/#Intent;action=android.media.action.STILL_IMAGE_CAMERA;end";
+    const w=window.open(intent,"_blank");
+    if(w){ replyLocal("Opening your camera, "+state.user+"."); return; }
+    renderFeed("TAP TO OPEN",[{h:"Open Camera",s:"tap here",u:intent}]);
+    replyLocal("Tap Camera on the feed to open it, "+state.user+".");
+  } else {
+    replyLocal("Camera opens on your phone, "+state.user+" — on the laptop I can't launch it.");
+  }
+}
 const SEARCHERS={
   youtube:q=>"https://www.youtube.com/results?search_query="+encodeURIComponent(q),
   google:q=>"https://www.google.com/search?q="+encodeURIComponent(q),
@@ -1270,6 +1318,8 @@ async function handleCommand(text){
   if(go){
     const raw=go[1].trim().replace(/^(?:the|your|my|our)\s+/,"");   // "your gmail" -> "gmail"
     const name=raw.replace(/[\s'']+/g,"");
+    if(/^camera$/.test(name)){ openCamera(); return; }
+    if(IS_ANDROID && APP_INTENT[name]){ openMobileApp(name); return; }   // phone: open the real app
     if(LAUNCH[name]){ safeOpen(LAUNCH[name], raw); return; }
     if(/^[a-z0-9-]+\.[a-z]{2,}$/.test(name)){ safeOpen("https://"+name, raw); return; }
     if(/^[a-z0-9]{2,20}$/.test(name) && !/onesafe|dashboard|mission|mail|inbox|calendar|schedule|agenda|drive|survey|responses|supabase|coursiv|pagepilot|analytics/.test(name)){
