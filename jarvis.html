@@ -1010,7 +1010,7 @@ function runDoctor(){
 }
 renderTasks(); startClock(); applyIdentity(); loadCounts(); renderLocalMetrics(); loadNotes(); loadBrainFiles(); gStatus(); renderVentures(); setInterval(renderVentures,120000); bootSequence(); runDoctor(); pingBrain();
 /* ---- self-updater: pull new builds automatically when idle ---- */
-const SK_VER="v27-2026-07-14a";  // bump this on every deploy so devices auto-refresh
+const SK_VER="v40-serverbrain-stayalive";  // bump this on every deploy so devices auto-refresh
 async function skCheckUpdate(){try{
   if(speaking||capture)return;
   const txt=await (await fetch(location.pathname+"?u="+Date.now(),{cache:"no-store"})).text();
@@ -1018,9 +1018,20 @@ async function skCheckUpdate(){try{
   if(m&&m[1]!==SK_VER){ location.reload(); }
 }catch(e){}}
 setInterval(skCheckUpdate,5*60*1000);
-// check the instant the app is reopened / regains focus — so phones update on open
-document.addEventListener("visibilitychange",()=>{ if(!document.hidden) skCheckUpdate(); });
-window.addEventListener("focus",skCheckUpdate);
+// ---- STAY ALIVE: keep the screen awake so the phone doesn't sleep + drop SK, and reconnect the moment you return ----
+let skWakeLock=null;
+async function keepAwake(){ try{ if('wakeLock' in navigator && document.visibilityState==='visible'){ skWakeLock=await navigator.wakeLock.request('screen'); } }catch(e){} }
+function skRecover(){
+  try{ if(typeof pingBrain==='function') pingBrain(); }catch(e){}       // brain back online
+  try{ if(typeof loadCounts==='function') loadCounts(); }catch(e){}      // library back online
+  try{ if(typeof gStatus==='function') gStatus(); }catch(e){}            // google status
+  try{ if(typeof engineOn!=='undefined' && engineOn && !speaking && !recRunning){ if(rec){rec.start();} else if(typeof startEngine==='function'){startEngine();} } }catch(e){}  // mic back on
+}
+// check + reconnect the instant the app is reopened / regains focus
+document.addEventListener("visibilitychange",()=>{ if(!document.hidden){ keepAwake(); skCheckUpdate(); skRecover(); } });
+window.addEventListener("focus",()=>{ skCheckUpdate(); skRecover(); });
+keepAwake();
+setInterval(()=>{ if(!document.hidden) skRecover(); }, 4*60*1000);  // gentle self-heal every 4 min while open
 /* ---- cinematic layer: MATRIX digital rain (blue + purple · Reloaded/Evolution) ---- */
 (function(){
   if(window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
