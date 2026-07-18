@@ -1013,9 +1013,9 @@ function runDoctor(){
     if(action){var a=document.getElementById('skDocAct');if(a)a.onclick=action.fn;}
   }catch(e){}
 }
-renderTasks(); startClock(); applyIdentity(); loadCounts(); renderLocalMetrics(); loadNotes(); loadBrainFiles(); gStatus(); renderVentures(); setInterval(renderVentures,120000); bootSequence(); runDoctor(); pingBrain();
+renderTasks(); startClock(); applyIdentity(); loadCounts(); renderLocalMetrics(); loadNotes(); loadBrainFiles(); gStatus(); renderVentures(); setInterval(renderVentures,120000); bootSequence(); runDoctor(); pingBrain(); loadMems();
 /* ---- self-updater: pull new builds automatically when idle ---- */
-const SK_VER="v41-ventures-fallback";  // bump this on every deploy so devices auto-refresh
+const SK_VER="v42-jarvis-memory";  // bump this on every deploy so devices auto-refresh
 async function skCheckUpdate(){try{
   if(speaking||capture)return;
   const txt=await (await fetch(location.pathname+"?u="+Date.now(),{cache:"no-store"})).text();
@@ -1131,7 +1131,7 @@ function startBriefings(){
   function stamp(){ const s=sgtDate(); return s.getFullYear()+'-'+(s.getMonth()+1)+'-'+s.getDate()+'-'+s.getHours(); }
   function tick(force){ let st=stamp(),last=null; try{last=localStorage.getItem(key);}catch(e){}
     if(force||st!==last){ try{localStorage.setItem(key,st);}catch(e){} hourlyBriefing(); } }
-  setTimeout(()=>tick(false),7000);    // first update shortly after boot (once per Singapore hour)
+  setTimeout(()=>tick(true),7000);     // DAILY BRIEF: SK speaks your day every time the deck opens
   setInterval(()=>tick(false),60000);  // then at the top of every new Singapore hour
   window.skBriefNow=()=>hourlyBriefing();
 }
@@ -1488,6 +1488,33 @@ async function handleCommand(text){
       return;
     }
   }
+  // ---- REMEMBER THIS: "remember ..." saves to permanent memory; "what do you remember"; "forget ..." ----
+  let mem=low.match(/^(?:sk[,\s]+)?remember(?:\s+this)?[:,]?\s+(.{3,})$/);
+  if(mem){
+    const t=mem[1].trim().replace(/[.?!]+$/,"");
+    saveMem(t).then(ok=>{ replyLocal(ok?("Remembered, "+state.user+": "+t.slice(0,80)+"."):("I couldn't save that just now, "+state.user+" — check the internet and tell me again.")); });
+    return;
+  }
+  if(/^what do you (?:remember|know)\??$|^(?:show|list) (?:my )?memories\b/.test(low)){
+    if(!MEMS.length){ replyLocal("Nothing saved yet, "+state.user+". Say: remember, then the thing."); return; }
+    renderFeed("MEMORIES",MEMS.slice(0,8).map(m=>({h:m.text.slice(0,80),s:""})));
+    replyLocal("I'm holding "+MEMS.length+" memories, "+state.user+". Latest: "+MEMS[0].text.slice(0,70)+". Full list on the feed.");
+    return;
+  }
+  let memQ=low.match(/^what do you (?:remember|know) about\s+(.{2,})$/)||low.match(/^recall\s+(.{2,})$/);
+  if(memQ){
+    const term=memQ[1].trim().replace(/[.?!]+$/,"");
+    const hits=MEMS.filter(m=>m.text.toLowerCase().includes(term.toLowerCase()));
+    if(hits.length){ renderFeed("MEMORY · "+term.toUpperCase(),hits.slice(0,8).map(m=>({h:m.text.slice(0,90),s:""})));
+      replyLocal(hits.length+" thing"+(hits.length>1?"s":"")+" about "+term+", "+state.user+". "+hits[0].text.slice(0,80)); return; }
+    // nothing saved — let the brain answer instead if it's on
+  }
+  let memDel=low.match(/^forget (?:about |that )?(.{3,})$/);
+  if(memDel){
+    const term=memDel[1].trim().replace(/[.?!]+$/,"");
+    forgetMem(term).then(n=>{ replyLocal(n?("Forgotten — "+n+" memor"+(n>1?"ies":"y")+" about "+term+" erased, "+state.user+"."):("I had nothing saved about "+term+", "+state.user+".")); });
+    return;
+  }
   // ---- HOURLY UPDATE on demand: "what did I miss", "catch me up" ----
   if(/\b(what did i miss|catch me up|hourly update|any updates?|where am i|whats the update|what.?s the update)\b/.test(low)){
     if(typeof hourlyBriefing==="function"){ hourlyBriefing(); } return;
@@ -1682,6 +1709,11 @@ async function handleCommand(text){
 }
 function litPanelSafe(){try{const el=document.getElementById("panel-feed");el.style.borderColor="var(--amber)";setTimeout(()=>el.style.borderColor="",3000);}catch(e){}}
 function replyLocal(msg){setReadout(msg);logLine("j",state.assistant+": "+msg);speak(msg);}
+/* ---- "REMEMBER THIS": Karthik's voice memories — stored in Supabase, injected into the brain ---- */
+let MEMS=[];
+async function loadMems(){ try{ MEMS=await (await fetch(SB+"/sk_memories?select=id,text,created_at&order=id.desc&limit=40",{headers:SBH})).json(); if(!Array.isArray(MEMS))MEMS=[]; }catch(e){ MEMS=[]; } }
+async function saveMem(t){ try{ const r=await fetch(SB+"/sk_memories",{method:"POST",headers:{...SBH,"Content-Type":"application/json",Prefer:"return=minimal"},body:JSON.stringify({text:t})}); if(r.ok){ MEMS.unshift({text:t}); return true; } }catch(e){} return false; }
+async function forgetMem(term){ try{ const r=await fetch(SB+"/sk_memories?text=ilike."+encodeURIComponent("*"+term+"*"),{method:"DELETE",headers:{...SBH,Prefer:"return=representation"}}); const rows=await r.json().catch(()=>[]); await loadMems(); return Array.isArray(rows)?rows.length:0; }catch(e){ return 0; } }
 function systemPrompt(live){
   // Persona comes from CLAUDE.md, world/map from SK Vault Index.md when loaded;
   // otherwise fall back to the built-in text so the deck always works.
@@ -1702,6 +1734,7 @@ ${world}
 Live roadmap state: ${JSON.stringify(projSummary())||"unavailable"}.
 ${live||""}
 Venture knowledge base (pulled live from Supabase, load on demand): ${Object.values(NOTES).map(n=>n.title+": "+n.content).join(" || ")||"loading"}
+Things Karthik explicitly told you to REMEMBER (use them whenever relevant, they are always true): ${MEMS.slice(0,25).map(m=>"• "+m.text).join(" ")||"(none yet)"}
 You have NO direct email/calendar/drive access; if asked, say you'll open it on screen and include an "open" action.
 Reply with ONLY one JSON object, no markdown fences:
 {"speak": string, "action": {"type":"none"|"open"|"feed", ...}}
@@ -1715,7 +1748,7 @@ function parseJSON(raw){const clean=String(raw).replace(/```json|```/g,"").trim(
   try{return JSON.parse(m?m[0]:clean);}catch(_){return {speak:clean,action:{type:"none"}};}}
 let HIST=[]; // rolling conversation memory for the brain (persists across reloads)
 try{HIST=JSON.parse(localStorage.getItem("sk_hist")||"[]");}catch(e){}
-function saveHist(){try{localStorage.setItem("sk_hist",JSON.stringify(HIST.slice(-8)));}catch(e){}}
+function saveHist(){try{localStorage.setItem("sk_hist",JSON.stringify(HIST.slice(-40)));}catch(e){}}
 async function liveContext(){
   let live="";
   try{
@@ -1730,7 +1763,7 @@ async function liveContext(){
 async function askBrain(text){
   const live=await liveContext();
   if(state.brain==="gemini"){
-    const contents=[...HIST.slice(-8).flatMap(h=>[{role:"user",parts:[{text:h.u}]},{role:"model",parts:[{text:h.a}]}]),
+    const contents=[...HIST.slice(-16).flatMap(h=>[{role:"user",parts:[{text:h.u}]},{role:"model",parts:[{text:h.a}]}]),
       {role:"user",parts:[{text:text}]}];
     // secure server brain — Gemini key lives on the server, works on every device
     const ctl=new AbortController();setTimeout(()=>ctl.abort(),25000);
@@ -1742,17 +1775,17 @@ async function askBrain(text){
     if(data.error==="rate")throw new Error("RATE");
     brainReady=true;
     const res=parseJSON(data.text||"");
-    HIST.push({u:text,a:res.speak||""}); HIST=HIST.slice(-8); saveHist();
+    HIST.push({u:text,a:res.speak||""}); HIST=HIST.slice(-40); saveHist();
     return res;
   }
-  const msgs=[...HIST.slice(-8).flatMap(h=>[{role:"user",content:h.u},{role:"assistant",content:h.a}]),{role:"user",content:text}];
+  const msgs=[...HIST.slice(-16).flatMap(h=>[{role:"user",content:h.u},{role:"assistant",content:h.a}]),{role:"user",content:text}];
   const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",
     headers:{"Content-Type":"application/json","x-api-key":state.key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
     body:JSON.stringify({model:"claude-sonnet-4-5",max_tokens:800,system:systemPrompt(live),messages:msgs})});
   if(!r.ok)throw new Error("brain HTTP "+r.status);
   const data=await r.json();
   const res=parseJSON((data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("\n"));
-  HIST.push({u:text,a:res.speak||""}); HIST=HIST.slice(-8); saveHist();
+  HIST.push({u:text,a:res.speak||""}); HIST=HIST.slice(-40); saveHist();
   return res;
 }
 function runAction(a){
