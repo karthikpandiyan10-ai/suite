@@ -249,10 +249,16 @@ button.plain.on{background:var(--amber);color:#04121C;border-color:var(--amber)}
 .row{display:flex;gap:10px;margin-top:10px}
 @media (max-width:1080px){
   body{overflow:auto}
-  .deck{height:auto;min-height:100vh}
-  .main{grid-template-columns:1fr}
+  /* phone: stack top-to-bottom; MIC/radar is the FIRST thing you see, typing box right under */
+  .deck{display:flex;flex-direction:column;height:auto;min-height:100vh}
+  .top{order:0;flex-wrap:wrap;height:auto;padding:10px 0}
+  .ticker{order:1}
+  .main{order:2;display:flex;flex-direction:column;gap:12px}
+  .cmd{order:3;margin-top:10px}
+  .center{order:-1;padding:8px 0 4px}     /* radar/mic first inside main */
+  .colR{order:1}.colL{order:2}
   .colL,.colR{border:none}
-  .top{flex-wrap:wrap;height:auto;padding:10px 0}
+  .radar{width:min(230px,52vw)}           /* big, obvious tap target */
 }
 /* ==================== SK · JARVIS PRO — cinematic HUD overlay ==================== */
 /* deeper cinematic vignette + tighter reactor grid */
