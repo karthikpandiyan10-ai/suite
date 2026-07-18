@@ -524,7 +524,15 @@ body.talking .readout{border-color:var(--amber);box-shadow:0 0 30px rgba(var(--g
         <button onclick="handleCommand('open facebook')">FACEBOOK</button>
         <button onclick="handleCommand('open instagram')">INSTAGRAM</button>
         <button onclick="handleCommand('open whatsapp')">WHATSAPP</button>
+        <button onclick="handleCommand('open youtube')">YOUTUBE</button>
+      </div>
+      <div class="keys" style="margin-top:8px">
         <button onclick="handleCommand('open gmail')">GMAIL</button>
+        <button onclick="handleCommand('open outlook')">OUTLOOK</button>
+        <button onclick="handleCommand('open maps')">MAPS</button>
+        <button onclick="handleCommand('open telegram')">TELEGRAM</button>
+        <button onclick="handleCommand('open shopee')">SHOPEE</button>
+        <button onclick="handleCommand('open lazada')">LAZADA</button>
       </div>
     </div>
 
@@ -681,7 +689,18 @@ const APP_INTENT={
   maps:{pkg:"com.google.android.apps.maps",host:"maps.google.com"},
   gmail:{pkg:"com.google.android.gm",host:"mail.google.com"},
   shopee:{pkg:"com.shopee.sg",host:"shopee.sg"},
-  lazada:{pkg:"com.lazada.android",host:"www.lazada.sg"}
+  lazada:{pkg:"com.lazada.android",host:"www.lazada.sg"},
+  amazon:{pkg:"com.amazon.mShop.android.shopping",host:"www.amazon.sg"},
+  aliexpress:{pkg:"com.alibaba.aliexpresshd",host:"www.aliexpress.com"},
+  outlook:{pkg:"com.microsoft.office.outlook",host:"outlook.office.com"},
+  netflix:{pkg:"com.netflix.mediaclient",host:"www.netflix.com"},
+  grab:{pkg:"com.grabtaxi.passenger",host:"www.grab.com"},
+  foodpanda:{pkg:"com.global.foodpanda.android",host:"www.foodpanda.sg"},
+  carousell:{pkg:"com.thecarousell.Carousell",host:"www.carousell.sg"},
+  linkedin:{pkg:"com.linkedin.android",host:"www.linkedin.com"},
+  drive:{pkg:"com.google.android.apps.docs",host:"drive.google.com"},
+  photos:{pkg:"com.google.android.apps.photos",host:"photos.google.com"},
+  calendar:{pkg:"com.google.android.calendar",host:"calendar.google.com"}
 };
 function openMobileApp(key){
   const a=APP_INTENT[key]; if(!a) return false;

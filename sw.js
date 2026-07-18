@@ -1,4 +1,4 @@
-﻿const C="sk-v4";
+﻿const C="sk-v5";
 self.addEventListener("install",e=>self.skipWaiting());
 self.addEventListener("activate",e=>self.clients.claim());
 self.addEventListener("fetch",function(e){
