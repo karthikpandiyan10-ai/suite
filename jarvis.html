@@ -1013,7 +1013,7 @@ function runDoctor(){
     if(action){var a=document.getElementById('skDocAct');if(a)a.onclick=action.fn;}
   }catch(e){}
 }
-const SK_VER="v43-visible-version";  // bump this on every deploy so devices auto-refresh (declared BEFORE the boot chain — bootSequence/applyIdentity read it)
+const SK_VER="v44-mic-never-dies";  // bump this on every deploy so devices auto-refresh (declared BEFORE the boot chain — bootSequence/applyIdentity read it)
 renderTasks(); startClock(); applyIdentity(); loadCounts(); renderLocalMetrics(); loadNotes(); loadBrainFiles(); gStatus(); renderVentures(); setInterval(renderVentures,120000); bootSequence(); runDoctor(); pingBrain(); loadMems();
 /* ---- self-updater: pull new builds automatically when idle ---- */
 async function skCheckUpdate(){try{
@@ -1207,7 +1207,9 @@ let capBuf="", capDebounce=null;
 function armCaptureTimeout(ms){
   clearTimeout(captureTimer);
   captureTimer=setTimeout(()=>{ capture=false; convo=false; capBuf=""; clearTimeout(capDebounce);
-    if(state.wake){micState("ARMED","hot");radar.classList.remove("listening");setReadout("Standing by.");} else stopEngine(); },ms||12000);
+    if(state.wake){micState("ARMED","hot");radar.classList.remove("listening");setReadout("Standing by.");}
+    else { micState("LIVE","live"); setReadout("Standing by — just talk, "+state.user+"."); resumeEngine(); }  // always-listen: NEVER kill the mic on silence
+  },ms||12000);
 }
 function micState(s,cls){$("#stMic").textContent=s;$("#stMic").className=cls||"";}
 let recAlive=0, recRunning=false;
@@ -1335,7 +1337,8 @@ $("#wakeBtn").onclick=()=>{
   if(state.wake){ startEngine(); micState("ARMED","hot");
     const msg=`Wake word armed. Say "hi ${state.assistant}" and I'll answer, ${state.user}.`;
     setReadout(msg);logLine("sys","▸ wake word: on");speak(msg); }
-  else{ stopEngine(); logLine("sys","▸ wake word: off"); setReadout("Wake word disarmed. Tap the radar to speak."); }
+  else{ startEngine(); micState("LIVE","live"); logLine("sys","▸ always-listening: on");
+    const msg=`Always listening now, ${state.user} — just talk.`; setReadout(msg); speak(msg); }
 };
 /* ---- command pipeline ---- */
 async function handleCommand(text){
@@ -1352,12 +1355,19 @@ async function handleCommand(text){
     const ov=document.getElementById("inlineOv");
     if(ov&&ov.classList.contains("open")){ov.classList.remove("open");document.getElementById("ovFrame").src="about:blank";replyLocal("View closed, "+state.user+".");return;}
   }
-  // end of conversation: "that's all" / "go to sleep" / "standby"
-  if(/^(stop|stop listening|standby|stand by|go to sleep|sleep|that'?s? all|nothing else|no more|dismiss|quiet|silence|never ?mind|thank you|thanks)$/.test(low)){
+  // hard stop: he explicitly wants the mic OFF
+  if(/^(stop listening|go to sleep|sleep|silence|quiet)$/.test(low)){
+    convo=false; capture=false; clearTimeout(captureTimer);
+    stopEngine();
+    replyLocal("Mic off, "+state.user+". Tap the radar when you want me back.");
+    return;
+  }
+  // soft end of conversation: close the topic but KEEP listening (always-listen never dies)
+  if(/^(stop|standby|stand by|that'?s? all|nothing else|no more|dismiss|never ?mind|thank you|thanks)$/.test(low)){
     convo=false; capture=false; clearTimeout(captureTimer);
     if(state.wake){ micState("ARMED","hot"); radar.classList.remove("listening"); }
-    else stopEngine();
-    replyLocal("Standing by, "+state.user+". Call me when you need me.");
+    else { micState("LIVE","live"); }
+    replyLocal("Standing by, "+state.user+". Just talk when you need me.");
     return;
   }
   // site-targeted search: "search youtube for X" / "search X on youtube" / "youtube funny cats"
