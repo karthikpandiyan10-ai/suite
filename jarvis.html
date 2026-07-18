@@ -602,6 +602,11 @@ const $=s=>document.querySelector(s);
 const SB="https://drgnimyotoqrzuxflxpy.supabase.co/rest/v1";
 const SBKEY="sb_publishable_0HIvS0GHcoilXvwDqpfNXA_xh2ocXVO";
 const SBH={apikey:SBKEY,Authorization:"Bearer "+SBKEY};
+/* Secure server brain: the Gemini key lives on the server, set once, works on every device */
+const BRAIN_FN="https://drgnimyotoqrzuxflxpy.supabase.co/functions/v1/brain";
+let brainReady=false;
+async function pingBrain(){ try{ const r=await fetch(BRAIN_FN,{method:"POST",headers:{...SBH,"Content-Type":"application/json"},body:JSON.stringify({ping:true})}); const d=await r.json(); brainReady=!!d.ready; }catch(e){} try{applyIdentity();}catch(e){} }
+async function setServerKey(k){ try{ const r=await fetch(BRAIN_FN,{method:"POST",headers:{...SBH,"Content-Type":"application/json"},body:JSON.stringify({setkey:k})}); const d=await r.json(); if(d&&d.ok){brainReady=true;return true;} }catch(e){} return false; }
 const DASH_KEY="karthik_dashboard_v2";
 const LAUNCH={
   drive:"https://drive.google.com", gmail:"https://mail.google.com",
@@ -980,9 +985,9 @@ function runDoctor(){
     if(location.protocol==='file:'){
       id='file';kind='bad';
       msg='SK is opened as a file, so voice and memory can’t load. Close this and launch with <b>Start SK.bat</b> — the address bar should say <b>localhost</b>.';
-    } else if(state.brain!=='none' && !state.key){
+    } else if((state.brain==='gemini'&&!state.key&&!brainReady)||(state.brain==='anthropic'&&!state.key)){
       id='key';kind='warn';
-      msg='SK’s brain is asleep. Add a free <b>Gemini</b> key in CONFIG and I’ll start talking.';
+      msg='SK’s brain is asleep. Add your free <b>Gemini</b> key once in CONFIG — it saves to the server and works on every device.';
       action={label:'Open CONFIG',fn:function(){var g=document.getElementById('gearBtn');if(g)g.click();}};
     } else if(micBlocked){
       id='mic';kind='bad';
@@ -1003,7 +1008,7 @@ function runDoctor(){
     if(action){var a=document.getElementById('skDocAct');if(a)a.onclick=action.fn;}
   }catch(e){}
 }
-renderTasks(); startClock(); applyIdentity(); loadCounts(); renderLocalMetrics(); loadNotes(); loadBrainFiles(); gStatus(); renderVentures(); setInterval(renderVentures,120000); bootSequence(); runDoctor();
+renderTasks(); startClock(); applyIdentity(); loadCounts(); renderLocalMetrics(); loadNotes(); loadBrainFiles(); gStatus(); renderVentures(); setInterval(renderVentures,120000); bootSequence(); runDoctor(); pingBrain();
 /* ---- self-updater: pull new builds automatically when idle ---- */
 const SK_VER="v27-2026-07-14a";  // bump this on every deploy so devices auto-refresh
 async function skCheckUpdate(){try{
@@ -1117,8 +1122,9 @@ function startBriefings(){
 function applyIdentity(){
   $("#brandName").firstChild.textContent=state.assistant.toUpperCase();
   document.title=state.assistant.toUpperCase()+" — Command Deck";
-  $("#stBrain").textContent=(state.brain!=="none"&&state.key)?state.brain.toUpperCase():"COMMANDS";
-  $("#stBrain").className=(state.brain!=="none"&&state.key)?"ok":"";
+  const brainOn=(state.brain==="gemini"&&(state.key||brainReady))||(state.brain==="anthropic"&&!!state.key);
+  $("#stBrain").textContent=brainOn?state.brain.toUpperCase():"COMMANDS";
+  $("#stBrain").className=brainOn?"ok":"";
   $("#stWake").textContent=state.wake?"WORD":"ALWAYS";
   $("#stWake").className=state.wake?"hot":"ok";
   $("#wakeBtn").classList.toggle("on",state.wake);
@@ -1635,7 +1641,7 @@ async function handleCommand(text){
     safeOpen(SEARCHERS.google(term), "Google results for "+term);
     return;
   }
-  if(state.brain==="none"||!state.key){
+  if(state.brain==="none"||(state.brain==="anthropic"&&!state.key)){
     renderFeed("TAP TO SEARCH WEB",[{h:"Google: "+text.slice(0,60),s:"tap to open web results",u:SEARCHERS.google(text)}]);
     replyLocal("For a spoken answer I need my brain module — CONFIG, add a free Gemini key. Meanwhile I put a Google search on the feed, "+state.user+".");return;}
   setReadout("Processing…");radar.classList.add("thinking");
@@ -1648,10 +1654,13 @@ async function handleCommand(text){
     const say=res.speak||"Done.";
     setReadout(say);logLine("j",state.assistant+": "+say);speak(say);
   }catch(err){
-    const msg=(err&&err.message==="RATE")
+    const msg=(err&&err.message==="NOKEY")
+      ?"Set your free Gemini key once in CONFIG, "+state.user+" — it saves to the server and then works on every device, forever."
+      :(err&&err.message==="RATE")
       ?"The free brain quota needs a short breather, "+state.user+". Wait ten seconds and ask me again."
-      :"I couldn't reach the brain. Check the API key in CONFIG. I put a Google search on the feed instead.";
-    renderFeed("TAP TO SEARCH WEB",[{h:"Google: "+text.slice(0,60),s:"brain busy - tap for web results",u:SEARCHERS.google(text)}]);
+      :"I couldn't reach the brain right now, "+state.user+". I put a Google search on the feed instead.";
+    if(err&&err.message==="NOKEY"){ if(typeof runDoctor==="function")runDoctor(); }
+    else renderFeed("TAP TO SEARCH WEB",[{h:"Google: "+text.slice(0,60),s:"brain busy - tap for web results",u:SEARCHERS.google(text)}]);
     setReadout(msg);logLine("sys","▸ "+(err.message||err));speak(msg);
   }finally{radar.classList.remove("thinking");}
 }
@@ -1705,21 +1714,18 @@ async function liveContext(){
 async function askBrain(text){
   const live=await liveContext();
   if(state.brain==="gemini"){
-    const MODELS=["gemini-3.1-flash-lite","gemini-3-flash-preview","gemini-flash-lite-latest","gemini-flash-latest"];
     const contents=[...HIST.slice(-8).flatMap(h=>[{role:"user",parts:[{text:h.u}]},{role:"model",parts:[{text:h.a}]}]),
       {role:"user",parts:[{text:text}]}];
-    const call=(m)=>{const ctl=new AbortController();setTimeout(()=>ctl.abort(),20000);
-      return fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${state.key}`,
-      {method:"POST",headers:{"Content-Type":"application/json"},signal:ctl.signal,
-       body:JSON.stringify({systemInstruction:{parts:[{text:systemPrompt(live)}]},
-        contents,
-        generationConfig:{responseMimeType:"application/json"}})}).catch(()=>({status:429,ok:false}));};
-    let r=null;
-    for(const m of MODELS){ r=await call(m); if(r.status!==429 && r.status!==404) break; }
-    if(r.status===429)throw new Error("RATE");
-    if(!r.ok)throw new Error("gemini HTTP "+r.status);
+    // secure server brain — Gemini key lives on the server, works on every device
+    const ctl=new AbortController();setTimeout(()=>ctl.abort(),25000);
+    const r=await fetch(BRAIN_FN,{method:"POST",headers:{...SBH,"Content-Type":"application/json"},signal:ctl.signal,
+      body:JSON.stringify({system:systemPrompt(live),contents})}).catch(()=>({ok:false,status:0}));
+    if(!r.ok)throw new Error("brain HTTP "+r.status);
     const data=await r.json();
-    const res=parseJSON(data?.candidates?.[0]?.content?.parts?.[0]?.text||"");
+    if(data.error==="nokey"){ brainReady=false; throw new Error("NOKEY"); }
+    if(data.error==="rate")throw new Error("RATE");
+    brainReady=true;
+    const res=parseJSON(data.text||"");
     HIST.push({u:text,a:res.speak||""}); HIST=HIST.slice(-8); saveHist();
     return res;
   }
@@ -1822,12 +1828,19 @@ function updateBrainUI(){const b=$("#setBrain").value;
   if(b==="gemini")$("#keyHelp").innerHTML='Get one free at <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>. The key stays on this computer.';
   if(b==="anthropic")$("#keyHelp").innerHTML='Get one at <a href="https://console.anthropic.com" target="_blank" rel="noopener">console.anthropic.com</a>. The key stays on this computer.';}
 $("#saveBtn").onclick=()=>{state.assistant=$("#setName").value.trim()||"SK";state.user=$("#setUser").value.trim()||"Sir";
-  state.brain=$("#setBrain").value;state.key=$("#setKey").value.trim();
+  state.brain=$("#setBrain").value;
+  const enteredKey=$("#setKey").value.trim();
+  state.key=(state.brain==="anthropic")?enteredKey:"";   // Gemini key is stored on the SERVER, never on the device
   state.gclient=$("#setGClient").value.trim();
   state.voiceName=$("#setVoice").value;state.rate=Number($("#setRate").value);state.pitch=Number($("#setPitch").value);
   pickVoice();saveCfg();
-  applyIdentity();modal.classList.remove("open");
-  replyLocal(state.assistant+" reconfigured and ready, "+state.user+".");};
+  modal.classList.remove("open");
+  if(state.brain==="gemini" && enteredKey){
+    setReadout("Saving your brain key to the server…");
+    setServerKey(enteredKey).then(function(ok){ applyIdentity(); if(typeof runDoctor==="function")runDoctor();
+      replyLocal(ok?("Brain key saved — SK now works on every device, "+state.user+". Ask me anything."):("I couldn't save the key to the server, "+state.user+". Check your internet and try Save again.")); });
+  } else { applyIdentity(); if(typeof runDoctor==="function")runDoctor(); replyLocal(state.assistant+" reconfigured and ready, "+state.user+"."); }
+};
 </script>
 <script>
 /* SK always loads fresh — remove any old cached service worker + caches so the phone is never stuck on an old version */
