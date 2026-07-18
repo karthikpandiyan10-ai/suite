@@ -964,7 +964,12 @@ function animateNum(el,val,localize){
 function renderVentures(){
   const box=$("#ventures"); if(!box) return;
   const d=projSummary();
-  if(!d){box.innerHTML='<div class="empty">Open Mission Control once in this browser and your business to-dos appear here.</div>';return;}
+  if(!d){
+    const fb=[["ONESAFE","Safety SaaS · MSRA library"],["ONE JOURNEY","Flagship · launches 1 Aug"],["ONE FLAT","Property · scoping"],["BARBER DEN","Video editing · fastest cash"]];
+    box.innerHTML=fb.map(function(x){return '<div class="vrow"><div class="vh"><b>'+x[0]+'</b></div><div class="vnext">▸ '+x[1]+'</div></div>';}).join("")
+      +'<div class="empty" style="margin-top:6px">Tap MISSION CTRL for the full roadmap.</div>';
+    return;
+  }
   const order=[["safeframe","ONESAFE"],["sprout","ONE JOURNEY"],["oneflat","ONE FLAT"],["studio","BARBER DEN"]];
   box.innerHTML=order.filter(([k])=>d[k]).map(([k,label])=>{
     const p=d[k];
@@ -1010,7 +1015,7 @@ function runDoctor(){
 }
 renderTasks(); startClock(); applyIdentity(); loadCounts(); renderLocalMetrics(); loadNotes(); loadBrainFiles(); gStatus(); renderVentures(); setInterval(renderVentures,120000); bootSequence(); runDoctor(); pingBrain();
 /* ---- self-updater: pull new builds automatically when idle ---- */
-const SK_VER="v40-serverbrain-stayalive";  // bump this on every deploy so devices auto-refresh
+const SK_VER="v41-ventures-fallback";  // bump this on every deploy so devices auto-refresh
 async function skCheckUpdate(){try{
   if(speaking||capture)return;
   const txt=await (await fetch(location.pathname+"?u="+Date.now(),{cache:"no-store"})).text();
