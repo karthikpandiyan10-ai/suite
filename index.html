@@ -1013,9 +1013,9 @@ function runDoctor(){
     if(action){var a=document.getElementById('skDocAct');if(a)a.onclick=action.fn;}
   }catch(e){}
 }
+const SK_VER="v43-visible-version";  // bump this on every deploy so devices auto-refresh (declared BEFORE the boot chain — bootSequence/applyIdentity read it)
 renderTasks(); startClock(); applyIdentity(); loadCounts(); renderLocalMetrics(); loadNotes(); loadBrainFiles(); gStatus(); renderVentures(); setInterval(renderVentures,120000); bootSequence(); runDoctor(); pingBrain(); loadMems();
 /* ---- self-updater: pull new builds automatically when idle ---- */
-const SK_VER="v42-jarvis-memory";  // bump this on every deploy so devices auto-refresh
 async function skCheckUpdate(){try{
   if(speaking||capture)return;
   const txt=await (await fetch(location.pathname+"?u="+Date.now(),{cache:"no-store"})).text();
@@ -1138,6 +1138,7 @@ function startBriefings(){
 function applyIdentity(){
   $("#brandName").firstChild.textContent=state.assistant.toUpperCase();
   document.title=state.assistant.toUpperCase()+" — Command Deck";
+  try{ $("#brandName").querySelector("small").textContent="COMMAND DECK · "+SK_VER.split("-")[0].toUpperCase(); }catch(e){}
   const brainOn=(state.brain==="gemini"&&(state.key||brainReady))||(state.brain==="anthropic"&&!!state.key);
   $("#stBrain").textContent=brainOn?state.brain.toUpperCase():"COMMANDS";
   $("#stBrain").className=brainOn?"ok":"";
@@ -1150,7 +1151,7 @@ function applyIdentity(){
   if(typeof runDoctor==="function") runDoctor();
 }
 function bootSequence(){
-  const lines=[["sys","▸ SK core v23: content calendar online. Ask me: what do I post today. Claude writes, you post, I schedule."],["sys","▸ core systems: online"],["sys","▸ voice interface: online"],["sys","▸ onesafe knowledge base: linking"],["sys","▸ mission control: synced"]];
+  const lines=[["sys","▸ SK core "+SK_VER+" · online"],["sys","▸ voice interface: online"],["sys","▸ memory banks: linked"],["sys","▸ mission control: synced"]];
   let i=0;const step=()=>{ if(i<lines.length){logLine(lines[i][0],lines[i][1]);i++;setTimeout(step,350);}
     else{const hasBrain=state.brain!=="none"&&state.key;
       const hi=`${greetWord()}, ${state.user}. All systems nominal.${state.wake?` Wake word armed. Say "hi ${state.assistant}" anytime.`:" I'm listening — just talk."}${hasBrain?"":" Brain module offline. Voice commands active."}`;
