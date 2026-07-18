@@ -604,9 +604,9 @@ const SBKEY="sb_publishable_0HIvS0GHcoilXvwDqpfNXA_xh2ocXVO";
 const SBH={apikey:SBKEY,Authorization:"Bearer "+SBKEY};
 /* Secure server brain: the Gemini key lives on the server, set once, works on every device */
 const BRAIN_FN="https://drgnimyotoqrzuxflxpy.supabase.co/functions/v1/brain";
-let brainReady=false;
-async function pingBrain(){ try{ const r=await fetch(BRAIN_FN,{method:"POST",headers:{...SBH,"Content-Type":"application/json"},body:JSON.stringify({ping:true})}); const d=await r.json(); brainReady=!!d.ready; }catch(e){} try{applyIdentity();}catch(e){} }
-async function setServerKey(k){ try{ const r=await fetch(BRAIN_FN,{method:"POST",headers:{...SBH,"Content-Type":"application/json"},body:JSON.stringify({setkey:k})}); const d=await r.json(); if(d&&d.ok){brainReady=true;return true;} }catch(e){} return false; }
+let brainReady=false, brainName="";
+async function pingBrain(){ try{ const r=await fetch(BRAIN_FN,{method:"POST",headers:{...SBH,"Content-Type":"application/json"},body:JSON.stringify({ping:true})}); const d=await r.json(); brainReady=!!d.ready; brainName=d.brain||""; }catch(e){} try{applyIdentity();}catch(e){} }
+async function setServerKey(k){ try{ const r=await fetch(BRAIN_FN,{method:"POST",headers:{...SBH,"Content-Type":"application/json"},body:JSON.stringify({setkey:k})}); const d=await r.json(); if(d&&d.ok){brainReady=true;brainName=d.brain||brainName;return true;} }catch(e){} return false; }
 const DASH_KEY="karthik_dashboard_v2";
 const LAUNCH={
   drive:"https://drive.google.com", gmail:"https://mail.google.com",
@@ -990,9 +990,9 @@ function runDoctor(){
     if(location.protocol==='file:'){
       id='file';kind='bad';
       msg='SK is opened as a file, so voice and memory can’t load. Close this and launch with <b>Start SK.bat</b> — the address bar should say <b>localhost</b>.';
-    } else if((state.brain==='gemini'&&!state.key&&!brainReady)||(state.brain==='anthropic'&&!state.key)){
+    } else if(state.brain!=='none'&&!state.key&&!brainReady){
       id='key';kind='warn';
-      msg='SK’s brain is asleep. Add your free <b>Gemini</b> key once in CONFIG — it saves to the server and works on every device.';
+      msg='SK’s brain is asleep. Add your brain key once in CONFIG (free <b>Gemini</b>, or <b>Claude</b> when funded) — it saves to the server and works on every device.';
       action={label:'Open CONFIG',fn:function(){var g=document.getElementById('gearBtn');if(g)g.click();}};
     } else if(micBlocked){
       id='mic';kind='bad';
@@ -1013,7 +1013,7 @@ function runDoctor(){
     if(action){var a=document.getElementById('skDocAct');if(a)a.onclick=action.fn;}
   }catch(e){}
 }
-const SK_VER="v44-mic-never-dies";  // bump this on every deploy so devices auto-refresh (declared BEFORE the boot chain — bootSequence/applyIdentity read it)
+const SK_VER="v45-one-best-brain";  // bump this on every deploy so devices auto-refresh (declared BEFORE the boot chain — bootSequence/applyIdentity read it)
 renderTasks(); startClock(); applyIdentity(); loadCounts(); renderLocalMetrics(); loadNotes(); loadBrainFiles(); gStatus(); renderVentures(); setInterval(renderVentures,120000); bootSequence(); runDoctor(); pingBrain(); loadMems();
 /* ---- self-updater: pull new builds automatically when idle ---- */
 async function skCheckUpdate(){try{
@@ -1139,8 +1139,8 @@ function applyIdentity(){
   $("#brandName").firstChild.textContent=state.assistant.toUpperCase();
   document.title=state.assistant.toUpperCase()+" — Command Deck";
   try{ $("#brandName").querySelector("small").textContent="COMMAND DECK · "+SK_VER.split("-")[0].toUpperCase(); }catch(e){}
-  const brainOn=(state.brain==="gemini"&&(state.key||brainReady))||(state.brain==="anthropic"&&!!state.key);
-  $("#stBrain").textContent=brainOn?state.brain.toUpperCase():"COMMANDS";
+  const brainOn=(state.brain!=="none")&&(brainReady||!!state.key);
+  $("#stBrain").textContent=brainOn?((brainName||state.brain).toUpperCase()):"COMMANDS";
   $("#stBrain").className=brainOn?"ok":"";
   $("#stWake").textContent=state.wake?"WORD":"ALWAYS";
   $("#stWake").className=state.wake?"hot":"ok";
@@ -1695,7 +1695,7 @@ async function handleCommand(text){
     safeOpen(SEARCHERS.google(term), "Google results for "+term);
     return;
   }
-  if(state.brain==="none"||(state.brain==="anthropic"&&!state.key)){
+  if(state.brain==="none"){
     renderFeed("TAP TO SEARCH WEB",[{h:"Google: "+text.slice(0,60),s:"tap to open web results",u:SEARCHERS.google(text)}]);
     replyLocal("For a spoken answer I need my brain module — CONFIG, add a free Gemini key. Meanwhile I put a Google search on the feed, "+state.user+".");return;}
   setReadout("Processing…");radar.classList.add("thinking");
@@ -1773,29 +1773,19 @@ async function liveContext(){
 }
 async function askBrain(text){
   const live=await liveContext();
-  if(state.brain==="gemini"){
-    const contents=[...HIST.slice(-16).flatMap(h=>[{role:"user",parts:[{text:h.u}]},{role:"model",parts:[{text:h.a}]}]),
-      {role:"user",parts:[{text:text}]}];
-    // secure server brain — Gemini key lives on the server, works on every device
-    const ctl=new AbortController();setTimeout(()=>ctl.abort(),25000);
-    const r=await fetch(BRAIN_FN,{method:"POST",headers:{...SBH,"Content-Type":"application/json"},signal:ctl.signal,
-      body:JSON.stringify({system:systemPrompt(live),contents})}).catch(()=>({ok:false,status:0}));
-    if(!r.ok)throw new Error("brain HTTP "+r.status);
-    const data=await r.json();
-    if(data.error==="nokey"){ brainReady=false; throw new Error("NOKEY"); }
-    if(data.error==="rate")throw new Error("RATE");
-    brainReady=true;
-    const res=parseJSON(data.text||"");
-    HIST.push({u:text,a:res.speak||""}); HIST=HIST.slice(-40); saveHist();
-    return res;
-  }
-  const msgs=[...HIST.slice(-16).flatMap(h=>[{role:"user",content:h.u},{role:"assistant",content:h.a}]),{role:"user",content:text}];
-  const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",
-    headers:{"Content-Type":"application/json","x-api-key":state.key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
-    body:JSON.stringify({model:"claude-sonnet-4-5",max_tokens:800,system:systemPrompt(live),messages:msgs})});
+  // ONE brain path: the server holds the key(s) and picks the best brain —
+  // Claude when its key exists, free Gemini otherwise. Works on every device.
+  const contents=[...HIST.slice(-16).flatMap(h=>[{role:"user",parts:[{text:h.u}]},{role:"model",parts:[{text:h.a}]}]),
+    {role:"user",parts:[{text:text}]}];
+  const ctl=new AbortController();setTimeout(()=>ctl.abort(),25000);
+  const r=await fetch(BRAIN_FN,{method:"POST",headers:{...SBH,"Content-Type":"application/json"},signal:ctl.signal,
+    body:JSON.stringify({system:systemPrompt(live),contents})}).catch(()=>({ok:false,status:0}));
   if(!r.ok)throw new Error("brain HTTP "+r.status);
   const data=await r.json();
-  const res=parseJSON((data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("\n"));
+  if(data.error==="nokey"){ brainReady=false; throw new Error("NOKEY"); }
+  if(data.error==="rate")throw new Error("RATE");
+  brainReady=true; if(data.brain){ brainName=data.brain; try{applyIdentity();}catch(e){} }
+  const res=parseJSON(data.text||"");
   HIST.push({u:text,a:res.speak||""}); HIST=HIST.slice(-40); saveHist();
   return res;
 }
@@ -1885,20 +1875,20 @@ function updateBrainUI(){const b=$("#setBrain").value;
     gemini:"Free key, no card needed. Adds full conversation with your ventures as context.",
     anthropic:"Your Claude API key, pay-as-you-go. The smartest option."};
   $("#brainHelp").textContent=help[b];
-  if(b==="gemini")$("#keyHelp").innerHTML='Get one free at <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>. The key stays on this computer.';
-  if(b==="anthropic")$("#keyHelp").innerHTML='Get one at <a href="https://console.anthropic.com" target="_blank" rel="noopener">console.anthropic.com</a>. The key stays on this computer.';}
+  if(b==="gemini")$("#keyHelp").innerHTML='Get one free at <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>. Saved once to your server — works on every device.';
+  if(b==="anthropic")$("#keyHelp").innerHTML='Get one at <a href="https://console.anthropic.com" target="_blank" rel="noopener">console.anthropic.com</a> (needs ~US$5 credit). Paste it here once — SK upgrades to Claude everywhere, and falls back to Gemini automatically if Claude ever fails.';}
 $("#saveBtn").onclick=()=>{state.assistant=$("#setName").value.trim()||"SK";state.user=$("#setUser").value.trim()||"Sir";
   state.brain=$("#setBrain").value;
   const enteredKey=$("#setKey").value.trim();
-  state.key=(state.brain==="anthropic")?enteredKey:"";   // Gemini key is stored on the SERVER, never on the device
+  state.key="";   // ALL brain keys live on the SERVER now (auto-detected: sk-ant… = Claude, AIza… = Gemini), never on the device
   state.gclient=$("#setGClient").value.trim();
   state.voiceName=$("#setVoice").value;state.rate=Number($("#setRate").value);state.pitch=Number($("#setPitch").value);
   pickVoice();saveCfg();
   modal.classList.remove("open");
-  if(state.brain==="gemini" && enteredKey){
+  if(state.brain!=="none" && enteredKey){
     setReadout("Saving your brain key to the server…");
     setServerKey(enteredKey).then(function(ok){ applyIdentity(); if(typeof runDoctor==="function")runDoctor();
-      replyLocal(ok?("Brain key saved — SK now works on every device, "+state.user+". Ask me anything."):("I couldn't save the key to the server, "+state.user+". Check your internet and try Save again.")); });
+      replyLocal(ok?("Brain key saved — "+(brainName==="claude"?"Claude":"Gemini")+" is now my brain on every device, "+state.user+". Ask me anything."):("I couldn't save the key to the server, "+state.user+". Check your internet and try Save again.")); });
   } else { applyIdentity(); if(typeof runDoctor==="function")runDoctor(); replyLocal(state.assistant+" reconfigured and ready, "+state.user+"."); }
 };
 </script>
