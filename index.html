@@ -1013,7 +1013,7 @@ function runDoctor(){
     if(action){var a=document.getElementById('skDocAct');if(a)a.onclick=action.fn;}
   }catch(e){}
 }
-const SK_VER="v45-one-best-brain";  // bump this on every deploy so devices auto-refresh (declared BEFORE the boot chain — bootSequence/applyIdentity read it)
+const SK_VER="v46-orb-merge";  // bump this on every deploy so devices auto-refresh (declared BEFORE the boot chain — bootSequence/applyIdentity read it)
 renderTasks(); startClock(); applyIdentity(); loadCounts(); renderLocalMetrics(); loadNotes(); loadBrainFiles(); gStatus(); renderVentures(); setInterval(renderVentures,120000); bootSequence(); runDoctor(); pingBrain(); loadMems();
 /* ---- self-updater: pull new builds automatically when idle ---- */
 async function skCheckUpdate(){try{
@@ -1350,6 +1350,9 @@ async function handleCommand(text){
     .replace(/^(?:please\s+)?(?:can you|could you|would you|will you|help me(?: to)?|i (?:want|wanna|need|would like)(?: to)?|let'?s|kindly)\s+/,"")
     .replace(/\s+(?:please|for me|now|thanks?|thank you|leh|lah|ah)[\s.?!]*$/,"")
     .replace(/[.?!]+\s*$/,"").trim();
+  // ORB MODE: one app, two faces — "orb mode" for the SAIK Jarvis orb, "chat mode" / "show the deck" for the full HUD
+  if(/^(?:(?:go |switch )?(?:to )?(?:orb|jarvis) (?:mode|view)|show (?:the |me the )?orb)$/.test(low)){ if(typeof orbOpen==="function")orbOpen(); replyLocal("Orb mode, "+state.user+"."); return; }
+  if(/^(?:(?:go |switch )?(?:to )?(?:chat|deck|hud|full) (?:mode|view)|show (?:the |me the )?(?:deck|hud|chat))$/.test(low)){ if(typeof orbClose==="function")orbClose(); replyLocal("Full deck, "+state.user+"."); return; }
   // close the on-deck view
   if(/\b(close|hide|exit)\b.*\b(view|deck|overlay|dashboard|page|window|that)\b|^close$/.test(low)){
     const ov=document.getElementById("inlineOv");
@@ -1891,6 +1894,125 @@ $("#saveBtn").onclick=()=>{state.assistant=$("#setName").value.trim()||"SK";stat
       replyLocal(ok?("Brain key saved — "+(brainName==="claude"?"Claude":"Gemini")+" is now my brain on every device, "+state.user+". Ask me anything."):("I couldn't save the key to the server, "+state.user+". Check your internet and try Save again.")); });
   } else { applyIdentity(); if(typeof runDoctor==="function")runDoctor(); replyLocal(state.assistant+" reconfigured and ready, "+state.user+"."); }
 };
+</script>
+<style>
+/* ORB MODE — the SAIK Jarvis orb view, merged into the deck. Same brain, same memory, same commands; just a calmer face. */
+#orbMode{position:fixed;inset:0;z-index:55;background:radial-gradient(ellipse at 50% 45%,#12132a 0%,#0b0c16 55%,#07070d 100%);color:#e6e8ff;
+  font-family:var(--mono,ui-monospace,Menlo,Consolas,monospace);display:none;overflow:hidden}
+#orbMode.open{display:block}
+#orbCanvas{position:absolute;inset:0;width:100%;height:100%;cursor:pointer}
+#orbPill{position:absolute;top:22px;left:50%;transform:translateX(-50%);padding:10px 20px;border-radius:999px;border:1px solid rgba(138,120,255,.35);
+  background:rgba(20,20,45,.75);box-shadow:0 0 24px rgba(110,100,255,.25);font-size:11px;letter-spacing:.22em;color:#aab0ff;white-space:nowrap;display:flex;align-items:center;gap:10px}
+#orbPill i{width:8px;height:8px;border-radius:50%;background:#6c72ff;box-shadow:0 0 10px #6c72ff}
+#orbPill.live i{background:#4bd0ff;box-shadow:0 0 12px #4bd0ff;animation:orbBlink 1s infinite}
+#orbPill.talk i{background:#b58cff;box-shadow:0 0 12px #b58cff}
+@keyframes orbBlink{50%{opacity:.3}}
+#orbWake{position:absolute;top:18px;left:18px;width:230px;padding:14px;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:rgba(18,18,30,.8)}
+#orbWake .r{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12px;font-weight:600;color:#fff;font-family:var(--body,system-ui,sans-serif)}
+#orbWake small{display:block;margin-top:10px;font-size:11px;line-height:1.45;color:#8a8fa8;font-family:var(--body,system-ui,sans-serif)}
+#orbMode button{font-family:inherit;cursor:pointer}
+#orbWakeBtn{background:#1c1d2e;border:1px solid rgba(255,255,255,.12);color:#e6e8ff;border-radius:8px;padding:7px 10px;font-size:11px}
+#orbWakeBtn.on{background:#6c72ff;color:#fff;border-color:#6c72ff}
+#orbChat{position:absolute;top:22px;right:24px;background:none;border:0;color:#8a8fa8;font-size:11px;letter-spacing:.22em}
+#orbChat:hover{color:#fff}
+#orbLog{position:absolute;right:max(24px,8vw);bottom:150px;width:min(420px,60vw);max-height:45vh;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;gap:12px;text-align:right;pointer-events:none;
+  -webkit-mask-image:linear-gradient(to bottom,transparent,#000 30%);mask-image:linear-gradient(to bottom,transparent,#000 30%)}
+#orbLog div b{display:block;font-size:9px;letter-spacing:.25em;color:#6d7090;font-weight:400;margin-bottom:3px}
+#orbLog div span{font-size:13px;color:#8e95ff;font-family:var(--body,system-ui,sans-serif)}
+#orbReply{position:absolute;left:50%;transform:translateX(-50%);bottom:84px;width:min(560px,86vw);padding:13px 16px;border-radius:10px;
+  background:rgba(22,22,34,.92);border:1px solid rgba(255,255,255,.08);font-size:13px;line-height:1.45;color:#eef;font-family:var(--body,system-ui,sans-serif);display:none}
+#orbReply.show{display:block}
+#orbTalk{position:absolute;left:50%;transform:translateX(-50%);bottom:24px;padding:13px 34px;border-radius:999px;border:1px solid rgba(255,255,255,.18);
+  background:rgba(18,18,30,.85);color:#e6e8ff;font-size:11px;letter-spacing:.25em}
+#orbTalk:hover{border-color:#8a78ff;box-shadow:0 0 20px rgba(138,120,255,.35)}
+@media (max-width:640px){
+  #orbWake{width:auto;right:18px;top:64px} #orbPill{top:16px;font-size:10px}
+  #orbChat{top:auto;bottom:30px;right:16px} #orbLog{left:16px;right:16px;width:auto;bottom:170px;max-height:30vh}
+}
+</style>
+<script>
+/* ===== ORB MODE =====
+   The orb app (SAIK Jarvis) and the deck are now ONE app. Orb mode is just a face on top of the deck:
+   it reuses handleCommand / speak / the mic engine / the server brain — nothing here talks to the brain directly.
+   Toggle: tap ORB in the header, or say "orb mode" / "chat mode". The choice is remembered per device. */
+(function(){ try{
+  var ov=document.createElement("div"); ov.id="orbMode";
+  ov.innerHTML='<canvas id="orbCanvas" aria-label="Tap to talk"></canvas>'+
+    '<div id="orbWake"><div class="r"><span id="orbWakeName">"Hi SK" wake word</span><button id="orbWakeBtn">Start listening</button></div>'+
+    '<small>Hands-free. Say the wake word and SK answers. Uses your browser\'s own speech engine — nothing is recorded or stored.</small></div>'+
+    '<div id="orbPill"><i></i><span id="orbPillTxt">WAKE WORD OFF — TAP TO TALK</span></div>'+
+    '<button id="orbChat" title="Back to the full deck">CHAT ›</button>'+
+    '<div id="orbLog"></div><div id="orbReply"></div>'+
+    '<button id="orbTalk">TAP TO TALK</button>';
+  document.body.appendChild(ov);
+  var $o=function(id){return document.getElementById(id);};
+  var cv=$o("orbCanvas"), ctx=cv.getContext("2d"), W=0,H=0,DPR=Math.min(window.devicePixelRatio||1,2);
+  function size(){ W=cv.clientWidth; H=cv.clientHeight; cv.width=W*DPR; cv.height=H*DPR; ctx.setTransform(DPR,0,0,DPR,0,0); }
+  window.addEventListener("resize",function(){ if(ov.classList.contains("open")) size(); });
+
+  // particle sphere — points on a fibonacci sphere plus a loose shell, rotating slowly
+  var N=window.innerWidth<640?900:1600, P=[];
+  for(var i=0;i<N;i++){ var y=1-(i/(N-1))*2, r=Math.sqrt(1-y*y), th=i*2.39996323, shell=0.55+Math.random()*0.45*Math.random()*2;
+    P.push({x:Math.cos(th)*r*shell, y:y*shell, z:Math.sin(th)*r*shell, j:Math.random()*6.28, s:1+Math.random()*1.6}); }
+  var t=0, energy=0, raf=0;
+  function mode(){ // what SK is doing right now, read from the deck's own engine flags
+    try{ if(speaking) return "talk"; if(capture) return "live"; if(typeof convo!=="undefined"&&convo&&engineOn&&!state.wake) return "live"; }catch(e){}
+    return "idle"; }
+  function draw(){
+    raf=requestAnimationFrame(draw); if(!ov.classList.contains("open")) return;
+    t+=0.016; var m=mode(), target=m==="talk"?1:m==="live"?0.6:0.15; energy+=(target-energy)*0.06;
+    ctx.clearRect(0,0,W,H);
+    var cx=W/2, cy=H*0.46, R=Math.min(W,H)*0.23*(1+energy*0.08*Math.sin(t*9)), rot=t*0.18, cr=Math.cos(rot), sr=Math.sin(rot), tilt=0.35, ct=Math.cos(tilt), st=Math.sin(tilt);
+    var g=ctx.createRadialGradient(cx,cy,0,cx,cy,R*1.25); g.addColorStop(0,"rgba(80,70,210,"+(0.22+energy*0.18)+")"); g.addColorStop(1,"rgba(40,30,120,0)");
+    ctx.fillStyle=g; ctx.beginPath(); ctx.arc(cx,cy,R*1.25,0,6.283); ctx.fill();
+    for(var i=0;i<P.length;i++){ var p=P[i], wob=1+energy*0.12*Math.sin(t*6+p.j);
+      var x=(p.x*cr-p.z*sr)*wob, z=(p.x*sr+p.z*cr)*wob, y=p.y*wob, y2=y*ct-z*st, z2=y*st+z*ct;
+      var d=1/(1.9-z2*0.6), px=cx+x*R*d*1.3, py=cy+y2*R*d*1.3, a=0.4+0.55*(z2+1)/2;
+      var hue=m==="talk"?262:m==="live"?205:232;
+      ctx.fillStyle="hsla("+(hue+z2*18)+",90%,"+(62+energy*10)+"%,"+a.toFixed(2)+")";
+      ctx.fillRect(px,py,p.s*d,p.s*d); }
+    var pill=$o("orbPill"), txt;
+    if(m==="talk"){ txt="SPEAKING"; pill.className="talk"; }
+    else if(m==="live"){ txt="LISTENING…"; pill.className="live"; }
+    else { pill.className=""; txt=(state.wake&&engineOn)?('WAKE WORD ON — SAY "HI '+String(state.assistant).toUpperCase()+'"'):"WAKE WORD OFF — TAP TO TALK"; }
+    var pt=$o("orbPillTxt"); if(pt.textContent!==txt) pt.textContent=txt;
+  }
+
+  function syncWake(){ var on=!!(state.wake&&engineOn), b=$o("orbWakeBtn");
+    b.textContent=on?"Stop listening":"Start listening"; b.className=on?"on":"";
+    $o("orbWakeName").textContent='"Hi '+state.assistant+'" wake word'; }
+
+  window.orbOpen=function(){ ov.classList.add("open"); dodgeDoctor(); size(); syncWake(); if(!raf) draw(); state.view="orb"; try{saveCfg();}catch(e){} };
+  window.orbClose=function(){ ov.classList.remove("open"); state.view="hud"; try{saveCfg();}catch(e){} };
+
+  // TAP TO TALK / tap the orb = the deck's radar click (same capture path, same watchdog)
+  $o("orbTalk").onclick=function(){ try{ radar.click(); }catch(e){} };
+  cv.onclick=function(){ try{ radar.click(); }catch(e){} };
+  $o("orbChat").onclick=function(){ orbClose(); };
+  $o("orbWakeBtn").onclick=function(){ try{
+    if(state.wake&&engineOn){ state.wake=false; saveCfg(); stopEngine(); try{applyIdentity();}catch(e){} setReadout("Wake word off. Tap to talk, "+state.user+"."); }
+    else { state.wake=true; saveCfg(); try{applyIdentity();}catch(e){} startEngine(); micState("ARMED","hot");
+      var msg='Wake word armed. Say "hi '+state.assistant+'" and I\'ll answer, '+state.user+'.'; setReadout(msg); speak(msg); }
+    syncWake(); }catch(e){} };
+
+  // mirror the deck's transcript into the orb view: your lines on the right, SK's latest reply in the bubble
+  var _log=logLine; logLine=function(cls,text){ _log(cls,text); try{
+    if(cls==="u"){ var l=$o("orbLog"), d=document.createElement("div"); d.innerHTML="<b>YOU</b><span></span>";
+      d.querySelector("span").textContent=String(text).replace(/^You:\s*/,""); l.appendChild(d); while(l.children.length>6) l.removeChild(l.firstChild); }
+    else if(cls==="j"){ var r=$o("orbReply"); r.textContent=String(text).replace(new RegExp("^"+state.assistant+":\\s*"),""); r.classList.add("show"); }
+  }catch(e){} };
+
+  // header button + remember the last view on this device
+  var gear=document.getElementById("gearBtn");
+  if(gear&&gear.parentNode){ var b=document.createElement("button"); b.className="plain"; b.id="orbBtn"; b.textContent="ORB";
+    b.title="Switch to the SAIK Jarvis orb view"; b.style.marginLeft="10px"; b.onclick=function(){ orbOpen(); }; gear.parentNode.insertBefore(b,gear); }
+  // keep clear of the SK Doctor banner so CHAT and the pill stay tappable when it's showing
+  function dodgeDoctor(){ try{ var d=document.getElementById("skDoctor"), h=(d&&getComputedStyle(d).display!=="none")?d.offsetHeight:0; ov.style.top=h+"px"; }catch(e){} }
+  setInterval(function(){ if(ov.classList.contains("open")){ syncWake(); dodgeDoctor(); } },1500);
+  document.addEventListener("keydown",function(e){ if(e.key==="Escape"&&ov.classList.contains("open")) orbClose(); });
+  function boot(){ if(document.getElementById("skgate")){ setTimeout(boot,300); return; } if(state.view==="orb") orbOpen(); }
+  boot();
+}catch(e){} })();
 </script>
 <script>
 /* SK always loads fresh — remove any old cached service worker + caches so the phone is never stuck on an old version */
