@@ -281,13 +281,18 @@ def border(d, W, H, g):
     mid = y0 + (bh - strip) / 2
     aw = bh * 0.8
     parts = [rect(0, y0, W, bh, d["border_bg"]), line(0, y0 + 0.2, W, y0 + 0.2, d["motif"], 0.4)]
-    for k in range(-1, int(W // aw) + 2):
-        cx = k * aw + aw / 2
+    # whole motifs only, centred with equal margins at both ends of the packet
+    n_arch = max(1, round(W / aw))
+    pitch = W / n_arch
+    for k in range(n_arch):
+        cx = (k + 0.5) * pitch
         parts.append(arch(cx, mid, aw * 0.56, (bh - strip) * 0.82, d["motif"]))
         parts.append(arch(cx, mid + 0.4, aw * 0.26, (bh - strip) * 0.4, d["border_bg"]))
     parts.append(rect(0, H - strip, W, strip, d["strip"]))
-    for k in range(-1, int(W // (aw / 2)) + 2):
-        cx = k * aw / 2
+    n_dot = max(1, round(W / (aw / 2)))
+    pitch_dot = W / n_dot
+    for k in range(n_dot):
+        cx = (k + 0.5) * pitch_dot
         if k % 2 == 0:
             parts.append(flower(cx, H - strip / 2, strip * 0.36, d["motif"], d["strip"]))
         else:
@@ -305,15 +310,15 @@ def cartouche(d, W, H, g):
         rect(x0, y0, bw, bh_, d["box"], f' rx="1.5" stroke="{d["rule"]}" stroke-width="0.5"'),
         rect(x0 + 1.6, y0 + 1.6, bw - 3.2, bh_ - 3.2, "none", f' rx="1" stroke="{d["rule"]}" stroke-width="0.2"'),
     ]
-    for yy in (y0 + 5, y0 + bh_ - 5):
+    for yy in (y0 + 4, y0 + bh_ - 4):
         parts.append(line(cx - 14, yy, cx - 3.5, yy, d["rule"], 0.3))
         parts.append(line(cx + 3.5, yy, cx + 14, yy, d["rule"], 0.3))
         parts.append(f'<path d="M{fmt(cx)},{fmt(yy - 1.3)} L{fmt(cx + 1.3)},{fmt(yy)} '
                      f'L{fmt(cx)},{fmt(yy + 1.3)} L{fmt(cx - 1.3)},{fmt(yy)} Z" fill="{d["rule"]}"/>')
     f1, f2 = 0.055 * W, 0.078 * W
-    parts.append(f'<text x="{fmt(cx)}" y="{fmt(yc - 1.5)}" text-anchor="middle" font-family="{FONT}" '
+    parts.append(f'<text x="{fmt(cx)}" y="{fmt(yc - 2.4)}" text-anchor="middle" font-family="{FONT}" '
                  f'font-size="{fmt(f1)}" fill="{d["ink"]}">Happy</text>')
-    parts.append(f'<text x="{fmt(cx)}" y="{fmt(yc + f2 * 0.95)}" text-anchor="middle" font-family="{FONT}" '
+    parts.append(f'<text x="{fmt(cx)}" y="{fmt(yc + f2 * 0.72)}" text-anchor="middle" font-family="{FONT}" '
                  f'font-style="italic" font-size="{fmt(f2)}" fill="{d["ink"]}">Deepavali</text>')
     return "".join(parts)
 
@@ -327,7 +332,7 @@ def flap(d, W, H, g):
         f'<path d="{cap_d}" fill="{d["cap"]}"/>',
         f'<path d="M3,{fmt(D)} A{fmt(W / 2 - 3)},{fmt(D - 3)} 0 0 1 {fmt(W - 3)},{fmt(D)}" '
         f'fill="none" stroke="{d["rule"]}" stroke-width="0.5"/>',
-        f'<path d="M3,{fmt(F0 - 1.6)} Q{fmt(W / 2)},{fmt(F1 - 2.8)} {fmt(W - 3)},{fmt(F0 - 1.6)}" '
+        f'<path d="M3,{fmt(F0 - 0.9)} Q{fmt(W / 2)},{fmt(F1 - 1.2)} {fmt(W - 3)},{fmt(F0 - 0.9)}" '
         f'fill="none" stroke="{d["rule"]}" stroke-width="0.5"/>',
     ]
     r = 0.075 * W
@@ -358,7 +363,7 @@ def clip_paths(sizes):
 def print_sheet(d, size):
     W, H = SIZES[size]
     x0 = (297 - (2 * W + GAP)) / 2
-    y0 = 15
+    y0 = 10  # keeps the FRONT/BACK captions clear of the printer margin
     head = (f'<text x="148.5" y="7" text-anchor="middle" font-family="{FONT}" font-size="4.2" fill="#222">'
             f'Deepavali Ang Bao · {d["title"]} · {SIZE_NAMES[size]} '
             f'({fmt(W / 10)} × {fmt(H / 10)} cm) · print at 100%, cut along the black outline</text>')
