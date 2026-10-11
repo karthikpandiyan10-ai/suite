@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
-"""Deepavali ang bao sheets, v2 (revision c).
+"""Deepavali ang bao sheets, v2 (revision d).
 
 Three sizes (small / medium / large), a domed top, a plain flap with a gold
 lotus and a gold edge rule, the design's own body pattern with a fine brocade
 overlay, a bottom border band, and on the front a "Happy Deepavali" cartouche.
 
 Layout rules, applied to every design:
-  - body rows line up with the top of the bottom band, so no row is sliced
-  - a motif that would be cut by the band or by the flap edge is left out
-    (a plain gap is better than a half motif)
+  - body rows line up with the top of the bottom band, on front and back
+  - a motif that would be cut by the flap edge, the bottom band or the
+    cartouche is left out (a plain gap is better than a half motif)
 
 Outputs under OUT:
   mockups/<slug>.svg          presentation sheet: all sizes, front + back, detail callouts
@@ -153,6 +153,13 @@ def band_top(H):
     return H - BAND * H
 
 
+def geom(W, H):
+    D = 0.20 * W              # dome height: the top of the packet is a half-ellipse
+    F0 = D + 0.06 * W         # flap bottom at the edges
+    F1 = F0 + 0.07 * W        # flap bottom sags to F1 at the centre
+    return {"D": D, "F0": F0, "F1": F1, "FM": (F0 + F1) / 2, "bh": BAND * H}
+
+
 def state(top, bottom, g):
     """How a motif spanning [top, bottom] sits under the flap: hidden, visible or partial."""
     if bottom <= g["F0"]:
@@ -160,6 +167,20 @@ def state(top, bottom, g):
     if top >= g["F1"]:
         return "visible"
     return "partial"
+
+
+def cartouche_box(W, H):
+    """Front cartouche rectangle (x0, y0, x1, y1). Keep-out zone for the body pattern."""
+    g = geom(W, H)
+    bw, bh_ = 0.68 * W, 0.22 * H
+    yc = (g["FM"] + (H - g["bh"])) / 2
+    return ((W - bw) / 2, yc - bh_ / 2, (W + bw) / 2, yc + bh_ / 2)
+
+
+def hits_box(x0, y0, x1, y1, box, margin=1.0):
+    """True if the extent [x0,x1]x[y0,y1] touches the box grown by margin."""
+    bx0, by0, bx1, by1 = box
+    return not (x1 < bx0 - margin or x0 > bx1 + margin or y1 < by0 - margin or y0 > by1 + margin)
 
 
 # ---------- body patterns (own pattern per design, tiled over W x H) -----
@@ -170,14 +191,17 @@ def d1_body(side, W, H):
     cell = 16.0
     ox = 0.0 if side == "front" else cell / 2
     oy = band_top(H) % cell              # a tile-grid line sits exactly on the band
+    g = geom(W, H)
     parts = [rect(0, 0, W, H, emerald)]
     for i in range(-1, int(W // cell) + 2):
         for j in range(-1, int(H // cell) + 2):
             x, y = i * cell + ox, j * cell + oy
             if (i + j) % 2 == 0:
                 parts.append(rect(x, y, cell, cell, deep))
-            parts.append(flower(x + cell / 2, y + cell / 2, 4.4, petal, deep,
-                                rot=0 if (i + j) % 2 == 0 else 30))
+            cy = y + cell / 2
+            if state(cy - 4.4, cy + 4.4, g) != "partial":        # no half flowers under the flap
+                parts.append(flower(x + cell / 2, cy, 4.4, petal, deep,
+                                    rot=0 if (i + j) % 2 == 0 else 30))
             parts.append(circle(x, y, 0.8, gold))
     for i in range(-1, int(W // cell) + 3):
         parts.append(line(i * cell + ox, -2, i * cell + ox, H + 2, gold, 0.45))
@@ -193,17 +217,20 @@ def d2_body(side, W, H):
     ox = 0.0 if side == "front" else cw / 2
     oy = band_top(H) % ch                # row boundary sits exactly on the band
     g, bt = geom(W, H), band_top(H)
+    box = cartouche_box(W, H) if side == "front" else None
     parts = [rect(0, 0, W, H, teal)]
     for i in range(-1, int(W // cw) + 2):
         for j in range(-1, int(H // ch) + 2):
             x, y = i * cw + ox, j * ch + oy
             cx, cy = x + cw / 2, y + ch / 2
-            if state(cy - 8, cy + 8, g) != "partial":        # whole arches only
+            arch_ok = state(cy - 8, cy + 8, g) != "partial" and not (box and hits_box(cx - 5.5, cy - 8, cx + 5.5, cy + 8, box))
+            if arch_ok:                                           # whole arches only
                 parts.append(arch(cx, cy, 11, 16, cream))
                 parts.append(arch(cx, cy + 1.2, 7.2, 10.5, sage))
                 parts.append(marigold(cx, cy + 2.4, 2.4, mari, centre))
-            # corner dots: skip the ones on the band line or on the flap edge
-            if abs(y - bt) > 1.5 and not (g["F0"] - 1.5 < y < g["F1"] + 1.5):
+            # corner dots: skip the ones on the band line, the flap edge, or the cartouche
+            if (abs(y - bt) > 1.5 and not (g["F0"] - 1.5 < y < g["F1"] + 1.5)
+                    and not (box and hits_box(x - 1, y - 1, x + 1, y + 1, box))):
                 parts.append(circle(x, y, 0.9, red))
     return "".join(parts)
 
@@ -212,21 +239,31 @@ def d3_body(side, W, H):
     """Kolam loops: cream ground, maroon dot grid, interlocking loop crosses."""
     cream, maroon, red = "#F3E8D4", "#7A2D1D", "#B5282E"
     step = 6.5
-    o = 0.0 if side == "front" else step
+    # one vertical phase for front and back, so the last loop row ends just above the band
+    oy = (band_top(H) - 8.5) % (2 * step)
+    ox = 0.0 if side == "front" else step
     g, bt = geom(W, H), band_top(H)
+    box = cartouche_box(W, H) if side == "front" else None
     parts = [rect(0, 0, W, H, cream)]
     for i in range(-1, int(W // step) + 2):
         for j in range(-1, int(H // step) + 2):
-            parts.append(circle(i * step + o, j * step + o, 0.42, maroon, ' opacity="0.55"'))
+            x, y = i * step + ox, j * step + oy
+            if abs(y - bt) < 0.6 or state(y - 0.42, y + 0.42, g) == "partial":
+                continue
+            if box and hits_box(x - 0.42, y - 0.42, x + 0.42, y + 0.42, box):
+                continue
+            parts.append(circle(x, y, 0.42, maroon, ' opacity="0.55"'))
     for i in range(-1, int(W // (2 * step)) + 2):
         for j in range(-1, int(H // (2 * step)) + 2):
-            cx, cy = i * 2 * step + o, j * 2 * step + o
+            cx, cy = i * 2 * step + ox, j * 2 * step + oy
             top, bot = cy - 5.5, cy + 5.5                     # loop extent
-            if not (top < bt < bot) and state(top, bot, g) != "partial":
+            if (not (top < bt < bot) and state(top, bot, g) != "partial"
+                    and not (box and hits_box(cx - 5.5, top, cx + 5.5, bot, box))):
                 parts.append(kolam(cx, cy, 3.2, maroon))
-            dy = cy + step
-            if not (dy - 1.3 < bt < dy + 1.3) and state(dy - 1.3, dy + 1.3, g) != "partial":
-                parts.append(circle(cx + step, dy, 1.3, red))
+            dx, dy = cx + step, cy + step
+            if (not (dy - 1.3 < bt < dy + 1.3) and state(dy - 1.3, dy + 1.3, g) != "partial"
+                    and not (box and hits_box(dx - 1.3, dy - 1.3, dx + 1.3, dy + 1.3, box))):
+                parts.append(circle(dx, dy, 1.3, red))
     return "".join(parts)
 
 
@@ -261,11 +298,13 @@ def d5_body(side, W, H):
     par = 0 if side == "front" else 1
     ox = 0.0 if side == "front" else cell / 2
     oy = band_top(H) % cell              # same row phase on front and back
-    bt = band_top(H)
+    g, bt = geom(W, H), band_top(H)
     parts = [rect(0, 0, W, H, navy)]
     for i in range(-1, int(W // cell) + 2):
         for j in range(-1, int(H // cell) + 2):
             x, y = i * cell + ox, j * cell + oy
+            if state(y, y + cell, g) == "partial":               # no cell cut by the flap
+                continue
             cx, cy = x + cell / 2, y + cell / 2
             parts.append(f'<rect x="{fmt(x + 1.2)}" y="{fmt(y + 1.2)}" width="{fmt(cell - 2.4)}" '
                          f'height="{fmt(cell - 2.4)}" fill="none" stroke="{pink}" stroke-width="0.7"/>')
@@ -285,7 +324,7 @@ DESIGNS = [
          box="#0A4636", border_bg="#0A4636", strip="#B5282E"),
     dict(slug="02-rajasthan-arch", title="Design 2 · Rajasthan Arch", body=d2_body,
          cap="#B5282E", rule="#F2C14E", ink="#F2C14E", motif="#F2C14E",
-         box="#B5282E", border_bg="#B5282E", strip="#5E9AA2"),
+         box="#B5282E", border_bg="#7A2D1D", strip="#5E9AA2"),
     dict(slug="03-kolam-loops", title="Design 3 · Kolam Loops", body=d3_body,
          cap="#7A2D1D", rule="#C9A24A", ink="#F3E8D4", motif="#D9B45A",
          box="#7A2D1D", border_bg="#7A2D1D", strip="#B5282E"),
@@ -298,14 +337,7 @@ DESIGNS = [
 ]
 
 
-# ---------- packet geometry and parts ------------------------------------
-
-def geom(W, H):
-    D = 0.20 * W              # dome height: the top of the packet is a half-ellipse
-    F0 = D + 0.06 * W         # flap bottom at the edges
-    F1 = F0 + 0.07 * W        # flap bottom sags to F1 at the centre
-    return {"D": D, "F0": F0, "F1": F1, "FM": (F0 + F1) / 2, "bh": BAND * H}
-
+# ---------- packet parts -------------------------------------------------
 
 def outline(W, H):
     D = 0.20 * W
@@ -351,15 +383,15 @@ def border(d, W, H, g):
 
 def cartouche(d, W, H, g):
     """'Happy Deepavali' box on the front, centred in the body area."""
-    bw, bh_ = 0.68 * W, 0.22 * H
-    yc = (g["FM"] + (H - g["bh"])) / 2
-    x0, y0 = (W - bw) / 2, yc - bh_ / 2
+    x0, y0, x1, y1 = cartouche_box(W, H)
+    bw, bh_ = x1 - x0, y1 - y0
+    yc = (y0 + y1) / 2
     cx = W / 2
     parts = [
         rect(x0, y0, bw, bh_, d["box"], f' rx="1.5" stroke="{d["rule"]}" stroke-width="0.5"'),
         rect(x0 + 1.6, y0 + 1.6, bw - 3.2, bh_ - 3.2, "none", f' rx="1" stroke="{d["rule"]}" stroke-width="0.2"'),
     ]
-    for yy in (y0 + 3.2, y0 + bh_ - 3.2):
+    for yy in (y0 + 3.2, y1 - 3.2):
         parts.append(line(cx - 14, yy, cx - 3.5, yy, d["rule"], 0.3))
         parts.append(line(cx + 3.5, yy, cx + 14, yy, d["rule"], 0.3))
         parts.append(f'<path d="M{fmt(cx)},{fmt(yy - 1.3)} L{fmt(cx + 1.3)},{fmt(yy)} '
@@ -441,13 +473,14 @@ def mockup(d):
     x = (CW - (sum(pair_w.values()) + 2 * 70)) / 2
     base_y = 640
     mw, mh = SIZES["medium"]
+    # (caption, side, focal x mm, focal y mm) on the medium packets
     callouts = [
         ("Plain colour flap with gold motif", "front", mw / 2, 16),
         ("Traditional checked design", "back", mw / 2, 70),
         ("Traditional border detail (bottom)", "front", mw / 2, mh - 16),
         ("Premium textured finish", "front", 0.22 * mw, 0.33 * mh),
     ]
-    clips, parts = [], []
+    clips, parts, rings = [], [], []
     for i in range(len(callouts)):
         clips.append(f'<clipPath id="zc{i}"><circle cx="{200 + 400 * i}" cy="800" r="92"/></clipPath>')
 
@@ -476,7 +509,21 @@ def mockup(d):
             parts.append(f'<text x="{fmt(fx + W * MOCK_S / 2)}" y="{base_y + 34}" text-anchor="middle" '
                          f'font-family="{FONT}" font-size="20" fill="#4A1A10">'
                          f'{"Front" if side == "front" else "Back"}</text>')
+            if s == "medium" and side == "front":  # remember where the medium front sits
+                medium_front = (fx, fy)
         x += pair_w[s] + 70
+
+    # gold rings on the medium packets: where each zoom callout comes from
+    mx_front, my = medium_front
+    mx_back = mx_front + mw * MOCK_S + 16
+    ring_r = 92 / ZOOM * MOCK_S
+    for i, (caption, side, fx, fy) in enumerate(callouts):
+        bx = mx_front if side == "front" else mx_back
+        rings.append(circle(bx + fx * MOCK_S, my + fy * MOCK_S, ring_r, "none",
+                            f' stroke="#B08A3E" stroke-width="2.5" stroke-dasharray="6 4"'))
+        rings.append(f'<text x="{fmt(bx + fx * MOCK_S + ring_r + 4)}" y="{fmt(my + fy * MOCK_S - ring_r + 2)}" '
+                     f'font-family="{FONT}" font-size="20" font-weight="bold" fill="#B08A3E">{i + 1}</text>')
+    parts.extend(rings)
 
     cy, r = 800, 92
     for i, (caption, side, fx, fy) in enumerate(callouts):
@@ -487,7 +534,7 @@ def mockup(d):
                      f'{packet(d, "medium", side)}</g></g>')
         parts.append(circle(cx, cy, r, "none", ' stroke="#B08A3E" stroke-width="3"'))
         parts.append(f'<text x="{cx}" y="935" text-anchor="middle" font-family="{FONT}" '
-                     f'font-size="22" fill="#4A1A10">{caption}</text>')
+                     f'font-size="22" fill="#4A1A10">{i + 1}. {caption}</text>')
 
     brocades = "".join(brocade_def(d, s) for s in sizes)
     return ('<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000">'
