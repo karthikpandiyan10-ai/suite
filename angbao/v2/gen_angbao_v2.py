@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Deepavali ang bao sheets, v2.
+"""Deepavali ang bao sheets, v2 (revision b).
 
-Follows the reference layout: three sizes (small / medium / large), a domed
-top, a plain flap with a gold lotus, the design's own body pattern, a bottom
-border band, and on the front a "Happy Deepavali" cartouche.
+Three sizes (small / medium / large), a domed top, a plain flap with a gold
+lotus and a gold edge rule, the design's own body pattern with a fine brocade
+overlay, a bottom border band, and on the front a "Happy Deepavali" cartouche.
 
 Outputs under OUT:
   mockups/<slug>.svg          presentation sheet: all sizes, front + back, detail callouts
@@ -18,6 +18,7 @@ GAP = 20.0        # mm between front and back on print sheets
 MOCK_S = 2.0      # mockup units per mm
 ZOOM = 6.0        # callout zoom, units per mm
 CREAM = "#F6EEDC"
+BAND = 0.085      # bottom border height as a fraction of packet height
 
 SIZES = {"small": (85.0, 125.0), "medium": (105.0, 165.0), "large": (115.0, 185.0)}
 SIZE_NAMES = {"small": "Small Size", "medium": "Medium Size", "large": "Large Size"}
@@ -142,24 +143,30 @@ def lotus(cx, cy, r, gold, dark):
 
 # ---------- body patterns (own pattern per design, tiled over W x H) -----
 
+def band_top(H):
+    """Top edge of the bottom border band. Pattern rows are aligned to it."""
+    return H - BAND * H
+
+
 def d1_body(side, W, H):
     """Jharokha tile: emerald ground, gold jali lattice, six-petal flowers."""
     emerald, deep, gold, petal = "#0E5A47", "#0A4636", "#C9A24A", "#E2C06E"
     cell = 16.0
-    o = 0.0 if side == "front" else cell / 2
+    ox = 0.0 if side == "front" else cell / 2
+    oy = band_top(H) % cell              # a tile-grid line sits exactly on the band
     parts = [rect(0, 0, W, H, emerald)]
     for i in range(-1, int(W // cell) + 2):
         for j in range(-1, int(H // cell) + 2):
-            x, y = i * cell + o, j * cell + o
+            x, y = i * cell + ox, j * cell + oy
             if (i + j) % 2 == 0:
                 parts.append(rect(x, y, cell, cell, deep))
             parts.append(flower(x + cell / 2, y + cell / 2, 4.4, petal, deep,
                                 rot=0 if (i + j) % 2 == 0 else 30))
             parts.append(circle(x, y, 0.8, gold))
     for i in range(-1, int(W // cell) + 3):
-        parts.append(line(i * cell + o, -2, i * cell + o, H + 2, gold, 0.45))
+        parts.append(line(i * cell + ox, -2, i * cell + ox, H + 2, gold, 0.45))
     for j in range(-1, int(H // cell) + 3):
-        parts.append(line(-2, j * cell + o, W + 2, j * cell + o, gold, 0.45))
+        parts.append(line(-2, j * cell + oy, W + 2, j * cell + oy, gold, 0.45))
     return "".join(parts)
 
 
@@ -167,11 +174,12 @@ def d2_body(side, W, H):
     """Rajasthan arch: teal ground, cream arched niches, marigold blooms."""
     teal, cream, sage, mari, red, centre = "#5E9AA2", "#F5ECD8", "#8FA889", "#E9772A", "#B5282E", "#F2C14E"
     cw, ch = 19.0, 24.0
-    o = (0.0, 0.0) if side == "front" else (cw / 2, ch / 2)
+    ox = 0.0 if side == "front" else cw / 2
+    oy = band_top(H) % ch                # row boundary sits exactly on the band
     parts = [rect(0, 0, W, H, teal)]
     for i in range(-1, int(W // cw) + 2):
         for j in range(-1, int(H // ch) + 2):
-            x, y = i * cw + o[0], j * ch + o[1]
+            x, y = i * cw + ox, j * ch + oy
             cx, cy = x + cw / 2, y + ch / 2
             parts.append(arch(cx, cy, 11, 16, cream))
             parts.append(arch(cx, cy + 1.2, 7.2, 10.5, sage))
@@ -265,12 +273,19 @@ def geom(W, H):
     D = 0.20 * W              # dome height: the top of the packet is a half-ellipse
     F0 = D + 0.06 * W         # flap bottom at the edges
     F1 = F0 + 0.07 * W        # flap bottom sags to F1 at the centre
-    return {"D": D, "F0": F0, "F1": F1, "FM": (F0 + F1) / 2, "bh": 0.085 * H}
+    return {"D": D, "F0": F0, "F1": F1, "FM": (F0 + F1) / 2, "bh": BAND * H}
 
 
 def outline(W, H):
     D = 0.20 * W
     return f"M0,{fmt(H)} V{fmt(D)} A{fmt(W / 2)},{fmt(D)} 0 0 1 {fmt(W)},{fmt(D)} V{fmt(H)} Z"
+
+
+def brocade_def(d):
+    """Fine diamond brocade, used as a vector overlay on the body."""
+    return ('<pattern id="brocade" width="4.5" height="4.5" patternUnits="userSpaceOnUse">'
+            f'<path d="M2.25,0 L4.5,2.25 L2.25,4.5 L0,2.25 Z" fill="{d["motif"]}" opacity="0.16"/>'
+            f'<circle cx="2.25" cy="2.25" r="0.45" fill="{d["ink"]}" opacity="0.5"/></pattern>')
 
 
 def border(d, W, H, g):
@@ -281,7 +296,7 @@ def border(d, W, H, g):
     mid = y0 + (bh - strip) / 2
     aw = bh * 0.8
     parts = [rect(0, y0, W, bh, d["border_bg"]), line(0, y0 + 0.2, W, y0 + 0.2, d["motif"], 0.4)]
-    # whole motifs only, centred with equal margins at both ends of the packet
+    # whole motifs only, centred with equal margins at both ends
     n_arch = max(1, round(W / aw))
     pitch = W / n_arch
     for k in range(n_arch):
@@ -290,6 +305,8 @@ def border(d, W, H, g):
         parts.append(arch(cx, mid + 0.4, aw * 0.26, (bh - strip) * 0.4, d["border_bg"]))
     parts.append(rect(0, H - strip, W, strip, d["strip"]))
     n_dot = max(1, round(W / (aw / 2)))
+    if n_dot % 2 == 0:
+        n_dot += 1                       # odd count: a flower at both ends
     pitch_dot = W / n_dot
     for k in range(n_dot):
         cx = (k + 0.5) * pitch_dot
@@ -302,7 +319,7 @@ def border(d, W, H, g):
 
 def cartouche(d, W, H, g):
     """'Happy Deepavali' box on the front, centred in the body area."""
-    bw, bh_ = 0.68 * W, 0.2 * H
+    bw, bh_ = 0.68 * W, 0.22 * H
     yc = (g["FM"] + (H - g["bh"])) / 2
     x0, y0 = (W - bw) / 2, yc - bh_ / 2
     cx = W / 2
@@ -310,7 +327,7 @@ def cartouche(d, W, H, g):
         rect(x0, y0, bw, bh_, d["box"], f' rx="1.5" stroke="{d["rule"]}" stroke-width="0.5"'),
         rect(x0 + 1.6, y0 + 1.6, bw - 3.2, bh_ - 3.2, "none", f' rx="1" stroke="{d["rule"]}" stroke-width="0.2"'),
     ]
-    for yy in (y0 + 4, y0 + bh_ - 4):
+    for yy in (y0 + 3.2, y0 + bh_ - 3.2):
         parts.append(line(cx - 14, yy, cx - 3.5, yy, d["rule"], 0.3))
         parts.append(line(cx + 3.5, yy, cx + 14, yy, d["rule"], 0.3))
         parts.append(f'<path d="M{fmt(cx)},{fmt(yy - 1.3)} L{fmt(cx + 1.3)},{fmt(yy)} '
@@ -323,30 +340,34 @@ def cartouche(d, W, H, g):
     return "".join(parts)
 
 
+def flap_edge(W, F0, F1, colour):
+    """Gold rule traced exactly along the flap's bottom curve, edge to edge."""
+    pts = []
+    for k in range(41):
+        t = k / 40
+        # quadratic from (0, F0) via (W/2, F1) to (W, F0): x = W*t, y = F0 + 2t(1-t)(F1-F0)
+        pts.append(f"{fmt(W * t)},{fmt(F0 + 2 * t * (1 - t) * (F1 - F0))}")
+    return (f'<path d="M{pts[0]}' + "".join(f" L{p}" for p in pts[1:]) +
+            f'" fill="none" stroke="{colour}" stroke-width="0.5"/>')
+
+
 def flap(d, W, H, g):
-    """Plain domed flap in the theme colour, with gold rules and a gold lotus."""
+    """Plain domed flap in the theme colour, with a gold lotus and a gold edge rule."""
     D, F0, F1, FM = g["D"], g["F0"], g["F1"], g["FM"]
     cap_d = (f"M0,{fmt(D)} A{fmt(W / 2)},{fmt(D)} 0 0 1 {fmt(W)},{fmt(D)} "
              f"L{fmt(W)},{fmt(F0)} Q{fmt(W / 2)},{fmt(F1)} 0,{fmt(F0)} Z")
-    parts = [
-        f'<path d="{cap_d}" fill="{d["cap"]}"/>',
-        f'<path d="M3,{fmt(D)} A{fmt(W / 2 - 3)},{fmt(D - 3)} 0 0 1 {fmt(W - 3)},{fmt(D)}" '
-        f'fill="none" stroke="{d["rule"]}" stroke-width="0.5"/>',
-        f'<path d="M3,{fmt(F0 - 0.9)} Q{fmt(W / 2)},{fmt(F1 - 1.2)} {fmt(W - 3)},{fmt(F0 - 0.9)}" '
-        f'fill="none" stroke="{d["rule"]}" stroke-width="0.5"/>',
-    ]
-    r = 0.075 * W
     cy = FM / 2 + 1
-    parts.append(lotus(W / 2, cy, r, d["motif"], d["cap"]))
-    for sx in (-0.26, 0.26):
-        parts.append(circle(W / 2 + sx * W, cy, 0.9, d["motif"]))
-    return "".join(parts)
+    return (f'<path d="{cap_d}" fill="{d["cap"]}"/>'
+            + flap_edge(W, F0, F1, d["motif"])
+            + lotus(W / 2, cy, 0.075 * W, d["motif"], d["cap"]))
 
 
 def packet(d, size, side):
     W, H = SIZES[size]
     g = geom(W, H)
-    inner = [d["body"](side, W, H), border(d, W, H, g)]
+    inner = [d["body"](side, W, H),
+             f'<rect width="{fmt(W)}" height="{fmt(H)}" fill="url(#brocade)"/>',
+             border(d, W, H, g)]
     if side == "front":
         inner.append(cartouche(d, W, H, g))
     return (f'<g clip-path="url(#outline-{size})">' + "".join(inner) + "</g>"
@@ -372,7 +393,7 @@ def print_sheet(d, size):
               f'<text x="{fmt(x0 + W + GAP + W / 2)}" y="{fmt(y0 + H + 5)}" text-anchor="middle" '
               f'font-family="{FONT}" font-size="3.5" fill="#555">BACK</text>')
     return ('<svg xmlns="http://www.w3.org/2000/svg" width="297mm" height="210mm" viewBox="0 0 297 210">'
-            f'<defs>{clip_paths([size])}</defs>'
+            f'<defs>{clip_paths([size])}{brocade_def(d)}</defs>'
             '<rect width="297" height="210" fill="#ffffff"/>' + head
             + f'<g transform="translate({fmt(x0)} {fmt(y0)})">{packet(d, size, "front")}</g>'
             + f'<g transform="translate({fmt(x0 + W + GAP)} {fmt(y0)})">{packet(d, size, "back")}</g>'
@@ -381,33 +402,18 @@ def print_sheet(d, size):
 
 # ---------- presentation mockup: all sizes, detail callouts --------------
 
-def texture(d, cx, cy, r, cid):
-    """Brocade-style swatch for the 'premium textured finish' callout."""
-    parts = [f'<g clip-path="url(#zc{cid})">',
-             rect(cx - r, cy - r, 2 * r, 2 * r, d["cap"])]
-    step = 8.0
-    for i in range(-14, 15):
-        for j in range(-14, 15):
-            x = cx + i * step + (step / 2 if j % 2 else 0)
-            y = cy + j * step * 0.9
-            parts.append(f'<path d="M{fmt(x)},{fmt(y - 2.6)} L{fmt(x + 2)},{fmt(y)} L{fmt(x)},{fmt(y + 2.6)} '
-                         f'L{fmt(x - 2)},{fmt(y)} Z" fill="{d["motif"]}" opacity="0.35"/>')
-            parts.append(circle(x, y, 0.5, d["ink"]))
-    parts.append("</g>")
-    return "".join(parts)
-
-
 def mockup(d):
     CW, CH = 1600, 1000
     sizes = ["small", "medium", "large"]
     pair_w = {s: 2 * SIZES[s][0] * MOCK_S + 16 for s in sizes}
     x = (CW - (sum(pair_w.values()) + 2 * 70)) / 2
     base_y = 640
+    mw, mh = SIZES["medium"]
     callouts = [
-        ("Plain colour flap with gold motif", "front", SIZES["medium"][0] / 2, 16),
-        ("Traditional checked design", "back", SIZES["medium"][0] / 2, 70),
-        ("Traditional border detail (bottom)", "front", SIZES["medium"][0] / 2, SIZES["medium"][1] - 7),
-        ("Premium textured finish", None, None, None),
+        ("Plain colour flap with gold motif", "front", mw / 2, 16),
+        ("Traditional checked design", "back", mw / 2, 70),
+        ("Traditional border detail (bottom)", "front", mw / 2, mh - 16),
+        ("Premium textured finish", "front", 0.22 * mw, 0.33 * mh),
     ]
     clips, parts = [], []
     for i in range(len(callouts)):
@@ -443,22 +449,17 @@ def mockup(d):
     cy, r = 800, 92
     for i, (caption, side, fx, fy) in enumerate(callouts):
         cx = 200 + 400 * i
-        if side is None:
-            body = texture(d, cx, cy, r, i)
-        else:
-            W, H = SIZES["medium"]
-            body = (f'<g clip-path="url(#zc{i})"><rect x="{fmt(cx - r)}" y="{fmt(cy - r)}" '
-                    f'width="{2 * r}" height="{2 * r}" fill="{CREAM}"/>'
-                    f'<g transform="translate({fmt(cx - fx * ZOOM)} {fmt(cy - fy * ZOOM)}) scale({ZOOM})">'
-                    f'{packet(d, "medium", side)}</g></g>')
-        parts.append(body)
-        parts.append(circle(cx, cy, r, "none", f' stroke="#B08A3E" stroke-width="3"'))
+        parts.append(f'<g clip-path="url(#zc{i})"><rect x="{fmt(cx - r)}" y="{fmt(cy - r)}" '
+                     f'width="{2 * r}" height="{2 * r}" fill="{CREAM}"/>'
+                     f'<g transform="translate({fmt(cx - fx * ZOOM)} {fmt(cy - fy * ZOOM)}) scale({ZOOM})">'
+                     f'{packet(d, "medium", side)}</g></g>')
+        parts.append(circle(cx, cy, r, "none", ' stroke="#B08A3E" stroke-width="3"'))
         parts.append(f'<text x="{cx}" y="935" text-anchor="middle" font-family="{FONT}" '
                      f'font-size="22" fill="#4A1A10">{caption}</text>')
 
     return ('<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000">'
             '<defs>'
-            + clip_paths(sizes) + "".join(clips)
+            + clip_paths(sizes) + "".join(clips) + brocade_def(d)
             + '<filter id="sh" x="-20%" y="-20%" width="140%" height="140%">'
               '<feDropShadow dx="2.5" dy="4" stdDeviation="3.5" flood-color="#3a2410" flood-opacity="0.28"/>'
               '</filter>'
